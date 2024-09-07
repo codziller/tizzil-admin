@@ -1,0 +1,30 @@
+.team-members-table .rdt_TableRow:last-of-type {
+  border-bottom: none;
+}
+
+.no-scroll::-webkit-scrollbar,
+.MuiPaper-root::-webkit-scrollbar {
+  width: 0 !important;
+  display: none;
+}
+
+.mobile-business-dropdown {
+  box-shadow: 0px 0px 25px rgba(101, 113, 124, 0.2);
+}
+
+.no-scrollbar::-webkit-scrollbar,
+.MuiPaper-root::-webkit-scrollbar {
+  width: 0;
+}
+
+@media (max-width: 489px) {
+  .wallet-withdraw-btn {
+    margin-left: 0 !important;
+    margin-top: 10px;
+    flex-basis: 100%;
+  }
+}
+
+.react-tiny-popover-container {
+  z-index: 10000;
+}

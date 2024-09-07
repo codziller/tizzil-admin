@@ -1,0 +1,94 @@
+.switch {
+  position: relative;
+  display: inline-block;
+  height: 25.33px;
+  width: 31.66px;
+}
+
+.switchAlt {
+  position: relative;
+  display: inline-block;
+  height: 15px;
+  width: 30px;
+}
+
+.switch input,
+.switchAlt input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e2e2e2;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 12.67px;
+  width: 12.67px;
+  top: 6.375px;
+  left: 4px;
+  bottom: 6.375px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.switchAlt .slider:before {
+  top: -1px;
+  bottom: -1px;
+  height: 17px;
+  width: 17px;
+  left: 0;
+}
+
+input:checked + .slider {
+  background-color: #02ba81;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #02ba81;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(10px);
+  -ms-transform: translateX(10px);
+  transform: translateX(10px);
+}
+.switchAlt input:checked + .slider:before {
+  -webkit-transform: translateX(15px);
+  -ms-transform: translateX(15px);
+  transform: translateX(15px);
+}
+input:checked + .sliderAlt {
+  background-color: #5444f2;
+}
+
+input:focus + .sliderAlt {
+  box-shadow: 0 0 1px #5444f2;
+}
+
+input:checked + .sliderAlt:before {
+  -webkit-transform: translateX(10px);
+  -ms-transform: translateX(10px);
+  transform: translateX(10px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

@@ -1,0 +1,30 @@
+.hamburger_btn {
+  height: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.ham_crossed > div:nth-child(1) {
+  transform: rotate(45deg);
+}
+.ham_crossed > div:nth-child(2) {
+  opacity: 0;
+}
+.ham_crossed > div:nth-child(3) {
+  transform: rotate(-45deg);
+}
+.hamburger_btn:focus {
+  outline: none;
+}
+.hamburger {
+  width: 25px;
+  height: 1px;
+  background-color: #000;
+  transition: all 0.15s linear;
+  transform-origin: 1px;
+}
