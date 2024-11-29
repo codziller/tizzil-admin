@@ -24,6 +24,7 @@ const CreateProvider = () => {
   });
   const [currentTxnDetails, setCurrentTxnDetails] = useState(null);
   const schema = yup.object({
+    erp_name: yup.string().required("Please enter ERP name"),
     name: yup.string().required("Please enter name"),
     state: yup.string().required("Please select state"),
     country: yup.string().required("Please select country"),
@@ -66,6 +67,7 @@ const CreateProvider = () => {
   };
 
   const form = {
+    erpName: watch("erp_name"),
     name: watch("name"),
     state: watch("state"),
     country: watch("country"),
@@ -123,6 +125,16 @@ const CreateProvider = () => {
           onSubmit={handleSubmit(handleOnSubmit)}
           className="flex flex-col justify-start items-start space-y-3 w-full"
         >
+          <Input
+            label="ERP Name"
+            value={form?.erp_name}
+            onChangeFunc={(val) => handleChange("erp_name", val)}
+            placeholder="Enter ERP Name"
+            formError={errors.erp_name}
+            showFormError={formTwo?.showFormError}
+            required
+          />
+
           <Input
             label="Warehouse Name"
             value={form?.name}

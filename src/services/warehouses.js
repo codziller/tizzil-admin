@@ -70,6 +70,7 @@ const createWarehouseQuery = gql`
     $state: String!
     $lat: String!
     $lng: String!
+    $erpName: String!
   ) {
     createWarehouse(
       createWarehouseDto: {
@@ -78,6 +79,7 @@ const createWarehouseQuery = gql`
         state: $state
         lat: $lat
         lng: $lng
+        erpName: $erpName
       }
     ) {
       name
@@ -95,6 +97,7 @@ const editWarehouseQuery = gql`
     $country: String!
     $state: String!
     $id: String!
+    $erpName: String!
   ) {
     updateWarehouse(
       updateWarehouseDto: {
@@ -102,6 +105,7 @@ const editWarehouseQuery = gql`
         country: $country
         state: $state
         id: $id
+        erpName: $erpName
       }
     ) {
       name
