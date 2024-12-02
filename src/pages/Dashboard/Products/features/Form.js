@@ -741,8 +741,6 @@ const Form = ({ details, toggler }) => {
     parseFloat(currencyItem?.value) * parseFloat(form?.salePrice);
   const profitMargin =
     product_id && ngnEquivalentSalePrice && ngnEquivalentCostPrice
-      ? ngnEquivalentSalePrice - form?.costPrice
-      : ngnEquivalentCostPrice && ngnEquivalentSalePrice
       ? ngnEquivalentSalePrice - ngnEquivalentCostPrice
       : form?.costPrice && form?.salePrice
       ? form?.salePrice - form?.costPrice
@@ -941,16 +939,16 @@ const Form = ({ details, toggler }) => {
             />
             {product_id ? (
               <Input
-                label={`Cost Price (NGN)`}
+                label={`Cost Price (${upperCase(formTwo?.currency?.value)})`}
                 value={form?.costPrice}
                 onChangeFunc={(val) => handleChange({ prop: "costPrice", val })}
                 placeholder="Enter Cost Price"
                 formError={errors.costPrice}
                 showFormError={formTwo?.showFormError}
-                prefix="NGN"
+                prefix={upperCase(formTwo?.currency?.value)}
                 type="number"
                 isRequired
-                isDisabled={!!product_id || isViewMode}
+                isDisabled={isViewMode}
               />
             ) : (
               <Input
@@ -963,7 +961,7 @@ const Form = ({ details, toggler }) => {
                 prefix={upperCase(formTwo?.currency?.value)}
                 type="number"
                 isRequired
-                isDisabled={!!product_id || isViewMode}
+                isDisabled={isViewMode}
                 labelControlTwo={
                   ngnEquivalentCostPrice ? (
                     <div className="flex gap-2 text-base">
