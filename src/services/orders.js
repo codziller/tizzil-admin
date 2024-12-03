@@ -72,6 +72,7 @@ const getOrdersQuery = ({
       total
       results {
         calculatedOrder {
+          erpWarehouseNames,
           totalAmount
           user {
             firstName
@@ -200,6 +201,7 @@ const getOrderQuery = ({ id }) => gql`
         calculatedOrderProducts {
           id
           salePrice
+          erpWarehouseNames
           costPrices{
             costPrice
             quantityBought
@@ -285,6 +287,7 @@ const getRefundedOrderQuery = ({ id }) => gql`
         refundedCalculatedOrderProducts {
           id
           salePrice
+          erpWarehouseNames
           product {
             id
             name

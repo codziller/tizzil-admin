@@ -14,6 +14,7 @@ import { successToast } from "components/General/Toast/Toast";
 import { NAIRA, NAIRA_ABBR } from "utils/appConstant";
 import { numberWithCommas } from "utils/formatter";
 import Accordion from "components/General/Accordion";
+
 export const DetailBlock = ({ title, value, values, valueClassName }) => {
   const { warehouse_id } = useParams();
 
@@ -76,8 +77,14 @@ export const DetailBlock = ({ title, value, values, valueClassName }) => {
                 </span>
               </div>
             </Link>
-
-            <Accordion
+            <div>
+              <h4 className="text-sm">
+                <span className="font-bold">ERP Warehouse:</span>{" "}
+                <span className="text-grey"></span>
+                {item?.erpWarehouseNames?.join(", ")}
+              </h4>
+            </div>
+            {/* <Accordion
               data={{
                 title: "Cost Price Details",
                 body: (
@@ -109,7 +116,7 @@ export const DetailBlock = ({ title, value, values, valueClassName }) => {
                   </div>
                 ),
               }}
-            />
+            /> */}
           </>
         );
       })}
