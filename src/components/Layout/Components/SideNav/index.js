@@ -266,6 +266,15 @@ const getLinks = (warehouse_id, user, roles) => {
                   ),
                 },
                 {
+                  title: "Gift Cards",
+                  slug: "/dashboard/gift-cards",
+                  label: "Here’s what’s happening with Beautyhut today.",
+                  link: `/dashboard/gift-cards/${warehouse_id}/`,
+                  icon: (
+                    <Settings className="stroke-current sidenav-item-alt  transition-all duration-500 ease-in-out" />
+                  ),
+                },
+                {
                   title: "Settings",
                   slug: "/dashboard/settings",
                   label: "Here’s what’s happening with Beautyhut today.",
