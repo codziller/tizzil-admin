@@ -247,6 +247,7 @@ export const CHOICE_DISPLAY = {
 };
 export const NAIRA = "₦‎";
 export const ALL_ROLES = {
+  CUSTOMER_SUPPORT: "CUSTOMER_SUPPORT",
   CUSTOMER: "CUSTOMER",
   GENERAL_ADMIN: "GENERAL_ADMIN",
   GENERAL_STAFF: "GENERAL_STAFF",
@@ -260,6 +261,7 @@ export const ALL_ROLES = {
 };
 const {
   CUSTOMER,
+  CUSTOMER_SUPPORT,
   GENERAL_ADMIN,
   BRAND_STAFF,
   GUEST,
@@ -313,6 +315,10 @@ export const ROLES = [
   {
     value: DEVELOPER,
     label: "DEVELOPER",
+  },
+  {
+    value: CUSTOMER_SUPPORT,
+    label: "CUSTOMER SUPPORT",
   },
 ];
 

@@ -1,7 +1,4 @@
-import React, { useState } from "react";
-import * as yup from "yup";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import React from "react";
 import PropTypes from "prop-types";
 
 import { ReactComponent as ArrowBack } from "assets/icons/Arrow/arrow-left-black.svg";
@@ -9,56 +6,20 @@ import { ReactComponent as Close } from "assets/icons/close-x.svg";
 import { ReactComponent as Delete } from "assets/icons/delete-span.svg";
 import Button from "components/General/Button/Button";
 import { Link } from "react-router-dom";
+import GiftCardsStore from "../store";
+import { observer } from "mobx-react-lite";
 
-export default function DeleteDialog({ details, toggler }) {
-  const schema = yup.object({
-    name: yup.string().required("Please enter your name"),
-    country: yup.string().required("Please select your country"),
-    amount: yup.string().required("Please enter amount"),
-    quantity: yup.string().required("Please enter quantity"),
-  });
+const DeleteDialog = ({ details, toggler }) => {
+  const { deleteGiftCard, deleteGiftCardLoading } = GiftCardsStore;
 
-  //
-
-  //   const { actions } = signInSlice;
-
-  const defaultValues = {
-    name: "",
-    country: "",
-    amount: "",
-    quantity: "",
-  };
-
-  const {
-    handleSubmit,
-    formState: { errors, isValid },
-    setValue,
-    trigger,
-    watch,
-  } = useForm({
-    defaultValues,
-    mode: "onSubmit",
-    resolver: yupResolver(schema),
-  });
-
-  const handleChange = async (prop, val) => {
-    setValue(prop, val);
-    await trigger(prop);
-  };
-
-  const form = {
-    name: watch("name"),
-    country: watch("country"),
-    amount: watch("amount"),
-    quantity: watch("quantity"),
-  };
-  const handleOnSubmit = (e) => {
-    e.preventDefault();
-    if (isValid) {
-      toggler?.();
-    }
-    // onSubmit(e);
-    // dispatch(actions.signInUser({ username: name, country }));
+  const deleteGiftCardDesign = async () => {
+    const payload = { id: details?.id };
+    deleteGiftCard({
+      data: payload,
+      onSuccess: () => {
+        toggler?.();
+      },
+    });
   };
 
   return (
@@ -74,20 +35,20 @@ export default function DeleteDialog({ details, toggler }) {
       )}
 
       <Delete className="scale-90" />
-      <p className="font-600 text-xl ">Delete Promo Code</p>
+      <p className="font-600 text-xl ">Delete Gift Card Design</p>
 
       <p className="mb-3 text-sm text-grey text-center">
-        Are you sure you want to delete{" "}
-        <span className="text-black">"{details?.code}"?</span>
+        Are you sure you want to delete this gift card design
       </p>
 
       <Button
-        onClick={() => toggler?.()}
-        type="submit"
-        text="Yes, Delete this promo code"
+        onClick={() => deleteGiftCardDesign()}
+        type="button"
+        text="Yes, Delete this gift card design"
         className="mb-2"
         fullWidth
         redBg
+        isLoading={deleteGiftCardLoading}
       />
 
       <Button
@@ -100,8 +61,10 @@ export default function DeleteDialog({ details, toggler }) {
       />
     </div>
   );
-}
+};
 DeleteDialog.propTypes = {
   toggler: PropTypes.func,
   details: PropTypes.object,
 };
+
+export default observer(DeleteDialog);

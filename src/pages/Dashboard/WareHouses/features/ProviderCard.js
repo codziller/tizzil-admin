@@ -8,14 +8,18 @@ import { ReactComponent as EditIcon } from "assets/icons/editPenLine.svg";
 import Flag from "components/General/Flag";
 import { getName } from "country-list";
 import classNames from "classnames";
+import AuthStore from "pages/OnBoarding/SignIn/store";
 
 export default function ProviderCard({ provider, isSelected }) {
   const navigate = useNavigate();
   const countryName = getName(provider.country) || "N/A";
+  const { userIsCustomerSupport } = AuthStore;
   return (
     <div
       onClick={(e) => {
-        navigate(`/dashboard/home/${provider?.id}`);
+        userIsCustomerSupport
+          ? navigate(`/dashboard/orders/${provider?.id}`)
+          : navigate(`/dashboard/home/${provider?.id}`);
       }}
       className={classNames(
         "p-4 bg-white rounded-lg border border-grey-bordercolor hover:border-red transition-colors duration-500 ease-in-out flex-col justify-start items-start gap-2.5 inline-flex cursor-pointer",
