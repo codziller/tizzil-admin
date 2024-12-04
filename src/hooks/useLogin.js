@@ -14,6 +14,7 @@ const {
   MARKETER,
   DEVELOPER,
   ALL_BRAND_STAFF,
+  CUSTOMER_SUPPORT,
 } = ALL_ROLES;
 function useLogin() {
   const navigate = useNavigate();
@@ -29,7 +30,9 @@ function useLogin() {
       const brandId = rest?.user?.brandId;
       const role = rest?.user?.role;
       const defaultRoute =
-        role === BRAND_STAFF
+        role === CUSTOMER_SUPPORT
+          ? `/dashboard/orders/${warehouseId}`
+          : role === BRAND_STAFF
           ? `/dashboard/home/${brandId}`
           : role === GENERAL_ADMIN && warehouseId
           ? `/warehouses`

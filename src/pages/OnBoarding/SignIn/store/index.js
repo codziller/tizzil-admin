@@ -14,6 +14,7 @@ const {
   DEVELOPER,
   MARKETER,
   ALL_BRAND_STAFF,
+  CUSTOMER_SUPPORT,
 } = ALL_ROLES;
 class AuthStore {
   // ====================================================
@@ -64,6 +65,11 @@ class AuthStore {
   }
   get userIsAllBrandStaff() {
     return !!((this?.user?.user?.role || this?.user?.role) === ALL_BRAND_STAFF);
+  }
+  get userIsCustomerSupport() {
+    return !!(
+      (this?.user?.user?.role || this?.user?.role) === CUSTOMER_SUPPORT
+    );
   }
 
   // ====================================================
