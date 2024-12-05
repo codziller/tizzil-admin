@@ -84,6 +84,7 @@ class MarketingStore {
   createDiscountLoading = false;
   editDiscountLoading = false;
   deleteDiscountLoading = false;
+  unarchiveDiscountLoading = false;
 
   homeSliderImages = [];
   homeSliderImage = null;
@@ -798,6 +799,23 @@ class MarketingStore {
       this.error = error;
     } finally {
       this.editDiscountLoading = false;
+    }
+  };
+
+  unarchiveDiscount = async ({ data, onSuccess, page }) => {
+    this.unarchiveDiscountLoading = true;
+    try {
+      await apis.unarchiveDiscount(data);
+      successToast(
+        "Operation Successful!",
+        "Discount unarchived Successfully."
+      );
+      onSuccess?.();
+      await this.getArchivedDiscounts({ data: { page: page || 1 } });
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.unarchiveDiscountLoading = false;
     }
   };
 
