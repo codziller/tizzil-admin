@@ -26,6 +26,8 @@ const DeleteDialog = ({ details, toggler }) => {
     deleteMobileMarketingImageLoading,
     deleteMobileHeaderNavDiscountBanner,
     deleteMobileHeaderNavDiscountBannerLoading,
+    unarchiveDiscount,
+    unarchiveDiscountLoading,
   } = MarketingStore;
   const navigate = useNavigate();
   const handleOnSubmit = () => {
@@ -33,7 +35,7 @@ const DeleteDialog = ({ details, toggler }) => {
       const payload = { ...details, currentPage: "", archive: false };
 
       cleanPayload(payload);
-      editDiscount({
+      unarchiveDiscount({
         data: payload,
         page: details?.currentPage,
         onSuccess: () => toggler(),
@@ -147,7 +149,8 @@ const DeleteDialog = ({ details, toggler }) => {
           deleteHomeSliderImageLoading ||
           deleteWebMarketingImageLoading ||
           deleteMobileMarketingImageLoading ||
-          deleteMobileHeaderNavDiscountBannerLoading
+          deleteMobileHeaderNavDiscountBannerLoading ||
+          unarchiveDiscountLoading
         }
         type="submit"
         text={`Yes, ${

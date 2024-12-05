@@ -866,6 +866,13 @@ const editDiscountQuery = gql`
     }
   }
 `;
+const unarchiveDiscountQuery = gql`
+  mutation undoRemoveDiscount($id: String!) {
+    undoRemoveDiscount(id: $id) {
+      status
+    }
+  }
+`;
 
 const createImageQuery = gql`
   mutation createImage(
@@ -1318,6 +1325,10 @@ const apis = {
     }),
   editDiscount: (variables) =>
     graphQlInstance(editDiscountQuery, {
+      variables,
+    }),
+  unarchiveDiscount: (variables) =>
+    graphQlInstance(unarchiveDiscountQuery, {
       variables,
     }),
 
