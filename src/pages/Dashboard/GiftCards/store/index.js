@@ -19,6 +19,9 @@ class GiftCardsStore {
   createGiftCardLoading = false;
   getGiftCardLoading = false;
   deleteGiftCardLoading = false;
+
+  giftCardStats = null;
+  giftCardStatsLoading = false;
   constructor() {
     makeAutoObservable(this);
   }
@@ -40,6 +43,20 @@ class GiftCardsStore {
       this.error = error;
     } finally {
       this.loading = false;
+    }
+  };
+
+  getGiftCardStats = async ({ data }) => {
+    this.giftCardStatsLoading = true;
+    try {
+      let res = await apis.getGiftCardStats(data);
+      res = res?.getGiftCardStats;
+      this.giftCardStats = res;
+    } catch (error) {
+      this.giftCardStats = {};
+      this.error = error;
+    } finally {
+      this.giftCardStatsLoading = false;
     }
   };
 

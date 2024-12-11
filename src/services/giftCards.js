@@ -40,6 +40,25 @@ const deleteGiftCardQuery = gql`
   }
 `;
 
+const getGiftCardStatsQuery = ({ startDate, endDate }) => gql`
+  {
+    __typename
+    getGiftCardStats(
+        input: {
+            endDate: "${endDate}",
+            startDate: "${startDate}"
+        }
+    ){
+        totalAmount,
+        totalCreated,
+        totalTopUpAmount,
+        totalTopUps,
+        avgInitialAmount,
+        avgTopUpAmount,
+    }
+  }
+`;
+
 const apis = {
   getGiftCards: ({ page }) =>
     graphQlInstance(getGiftCardsQuery({ page }), {
@@ -54,6 +73,10 @@ const apis = {
   deleteGiftCard: (variables) =>
     graphQlInstance(deleteGiftCardQuery, {
       variables,
+    }),
+  getGiftCardStats: ({ startDate, endDate }) =>
+    graphQlInstance(getGiftCardStatsQuery({ startDate, endDate }), {
+      method: "GET",
     }),
 };
 
