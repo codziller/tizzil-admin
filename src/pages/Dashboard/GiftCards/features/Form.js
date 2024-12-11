@@ -11,6 +11,9 @@ import Select from "components/General/Input/Select";
 import { Link, useNavigate } from "react-router-dom";
 import GiftCardsStore from "../store";
 import { successToast } from "components/General/Toast/Toast";
+import ImagePicker from "components/General/Input/ImagePicker";
+import { uploadImageToCloud } from "utils/uploadImagesToCloud";
+import { isArray } from "lodash";
 
 export default function Form({ details, toggler }) {
   const [formTwo, setFormTwo] = useState({
@@ -20,16 +23,12 @@ export default function Form({ details, toggler }) {
 
   const schema = yup.object({
     category: yup.string().required("Please select a category"),
-    design: yup.string().required("Please enter gift card design url"),
+    design: yup.mixed().required("Please select a design for this gift card"),
   });
-
-  //
-
-  //   const { actions } = signInSlice;
 
   const defaultValues = {
     category: "",
-    design: "",
+    design: [],
   };
 
   const {
@@ -44,7 +43,7 @@ export default function Form({ details, toggler }) {
     resolver: yupResolver(schema),
   });
 
-  const { createGiftCard } = GiftCardsStore;
+  const { createGiftCard, createGiftCardLoading } = GiftCardsStore;
 
   const handleChange = async (prop, val) => {
     setValue(prop, val);
@@ -56,10 +55,16 @@ export default function Form({ details, toggler }) {
     category: watch("category"),
     design: watch("design"),
   };
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const handleOnSubmit = async (e) => {
     if (isValid) {
-      const payload = { cardCategory: e.category, cardDesign: e.design };
+      setUploadingImage(true);
+      const imagesUrls = await uploadImageToCloud(
+        isArray(form?.design) ? form?.design?.[0] : form?.design
+      );
+      setUploadingImage(false);
+      const payload = { cardCategory: e.category, cardDesign: imagesUrls };
       createGiftCard({
         data: payload,
         onSuccess: () => {
@@ -109,22 +114,21 @@ export default function Form({ details, toggler }) {
           fullWidth
         />
 
-        <Input
+        <ImagePicker
           label="Gift Card Design"
-          value={form?.design}
-          onChangeFunc={(val) => handleChange("design", val)}
-          placeholder="Enter Gift Card design url"
+          handleDrop={(val) => handleChange("design", val)}
+          images={form.design}
           formError={errors.design}
           showFormError={formTwo?.showFormError}
-          required
+          multiple={false}
         />
-
         <Button
           onClick={() => setFormTwo({ ...formTwo, showFormError: true })}
           type="submit"
           text={details?.isAdd ? "Add Gift Card" : "Save Changes"}
           className="mt-8 mb-5"
           fullWidth
+          isLoading={uploadingImage || createGiftCardLoading}
         />
       </form>
     </div>
