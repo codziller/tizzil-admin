@@ -9,6 +9,7 @@ import { ReactComponent as Products } from "assets/icons/products.svg";
 import { ReactComponent as Staff } from "assets/icons/staff.svg";
 import { ReactComponent as Gallery } from "assets/icons/gallery.svg";
 import { ReactComponent as Settings } from "assets/icons/settings.svg";
+import { ReactComponent as GiftCards } from "assets/icons/gift-cards.svg";
 
 import Logo from "assets/images/logo-main.png";
 import LogoSmall from "assets/images/logo-small.png";
@@ -288,7 +289,7 @@ const getLinks = (warehouse_id, user, roles) => {
                       label: "Here’s what’s happening with Beautyhut today.",
                       link: `/dashboard/gift-cards/${warehouse_id}/`,
                       icon: (
-                        <Settings className="stroke-current sidenav-item-alt  transition-all duration-500 ease-in-out" />
+                        <GiftCards className="stroke-current sidenav-item-alt  transition-all duration-500 ease-in-out" />
                       ),
                     },
                     {
