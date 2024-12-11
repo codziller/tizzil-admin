@@ -43,6 +43,19 @@ const GiftCardsPage = () => {
   }, [giftCards]);
   const columns = [
     {
+      name: "Card Design",
+      selector: (row) => (
+        <div className="capitalize py-2">
+          <img
+            src={row?.cardDesign}
+            alt=""
+            className="w-[195px] h-[112.5px] max-[768px]:w-[148.5px] max-[768px]:h-[80.5px] object-cover rounded"
+          />
+        </div>
+      ),
+      sortable: false,
+    },
+    {
       name: "Category",
       selector: (row) => (
         <span className="capitalize">
@@ -105,7 +118,7 @@ const GiftCardsPage = () => {
             <div></div>
             <Link to={`/dashboard/gift-cards/add-gift-cards/${warehouse_id}`}>
               <Button
-                text="Add New Gift Card"
+                text="Add New Gift Card Design"
                 icon={<Plus className="stroke-current" />}
                 className="hidden md:block"
               />
