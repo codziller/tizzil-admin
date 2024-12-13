@@ -77,6 +77,7 @@ import VariantsPage from "pages/Dashboard/Products/features/VariantsPage";
 import BlogPage from "pages/Dashboard/Blog/features";
 import Blog from "pages/Dashboard/Blog";
 import AddBlog from "pages/Dashboard/Blog/features/AddBlog";
+import Activity from "pages/Dashboard/GiftCards/features/activity";
 
 const Router = () => {
   return (
@@ -347,6 +348,7 @@ const Router = () => {
           }
         >
           <Route path=":warehouse_id" element={<GiftCardsPage />} />
+          <Route path="activity/:warehouse_id" element={<Activity />} />
           <Route
             path="add-gift-cards/:warehouse_id"
             element={<AddGiftCards />}

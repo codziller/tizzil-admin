@@ -108,6 +108,8 @@ export default function Form({ details, toggler }) {
           options={[
             { label: "Birthday", value: "BIRTHDAY" },
             { label: "Christmas", value: "CHRISTMAS" },
+            { label: "Congratulations", value: "CONGRATULATIONS" },
+            { label: "Love/Valentine", value: "LOVE_VALENTINE" },
             { label: "Standard", value: "STANDARD" },
             { label: "Thank You", value: "THANK_YOU" },
           ]}
