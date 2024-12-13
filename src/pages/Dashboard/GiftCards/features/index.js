@@ -64,6 +64,7 @@ const GiftCardsPage = () => {
   const {
     getGiftCards,
     giftCards,
+    giftCardsCount,
     loading,
     giftCardStats,
     giftCardStatsLoading,
@@ -233,14 +234,18 @@ const GiftCardsPage = () => {
                 className="flex"
               />
             </div> */}
-            <div></div>
-            <Link to={`/dashboard/gift-cards/add-gift-cards/${warehouse_id}`}>
-              <Button
-                text="Add New Gift Card Design"
-                icon={<Plus className="stroke-current" />}
-                className="hidden md:block"
-              />
-            </Link>
+            <div className="flex gap-x-4 items-center flex-wrap gap-y-2">
+              <Link to={`/dashboard/gift-cards/add-gift-cards/${warehouse_id}`}>
+                <Button
+                  text="Add New Gift Card Design"
+                  icon={<Plus className="stroke-current" />}
+                  className=""
+                />
+              </Link>
+              <Link to={`/dashboard/gift-cards/activity/${warehouse_id}`}>
+                <Button text="Gift card activity" isOutline className="" />
+              </Link>
+            </div>
           </div>
 
           {loading ? (
@@ -259,7 +264,7 @@ const GiftCardsPage = () => {
                     }}
                     pointerOnHover
                     isLoading={loading}
-                    pageCount={giftCards?.length / pageCount}
+                    pageCount={giftCardsCount / pageCount}
                     onPageChange={(page) => setCurrentPage(page)}
                     currentPage={currentPage}
                     tableClassName="txn-section-table"
