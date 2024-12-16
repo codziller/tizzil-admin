@@ -17,11 +17,39 @@ const getGiftCardsQuery = ({ page }) => gql`
     }
   }
 `;
-const getGiftCardActivitiesQuery = ({ page }) => gql`
+
+const getAllGiftCardsQuery = ({ page, startDate, endDate, search }) => gql`
+  query{
+      allActiveGiftCards(
+          startDate: "${startDate}",
+          endDate: "${endDate}",
+          pageNumber: "${page}",
+          searchQuery: "${search}"
+      ){
+          results{
+              id,
+              sender{
+                  email
+              },
+              receiverEmail,
+              cardCategory,
+              cardDesign,
+              cardCode,
+              createdAt,
+              currentBalance,
+              initialAmount
+          }
+          total
+      }
+  }
+`;
+
+const getGiftCardActivitiesQuery = ({ page, card_id }) => gql`
   query{
       getGiftCardActivity(
           input: {
               pageNumber: "${page}",
+              giftCardId: "${card_id}"
           }
       ){
           results{
@@ -103,8 +131,15 @@ const apis = {
     graphQlInstance(getGiftCardsQuery({ page }), {
       method: "GET",
     }),
-  getGiftCardActivities: ({ page }) =>
-    graphQlInstance(getGiftCardActivitiesQuery({ page }), {
+  getAllGiftCards: ({ page, startDate, endDate, search }) =>
+    graphQlInstance(
+      getAllGiftCardsQuery({ page, startDate, endDate, search }),
+      {
+        method: "GET",
+      }
+    ),
+  getGiftCardActivities: ({ page, card_id }) =>
+    graphQlInstance(getGiftCardActivitiesQuery({ page, card_id }), {
       method: "GET",
     }),
   verifyGiftCard: ({ code }) =>

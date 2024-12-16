@@ -17,6 +17,10 @@ class GiftCardsStore {
   error = null;
   loading = false;
 
+  loadingAllGiftCards = false;
+  allGiftCardsCount = null;
+  allGiftCards = [];
+
   loadingGiftCardActivityList = false;
   giftCardActivityListCount = null;
   giftCardActivityList = [];
@@ -48,6 +52,23 @@ class GiftCardsStore {
       this.error = error;
     } finally {
       this.loading = false;
+    }
+  };
+
+  getAllGiftCards = async ({ data }) => {
+    this.loadingAllGiftCards = true;
+    try {
+      let res = await apis.getAllGiftCards(data);
+      res = res?.allActiveGiftCards;
+      console.log({ res });
+      this.allGiftCards = res?.results?.sort((a, b) =>
+        moment(b.createdAt).diff(moment(a.createdAt))
+      );
+      this.allGiftCardsCount = res?.total;
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.loadingAllGiftCards = false;
     }
   };
 

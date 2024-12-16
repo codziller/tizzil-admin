@@ -79,12 +79,9 @@ export default function Form({ details, toggler }) {
     <div className="gap-y-4 py-4 w-full h-full pb-4 overflow-y-auto">
       {details?.link ? (
         <div className="mb-5">
-          <Link
-            to={`/dashboard/gift-cards/${warehouse_id}`}
-            className="scale-90"
-          >
+          <button onClick={() => router(-1)}>
             <ArrowBack />
-          </Link>
+          </button>
         </div>
       ) : (
         <button onClick={() => toggler?.()} className="scale-90 mb-5">

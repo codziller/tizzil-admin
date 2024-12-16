@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 
 import moment from "moment";
 import _ from "lodash";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import Table from "components/General/Table";
-import { pageCount, promos } from "utils/appConstant";
+import { NAIRA, pageCount, promos } from "utils/appConstant";
 import { ReactComponent as SearchIcon } from "assets/icons/SearchIcon/searchIcon.svg";
 import { ReactComponent as Plus } from "assets/icons/add.svg";
 import useWindowDimensions from "hooks/useWindowDimensions";
@@ -17,6 +17,7 @@ import { ReactComponent as IncomeIcon } from "assets/icons/income-icon.svg";
 import dateConstants from "utils/dateConstants";
 import DashboardFilterDropdown from "components/General/Dropdown/DashboardFilterDropdown";
 import EarningCard from "pages/Dashboard/Home/features/EarningCard";
+import SearchBar from "components/General/Searchbar/SearchBar";
 
 export const dateFilters = [
   {
@@ -58,26 +59,19 @@ const GiftCardsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const { warehouse_id } = useParams();
+  const router = useNavigate();
 
   const searching = "";
 
   const {
-    getGiftCards,
-    giftCards,
-    giftCardsCount,
-    loading,
+    getAllGiftCards,
+    allGiftCards,
+    allGiftCardsCount,
+    loadingAllGiftCards,
     giftCardStats,
     giftCardStatsLoading,
     getGiftCardStats,
   } = GiftCardsStore;
-
-  useEffect(() => {
-    getGiftCards({ data: { page: currentPage } });
-  }, [currentPage]);
-
-  useEffect(() => {
-    console.log({ giftCards });
-  }, [giftCards]);
 
   const columns = [
     {
@@ -94,17 +88,30 @@ const GiftCardsPage = () => {
       sortable: false,
     },
     {
-      name: "Category",
+      name: "Category / Code",
       selector: (row) => (
         <span className="capitalize">
           {row?.cardCategory?.replace("_", " ")?.toLowerCase()}
+          <br />
+          {row?.cardCode}
         </span>
       ),
       sortable: false,
     },
     {
-      name: "ID",
-      selector: "id",
+      name: "Sender Email",
+      selector: (row) => row?.sender?.email,
+      sortable: false,
+    },
+    {
+      name: "Receiver Email",
+      selector: "receiverEmail",
+      sortable: false,
+    },
+    {
+      name: "Balance",
+      selector: (row) =>
+        NAIRA + " " + Number(row?.currentBalance).toLocaleString(),
       sortable: false,
     },
     {
@@ -119,12 +126,14 @@ const GiftCardsPage = () => {
       selector: (row) => (
         <div className="flex justify-start items-center gap-1.5">
           <span
+            className=" cursor-pointer px-4 py-1 rounded-full bg-black text-[11px] text-white"
             onClick={() =>
-              setCurrentTxnDetails({ ...row, modalType: "delete" })
+              router(
+                `/dashboard/gift-cards/activity/${warehouse_id}/${row?.id}`
+              )
             }
-            className=" cursor-pointer px-4 py-1 rounded-full bg-red-deep text-[11px] text-white "
           >
-            Delete
+            View Activity
           </span>
         </div>
       ),
@@ -138,14 +147,26 @@ const GiftCardsPage = () => {
     });
   };
 
-  useEffect(() => scrollToTop(), [promos]);
+  useEffect(() => scrollToTop(), [allGiftCards]);
+
   const [dateFilter, setDateFilter] = useState(dateFilters[0]);
 
-  useEffect(() => {
-    const endDate = moment(dateFilter.end_date)
-      .add(1, "day")
-      .format("YYYY-MM-DD");
+  const endDate = moment(dateFilter.end_date)
+    .add(1, "day")
+    .format("YYYY-MM-DD");
 
+  useEffect(() => {
+    getAllGiftCards({
+      data: {
+        page: currentPage,
+        search: searchInput,
+        startDate: moment(dateFilter.start_date).format("YYYY-MM-DD"),
+        endDate,
+      },
+    });
+  }, [currentPage, searchInput, dateFilter]);
+
+  useEffect(() => {
     getGiftCardStats({
       data: {
         endDate,
@@ -153,6 +174,10 @@ const GiftCardsPage = () => {
       },
     });
   }, [dateFilter]);
+
+  useEffect(() => {
+    console.log({ allGiftCards });
+  }, [allGiftCards]);
 
   return (
     <>
@@ -226,45 +251,42 @@ const GiftCardsPage = () => {
             />
           </div>
           <div className="flex justify-between items-center w-full mb-3 gap-1">
-            {/* <div className="w-full sm:w-[45%] sm:min-w-[300px]">
+            <div className="w-full sm:w-[45%] sm:min-w-[300px]">
               <SearchBar
                 placeholder={"Search gift cards"}
                 onChange={setSearchInput}
                 value={searchInput}
                 className="flex"
               />
-            </div> */}
+            </div>
             <div className="flex gap-x-4 items-center flex-wrap gap-y-2">
-              <Link to={`/dashboard/gift-cards/add-gift-cards/${warehouse_id}`}>
-                <Button
-                  text="Add New Gift Card Design"
-                  icon={<Plus className="stroke-current" />}
-                  className=""
-                />
-              </Link>
-              <Link to={`/dashboard/gift-cards/activity/${warehouse_id}`}>
-                <Button text="Gift card activity" isOutline className="" />
+              <Link to={`/dashboard/gift-cards/designs/${warehouse_id}`}>
+                <Button text="Gift Card Designs" className="" />
               </Link>
             </div>
           </div>
 
-          {loading ? (
+          {loadingAllGiftCards ? (
             <CircleLoader blue />
           ) : (
             <>
               <div className="flex flex-col flex-grow justify-start items-center w-full h-full">
-                {giftCards?.length > 0 ? (
+                {allGiftCards?.length > 0 ? (
                   <Table
                     data={
-                      giftCards?.length ? giftCards.slice(0, pageCount) : []
+                      allGiftCards?.length
+                        ? allGiftCards.slice(0, pageCount)
+                        : []
                     }
                     columns={width >= 640 ? columns : columns.slice(0, 2)}
                     onRowClicked={(e) => {
-                      setCurrentTxnDetails({ ...e, modalType: "delete" });
+                      router(
+                        `/dashboard/gift-cards/activity/${warehouse_id}/${e?.id}`
+                      );
                     }}
                     pointerOnHover
-                    isLoading={loading}
-                    pageCount={giftCardsCount / pageCount}
+                    isLoading={loadingAllGiftCards}
+                    pageCount={allGiftCardsCount / pageCount}
                     onPageChange={(page) => setCurrentPage(page)}
                     currentPage={currentPage}
                     tableClassName="txn-section-table"
