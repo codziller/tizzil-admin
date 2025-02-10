@@ -289,7 +289,10 @@ const getLinks = (warehouse_id, user, roles) => {
                       label: "Here’s what’s happening with Beautyhut today.",
                       link: `/dashboard/gift-cards/${warehouse_id}/`,
                       icon: (
-                        <GiftCards className="stroke-current sidenav-item-alt  transition-all duration-500 ease-in-out" />
+                        <MdOutlineCardGiftcard
+                          size={24}
+                          className="stroke-current sidenav-item-alt  transition-all duration-500 ease-in-out"
+                        />
                       ),
                     },
                     {
