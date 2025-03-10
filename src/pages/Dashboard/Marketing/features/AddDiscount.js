@@ -269,21 +269,23 @@ const Form = observer(() => {
         await createDiscount({
           data: {
             ...payload,
-            discountExpiryTime: new Date(moment(form?.discountExpiryTime)._d),
+            discountExpiryTime: moment(form?.discountExpiryTime).format(
+              "YYYY-MM-DDTHH:mm:ss"
+            ),
           },
           onSuccess: () => navigate(-1),
         });
-        return;
       } else {
         await editDiscount({
           data: {
             ...payload,
             id: media_id,
-            discountExpiryTime: new Date(moment(form?.discountExpiryTime)._d),
+            discountExpiryTime: moment(form?.discountExpiryTime).format(
+              "YYYY-MM-DDTHH:mm:ss"
+            ),
           },
           onSuccess: () => navigate(-1),
         });
-        return;
       }
     } catch (error) {
       errorToast(
@@ -523,7 +525,8 @@ const Form = observer(() => {
                       label="Discount Expiry Time"
                       placeholder="Choose Discount Expiry Time"
                       name="discountExpiryTime"
-                      showTimeSelect
+                      showTimeSelect={{ use12Hours: true }}
+                      showTime={{ use12Hours: true }}
                       isRequired
                       value={
                         moment(form?.discountExpiryTime).isValid()
@@ -535,11 +538,11 @@ const Form = observer(() => {
                           ? moment(form?.end_date).subtract(0, "days")._d
                           : moment().subtract(1, "days")._d
                       }
-                      dateFormat="dd MMMM yyyy hh:mm"
+                      dateFormat="dd MMM yyyy hh:mm a"
                       onChange={(value) =>
                         handleChange({
                           prop: "discountExpiryTime",
-                          val: moment(value).format("YYYY-MM-DD hh:mm"),
+                          val: moment(value).format("YYYY-MM-DD hh:mm a"),
                         })
                       }
                     />
