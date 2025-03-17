@@ -224,6 +224,7 @@ const getProductsQuery = ({ page }) => gql`
         name
         }
       id
+      cloudErpItemCode
       name
       salePrice
       costPrice

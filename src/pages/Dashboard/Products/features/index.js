@@ -29,6 +29,8 @@ import { flattenArrayToString } from "utils/functions";
 import CheckBox from "components/General/Input/CheckBox";
 import useTableFilter from "hooks/useTableFilter";
 import useWarehouse from "hooks/useWarehouse";
+import { COPY_ICON } from "assets/icons";
+import { successToast } from "components/General/Toast/Toast";
 
 const { PRODUCT_CATEGORY_OPTIONS, BRANDS } = PRODUCT_MODAL_TYPES;
 export const dateFilters = [
@@ -306,34 +308,54 @@ const ProductsPage = ({
               {row.name}
             </span>
 
-            <div className="flex justify-start items-center gap-1">
-              {row?.productOptions?.[0] ? (
-                <>
-                  <span className="text-xs text-white bg-red-deep px-2 py-0.5 rounded">
-                    {row?.productOptions?.[0]?.choices?.length} Variants
-                  </span>
-                  <BulletIcon />
-                </>
-              ) : null}
+            <div className="flex flex-col gap-1">
+              <div className="flex justify-start items-center gap-1">
+                {row?.productOptions?.[0] ? (
+                  <>
+                    <span className="text-xs text-white bg-red-deep px-2 py-0.5 rounded">
+                      {row?.productOptions?.[0]?.choices?.length} Variants
+                    </span>
+                    <BulletIcon />
+                  </>
+                ) : null}
 
-              <ShopIcon />
+                <ShopIcon />
 
-              <span className="text-sm truncate max-w-[100px] text-red-deep ">
-                {row.brand?.brandName}
-              </span>
-              <BulletIcon />
-              <span className="text-sm truncate max-w-[400px]">
-                {flattenArrayToString(row.categories)}
-              </span>
-
-              {Number(quantity) <= Number(row?.lowInQuantityValue) &&
-              warehouseIsCentral ? (
-                <>
-                  <BulletIcon />
-                  <LowStockIcon />
-                  <span>Low</span>
-                </>
-              ) : null}
+                <span className="text-sm truncate max-w-[100px] text-red-deep ">
+                  {row.brand?.brandName}
+                </span>
+                <BulletIcon />
+                <span className="text-sm truncate max-w-[400px]">
+                  {flattenArrayToString(row.categories)}
+                </span>
+                <BulletIcon />
+                {Number(quantity) <= Number(row?.lowInQuantityValue) &&
+                warehouseIsCentral ? (
+                  <>
+                    <BulletIcon />
+                    <LowStockIcon />
+                    <span>Low</span>
+                  </>
+                ) : null}
+              </div>
+              <button
+                className="text-sm truncate max-w-[400px] flex gap-1 items-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard
+                    .writeText(row.cloudErpItemCode)
+                    .then(() =>
+                      successToast(
+                        "Copied",
+                        "copied item ERP code to clipboard"
+                      )
+                    );
+                }}
+              >
+                <COPY_ICON />
+                <span>ERP Code: </span>
+                <span className="italic">{row.cloudErpItemCode}</span>
+              </button>
             </div>
           </div>
         );
