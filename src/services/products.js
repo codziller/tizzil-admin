@@ -155,10 +155,15 @@ startDate: "${startDate}"
 }
 `;
 
-const sendProductInventoryCsvQuery = ({ email, endDate, startDate }) => gql`
+const sendProductInventoryCsvQuery = ({
+  email,
+  endDate,
+  startDate,
+  warehouseId,
+}) => gql`
   {
     __typename
-    send_product_inventory_csv(email: "${email}", endDate: "${endDate}", startDate: "${startDate}") {
+    send_product_inventory_csv(email: "${email}", endDate: "${endDate}", startDate: "${startDate}", warehouseId: "${warehouseId}") {
       status
 }
 }
@@ -1030,12 +1035,13 @@ const apis = {
       }
     ),
 
-  sendProductInventoryCsv: ({ email, startDate, endDate }) =>
+  sendProductInventoryCsv: ({ email, startDate, endDate, warehouseId }) =>
     graphQlInstance(
       sendProductInventoryCsvQuery({
         email,
         startDate,
         endDate,
+        warehouseId,
       }),
       {
         method: "GET",

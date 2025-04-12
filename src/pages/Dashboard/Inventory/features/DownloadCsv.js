@@ -3,7 +3,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import moment from "moment";
 import { observer } from "mobx-react-lite";
 
@@ -15,6 +15,7 @@ import ProductsStore from "pages/Dashboard/Products/store";
 import DatePickerComponent from "components/General/DatePicker";
 
 const DownloadCsv = ({ details, toggler }) => {
+  const { warehouse_id } = useParams();
   const [formTwo, setFormTwo] = useState({
     showFormError: false,
   });
@@ -71,7 +72,7 @@ const DownloadCsv = ({ details, toggler }) => {
         ),
       };
       await sendProductInventoryCsv({
-        data: payload,
+        data: { ...payload, warehouseId: warehouse_id },
         onSuccess: () => toggler?.(),
       });
     } catch (error) {

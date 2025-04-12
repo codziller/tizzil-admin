@@ -102,9 +102,11 @@ class ProductsStore {
   setProductForm = (payload) => {
     this.productForm = { ...this.productForm, ...payload };
   };
+
   setSourceWarehouseId = (payload) => {
     this.sourceWarehouseId = payload;
   };
+
   getProductsCount = async ({ data }) => {
     this.loading = true;
     try {
@@ -246,6 +248,7 @@ class ProductsStore {
       this.searchProductLoading = false;
     }
   };
+
   deleteProduct = async ({ data, onSuccess, page, warehouse_id }) => {
     this.deleteProductLoading = true;
     try {
@@ -263,6 +266,7 @@ class ProductsStore {
       this.deleteProductLoading = false;
     }
   };
+
   getProduct = async ({ data, allowAddVariantOriginalSalePrice }) => {
     this.getProductLoading = true;
     try {
@@ -383,6 +387,7 @@ class ProductsStore {
       this.createProductOptionLoading = false;
     }
   };
+
   editProductOption = async ({ data, onSuccess, product_id }) => {
     this.editProductOptionLoading = true;
     try {
@@ -429,6 +434,7 @@ class ProductsStore {
       this.requestProductsLoading = false;
     }
   };
+
   updateProductTransferRequestStatus = async ({
     data,
     onSuccess,
@@ -454,6 +460,7 @@ class ProductsStore {
       this.updateProductTransferRequestStatusLoading = false;
     }
   };
+
   editProductInventory = async ({ data, onSuccess, page, warehouse_id }) => {
     this.editProductInventoryLoading = true;
     try {
@@ -633,6 +640,7 @@ class ProductsStore {
     this.searchResult = [];
     this.searchResultCount = 0;
   };
+
   resetProductStore = () => {
     this.products = null;
     this.product = null;
