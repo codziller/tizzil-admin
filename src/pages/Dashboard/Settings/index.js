@@ -7,7 +7,7 @@ const ExchangeRate = () => {
   return (
     <div>
       <Helmet>
-        <title>Exchange Rate - Beautyhut</title>
+        <title>Exchange Rate - Tizzil</title>
       </Helmet>
       <DashboardLayout>
         <Outlet />

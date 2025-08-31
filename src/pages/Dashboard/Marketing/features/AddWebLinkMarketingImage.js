@@ -136,13 +136,11 @@ const Form = observer(() => {
           data: payload,
           onSuccess: () => navigate(-1),
         });
-        return;
       } else {
         await editWebLinkMarketingImage({
           data: { ...payload, id: media_id },
           onSuccess: () => navigate(-1),
         });
-        return;
       }
     } catch (error) {
       errorToast(

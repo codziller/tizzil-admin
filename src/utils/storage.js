@@ -31,7 +31,7 @@ export const saveToStorage = (key, value) => {
 
 export const getFromStorage = (key) => {
   try {
-    localStorage.getItem(key);
+    return localStorage.getItem(key);
   } catch (e) {
     return e;
   }

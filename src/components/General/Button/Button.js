@@ -33,11 +33,11 @@ const Button = ({
   ${fullWidth ? "w-full" : ""}
   whitespace-nowrap ${
     isOutline
-      ? `bg-transparent ${
+      ? `bg-transparent border border-primary ${
           isDisabled
-            ? "bg-white/[.2]"
-            : " hover:bg-blue-clear hover:border-blue-border"
-        } text-blue`
+            ? "bg-white/[.2] opacity-50"
+            : "hover:bg-primary/10"
+        } text-primary`
       : whiteBg
       ? `bg-white ${isDisabled ? "bg-white/[.2]" : ""} text-${
           textColor || "black"
@@ -55,7 +55,7 @@ const Button = ({
       : ` ${
           isDisabled
             ? "bg-grey-disabled !text-grey-fade"
-            : "bg-blue hover:bg-blue-bright"
+            : "bg-primary hover:bg-primary/90"
         } text-white`
   } ${innerClassName}`;
   return (

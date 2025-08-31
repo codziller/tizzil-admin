@@ -116,10 +116,10 @@ const BrandsPage = ({
               />
             </div>
           )}
-          {(row?.brandLogoUrl && (
+          {(row?.logoUrl && (
             <img
               className="object-cover w-[60px] py-2 px-2 rounded-full bg-grey-border"
-              src={row?.brandLogoUrl}
+              src={row?.logoUrl}
               alt={row?.brandName}
             />
           )) ||

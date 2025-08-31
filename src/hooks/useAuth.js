@@ -5,7 +5,6 @@ import {
   getUserInfoFromStorage,
 } from "../utils/storage";
 import AuthStore from "pages/OnBoarding/SignIn/store";
-import { observer } from "mobx-react-lite";
 function useAuth() {
   const { logoutUser, setCurrentUser } = AuthStore;
   const currentUser = {};

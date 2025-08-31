@@ -12,8 +12,8 @@ const SignIn = () => {
   const cardsRef = useRef([]);
   const navigate = useNavigate();
   const location = useLocation().pathname;
-  const [routeStack, setRouteStack] = useState("");
-  const [routeTrigger, setRouteTrigger] = useState(0);
+  const [routeStack] = useState("");
+  const [routeTrigger] = useState(0);
 
   const handleCustomScroll = (i) => {
     scrollXContainerRef.current.scrollLeft = width * i;
@@ -25,11 +25,20 @@ const SignIn = () => {
 
   const routeStackIsTwoFA = useMemo(() => routeStack === TWO_FA, [routeStack]);
 
+  const goToSignUp = () => {
+    navigate("/auth/signup");
+  };
+
+  const goToForgotPassword = () => {
+    // Add forgot password navigation later
+    console.log("Navigate to forgot password");
+  };
+
   const SIGN_IN_STEPS = [
     {
-      title: "Login - Beautyhut",
+      title: "Login - Tizzil",
       route: "/auth/login",
-      component: <Login />,
+      component: <Login goToSignUp={goToSignUp} goToForgotPassword={goToForgotPassword} />,
     },
   ];
 

@@ -6,19 +6,13 @@ import qs from "query-string";
 
 import useTableFilter from "hooks/useTableFilter";
 import ActiveFilter from "components/General/ActiveFilter";
-import DashboardFilterDropdown from "components/General/Dropdown/DashboardFilterDropdown";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import Table from "components/General/Table";
 import { ReactComponent as Filter } from "assets/icons/Filter/filter.svg";
 import { pageCount, staffs } from "utils/appConstant";
-import { hasValue } from "utils/validations";
 import { ReactComponent as SearchIcon } from "assets/icons/SearchIcon/searchIcon.svg";
 
 import useWindowDimensions from "hooks/useWindowDimensions";
-
-import { paramsObjectToQueryString } from "utils/request";
-import EarningCard from "./EarningCard";
-import { transactionAmount } from "utils/transactions";
 import TransactionDetailsModal from "./OrderDetailsModal";
 import dateConstants from "utils/dateConstants";
 import DateRangeModal from "components/General/Modal/DateRangeModal/DateRangeModal";
@@ -53,11 +47,6 @@ export const dateFilters = [
   },
 ];
 export default function AbandonedCartsPage() {
-  const requiredFilters = {
-    start_date: "2020-01-01",
-    end_date: moment().format("YYYY-MM-DD"),
-  };
-
   const defaultFilters = {
     start_date: "",
     end_date: "",
@@ -86,38 +75,6 @@ export default function AbandonedCartsPage() {
     params,
   });
 
-  const fetchMerchants = () => {
-    const filters = {
-      start_date: hasValue(filterData?.start_date)
-        ? filterData?.start_date
-        : requiredFilters.start_date,
-      end_date: hasValue(filterData?.end_date)
-        ? filterData?.end_date
-        : requiredFilters.end_date,
-      ...(hasValue(searchQuery) && {
-        account_trade_name: searchQuery,
-      }),
-      ...(hasValue(filterData?.account_status) && {
-        account_status: filterData.account_status.value,
-      }),
-    };
-
-    const paramsData = {
-      ...filters,
-    };
-
-    if (
-      _.isEqual(
-        { start_date: paramsData.start_date, end_date: paramsData.end_date },
-        requiredFilters
-      )
-    ) {
-      delete paramsData.start_date;
-      delete paramsData.end_date;
-    }
-
-    window.location.hash = paramsObjectToQueryString(paramsData);
-  };
 
   useEffect(() => {
     if (searchQuery) {

@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from "react";
 
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { ReactComponent as CaretUp } from "assets/icons/caret-up-white.svg";
 import Loading from "components/General/CircleLoader/CircleLoader";
-import { IS_DEV } from "utils/appConstant";
 
 import Toast from "../General/Toast/Toast";
 import Hamburger from "./Components/hamburger";
@@ -17,25 +16,19 @@ const DashboardLayout = ({ children }) => {
   const topRef = useRef(null);
   const childrenContainerRef = useRef(null);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { warehouse_id } = useParams();
   const [sidenavOpen, setSidenavOpen] = useState(false);
   const [sidenavCollapsed, setSidenavCollapsed] = useState(
-    location.pathname.includes("add") ? true : false
+    !!location.pathname.includes("add")
   );
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const layoutLoading = false;
 
-  const handlePermissonAccessError = () => {
-    navigate(`/dashboard/orders/${warehouse_id}`, { replace: true });
-    setPermissionModalVisible(true);
-  };
   useEffect(() => {
     setSidenavCollapsed(
-      location.pathname.includes("add") || location.pathname.includes("edit")
-        ? true
-        : false
+      !!(
+        location.pathname.includes("add") || location.pathname.includes("edit")
+      )
     );
   }, [location]);
   const handleScrollTop = () => {
@@ -60,11 +53,7 @@ const DashboardLayout = ({ children }) => {
 
   const currentRoute = getCurrentRoute(location.pathname);
   return (
-    <div
-      className={`w-screen flex flex-grow flex-col h-full ${
-        IS_DEV ? "h-with-test-banner" : "min-h-[100vh]"
-      }`}
-    >
+    <div className={`w-screen flex flex-grow flex-col h-full min-h-[100vh]`}>
       <Toast />
 
       <header

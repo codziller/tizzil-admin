@@ -104,6 +104,9 @@ module.exports = {
           DEFAULT: "#FFB413",
           fade: "#F9F4EC",
         },
+        primary: {
+          DEFAULT: "#690007",
+        },
         transparent: {
           DEFAULT: "transparent",
         },

@@ -112,7 +112,7 @@ const CreateProvider = () => {
 
   return (
     <>
-      <div className="md:p-7 py-8 px-3 form-container min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center rounded-lg bg-white shadow-[0_7px_56px_0_rgba(84,68,242,0.04)] border border-grey-border">
+      <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center rounded-lg bg-white shadow-[0_7px_56px_0_rgba(84,68,242,0.04)] border border-grey-border">
         <button onClick={() => navigate(-1)} className="scale-90 mb-5">
           <ArrowBack />
         </button>

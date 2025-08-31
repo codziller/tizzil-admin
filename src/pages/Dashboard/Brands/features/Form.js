@@ -39,7 +39,7 @@ const Form = ({ details, toggler }) => {
 
   const schema = yup.object({
     brandName: yup.string().required("Please enter brand name"),
-    brandLogoUrl: yup
+    logoUrl: yup
       .array()
       .min(1, "Please select brand logo")
       .required("Please select brand logo"),
@@ -55,7 +55,7 @@ const Form = ({ details, toggler }) => {
 
   const defaultValues = {
     brandName: details?.brandName,
-    brandLogoUrl: details?.brandLogoUrl ? [details?.brandLogoUrl] : [],
+    logoUrl: details?.logoUrl ? [details?.logoUrl] : [],
     brandName: details?.brandName,
     brandShortText: details?.brandShortText,
     categoryId: details?.categoryId,
@@ -91,7 +91,7 @@ const Form = ({ details, toggler }) => {
 
   const form = {
     brandName: watch("brandName"),
-    brandLogoUrl: watch("brandLogoUrl"),
+    logoUrl: watch("logoUrl"),
     brandShortText: watch("brandShortText"),
     categoryId: watch("categoryId"),
     imageUrls: watch("imageUrls"),
@@ -104,9 +104,7 @@ const Form = ({ details, toggler }) => {
     try {
       const imagesUrls = await Promise.all([
         uploadImageToCloud(
-          isArray(form?.brandLogoUrl)
-            ? form?.brandLogoUrl?.[0]
-            : form?.brandLogoUrl
+          isArray(form?.logoUrl) ? form?.logoUrl?.[0] : form?.logoUrl
         ),
         uploadImagesToCloud(form?.imageUrls),
         uploadImagesToCloud(form?.videoUrls),
@@ -115,7 +113,7 @@ const Form = ({ details, toggler }) => {
       if (details?.isAdd) {
         const payload = {
           ...form,
-          brandLogoUrl: imagesUrls?.[0],
+          logoUrl: imagesUrls?.[0],
           imageUrls: imagesUrls?.[1],
           videoUrls: imagesUrls?.[2],
         };
@@ -123,18 +121,16 @@ const Form = ({ details, toggler }) => {
         cleanPayload(payload);
 
         await createBrand({ data: payload, onSuccess: () => toggler?.() });
-        return;
       } else {
         const payload = {
           ...form,
           id: details?.id,
-          brandLogoUrl: imagesUrls?.[0],
+          logoUrl: imagesUrls?.[0],
           imageUrls: imagesUrls?.[1],
           videoUrls: imagesUrls?.[2],
         };
 
         await editBrand({ data: payload, onSuccess: () => toggler?.() });
-        return;
       }
     } catch (error) {
       errorToast(
@@ -222,12 +218,10 @@ const Form = ({ details, toggler }) => {
 
           <ImagePicker
             label=" Add Brand Logo"
-            handleDrop={(val) => handleChange("brandLogoUrl", val)}
-            removeImage={(file) =>
-              removeFile(file, "brandLogoUrl", form.brandLogoUrl)
-            }
-            images={form.brandLogoUrl}
-            formError={errors.brandLogoUrl}
+            handleDrop={(val) => handleChange("logoUrl", val)}
+            removeImage={(file) => removeFile(file, "logoUrl", form.logoUrl)}
+            images={form.logoUrl}
+            formError={errors.logoUrl}
             showFormError={formTwo?.showFormError}
             multiple={false}
           />

@@ -2,7 +2,6 @@ import { string, bool, node } from "prop-types";
 import { Navigate } from "react-router-dom";
 import useAuth from "hooks/useAuth";
 import DashboardLayout from "components/Layout/DashboardLayout";
-import TestModeIndicator from "components/General/TestMode/TestModeIndicator";
 import { getUserInfoFromStorage } from "utils/storage";
 import { ALL_ROLES } from "utils/appConstant";
 
@@ -22,13 +21,19 @@ export const ProtectedRoute = ({ path, notProtected, children, ...rest }) => {
 
   const { isAuthenticated } = useAuth();
 
-  if (notProtected && isAuthenticated) {
-    return (
-      <DashboardLayout>
-        <Navigate replace to={defaultUrl} />;
-      </DashboardLayout>
-    );
-  }
+  // if (notProtected && isAuthenticated) {
+  //   return (
+  //     <DashboardLayout>
+  //       <Navigate replace to={defaultUrl} />;
+  //     </DashboardLayout>
+  //   );
+  // }
+
+  return (
+    <DashboardLayout>
+      <Navigate replace to={defaultUrl} />;
+    </DashboardLayout>
+  );
 
   if (!isAuthenticated && !notProtected) {
     return (
@@ -46,12 +51,7 @@ export const ProtectedRoute = ({ path, notProtected, children, ...rest }) => {
     );
   }
 
-  return (
-    <div>
-      <TestModeIndicator />
-      {children}
-    </div>
-  );
+  return <div>{children}</div>;
 };
 
 ProtectedRoute.propTypes = {

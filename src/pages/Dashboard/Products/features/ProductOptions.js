@@ -111,7 +111,7 @@ const ProductOptions = ({ details, toggler, handleOnChange, formObj }) => {
     handleChange("choices", newChoices);
   };
   const handleSetColor = ({ index, choice, rest }) => {
-    let choices = [...form.choices];
+    const choices = [...form.choices];
     choices[index] = { ...rest, choice };
     handleChange("choices", choices);
   };

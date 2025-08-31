@@ -1,0 +1,38 @@
+<svg width="71" height="71" viewBox="0 0 71 71" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_diii_6_55373)">
+<rect x="3.5" y="2" width="64" height="64" rx="32" fill="#02152B" fill-opacity="0.04" shape-rendering="crispEdges"/>
+<rect x="4.3" y="2.8" width="62.4" height="62.4" rx="31.2" stroke="#02152B" stroke-opacity="0.08" stroke-width="1.6" style="mix-blend-mode:hard-light" shape-rendering="crispEdges"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M22.7001 22.8C22.7001 20.149 24.8491 18 27.5001 18H43.5001C46.1511 18 48.3001 20.149 48.3001 22.8V34.0349C46.6836 33 44.7618 32.4 42.7001 32.4C36.9562 32.4 32.3001 37.0562 32.3001 42.8C32.3001 45.5944 33.4022 48.1314 35.1954 50H27.5001C24.8491 50 22.7001 47.851 22.7001 45.2V22.8ZM27.5001 24.4C27.5001 23.5164 28.2164 22.8 29.1001 22.8H38.7001C39.5838 22.8 40.3001 23.5164 40.3001 24.4C40.3001 25.2836 39.5838 26 38.7001 26H29.1001C28.2164 26 27.5001 25.2836 27.5001 24.4ZM27.5001 30.8C27.5001 29.9164 28.2164 29.2 29.1001 29.2H33.9001C34.7838 29.2 35.5001 29.9164 35.5001 30.8C35.5001 31.6837 34.7838 32.4 33.9001 32.4H29.1001C28.2164 32.4 27.5001 31.6837 27.5001 30.8Z" fill="#690007"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M42.7 35.6001C38.7235 35.6001 35.5 38.8236 35.5 42.8001C35.5 46.7766 38.7235 50.0001 42.7 50.0001C44.1205 50.0001 45.4461 49.5878 46.5618 48.8775L47.9501 50.3126C48.5645 50.9476 49.5774 50.9644 50.2125 50.35C50.8475 49.7356 50.8643 48.7227 50.2499 48.0876L48.8142 46.6036C49.5019 45.4999 49.9 44.1958 49.9 42.8001C49.9 38.8236 46.6765 35.6001 42.7 35.6001ZM38.7 42.8001C38.7 40.591 40.4909 38.8001 42.7 38.8001C44.9091 38.8001 46.7 40.591 46.7 42.8001C46.7 43.8905 46.2658 44.8764 45.5573 45.5995C44.8293 46.3422 43.8195 46.8001 42.7 46.8001C40.4909 46.8001 38.7 45.0092 38.7 42.8001Z" fill="#690007"/>
+</g>
+<defs>
+<filter id="filter0_diii_6_55373" x="0.3" y="0.4" width="70.4" height="70.4" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="1.6"/>
+<feGaussianBlur stdDeviation="1.6"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.00784314 0 0 0 0 0.0823529 0 0 0 0 0.168627 0 0 0 0.08 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_6_55373"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_6_55373" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="-1.6"/>
+<feGaussianBlur stdDeviation="1.6"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.00784314 0 0 0 0 0.0823529 0 0 0 0 0.168627 0 0 0 0.48 0"/>
+<feBlend mode="plus-lighter" in2="shape" result="effect2_innerShadow_6_55373"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="-0.4"/>
+<feGaussianBlur stdDeviation="0.8"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.48 0"/>
+<feBlend mode="plus-lighter" in2="effect2_innerShadow_6_55373" result="effect3_innerShadow_6_55373"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="3.2"/>
+<feGaussianBlur stdDeviation="1.6"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.00784314 0 0 0 0 0.0823529 0 0 0 0 0.168627 0 0 0 0.48 0"/>
+<feBlend mode="overlay" in2="effect3_innerShadow_6_55373" result="effect4_innerShadow_6_55373"/>
+</filter>
+</defs>
+</svg>

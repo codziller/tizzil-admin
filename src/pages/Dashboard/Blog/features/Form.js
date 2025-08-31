@@ -166,7 +166,7 @@ const Form = ({ details, toggler }) => {
         ),
       ]);
 
-      let payload = {
+      const payload = {
         ...form,
         bannerImageUrl: imagesUrls?.[0],
         postImageUrl: imagesUrls?.[1],
@@ -200,7 +200,7 @@ const Form = ({ details, toggler }) => {
     }
   };
 
-  let config = {
+  const config = {
     heightMin: 300,
     imageUploadURL: REACT_APP_IMAGE_UPLOAD_URL,
     events: {

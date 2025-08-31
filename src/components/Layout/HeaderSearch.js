@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import moment from "moment";
 
 import classNames from "classnames";
 
@@ -8,7 +7,6 @@ import { useNavigate } from "react-router";
 import DropdownLink from "components/General/Dropdown/DropdownLink";
 import { hasValue } from "utils/validations";
 import SearchBar from "components/General/Searchbar/SearchBar";
-import transactionsSlice from "../../pages/Dashboard/WareHouses/slice";
 
 const useClickOutside = (handler) => {
   const domNode = useRef();
@@ -29,11 +27,6 @@ const useClickOutside = (handler) => {
 };
 
 const HeaderSearch = () => {
-  const requiredFilters = {
-    start_date: "2020-01-01",
-    end_date: moment().format("YYYY-MM-DD"),
-  };
-
   const searchResults = [];
   const searching = false;
   const navigate = useNavigate();
@@ -42,13 +35,13 @@ const HeaderSearch = () => {
   const searchQuery = searchInput?.trim();
 
   const fetchMerchants = () => {
-    const filters = {
-      start_date: requiredFilters.start_date,
-      end_date: requiredFilters.end_date,
-      ...(hasValue(searchQuery) && {
-        account_trade_name: searchQuery,
-      }),
-    };
+    // const filters = {
+    //   start_date: requiredFilters.start_date,
+    //   end_date: requiredFilters.end_date,
+    //   ...(hasValue(searchQuery) && {
+    //     account_trade_name: searchQuery,
+    //   }),
+    // };
 
     // dispatch(
     //   actions.searchMerchants({

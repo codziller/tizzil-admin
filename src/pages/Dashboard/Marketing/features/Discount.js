@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import Table from "components/General/Table";
-import { pageCount } from "utils/appConstant";
+import { pageCount, formatCapitalUnderscoreText } from "utils/appConstant";
 import PropTypes from "prop-types";
 import { ReactComponent as Plus } from "assets/icons/add.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/SearchIcon/searchIcon.svg";
@@ -11,7 +11,7 @@ import MarketingStore from "../store";
 import { observer } from "mobx-react-lite";
 import { Button } from "components/General/Button";
 import useWindowDimensions from "hooks/useWindowDimensions";
-import { formatCapitalUnderscoreText } from "utils/appConstant";
+
 import SearchBar from "components/General/Searchbar/SearchBar";
 import Tabs from "components/General/Tabs";
 import { isEmpty, lowerCase } from "lodash";

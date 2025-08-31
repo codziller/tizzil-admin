@@ -8,7 +8,7 @@ const getBrandsQuery = ({ page }) => gql`
       total
       results {
         brandDescription
-        brandLogoUrl
+        logoUrl
         brandName
         brandShortText
         createdAt
@@ -30,7 +30,7 @@ const getBrandQuery = ({ id }) => gql`
     __typename
     brand(id: "${id}") {
       brandDescription
-        brandLogoUrl
+        logoUrl
         brandName
         brandShortText
         createdAt
@@ -47,7 +47,7 @@ const getBrandQuery = ({ id }) => gql`
 
 const createBrandQuery = gql`
   mutation createBrand(
-    $brandLogoUrl: String!
+    $logoUrl: String!
     $brandName: String!
     $categoryId: String
     $imageUrls: [String!]
@@ -55,7 +55,7 @@ const createBrandQuery = gql`
   ) {
     createBrand(
       createBrandInput: {
-        brandLogoUrl: $brandLogoUrl
+        logoUrl: $logoUrl
         brandName: $brandName
         categoryId: $categoryId
         imageUrls: $imageUrls
@@ -70,7 +70,7 @@ const createBrandQuery = gql`
 const editBrandQuery = gql`
   mutation updateBrand(
     $id: String!
-    $brandLogoUrl: String
+    $logoUrl: String
     $brandName: String
     $categoryId: String
     $imageUrls: [String!]
@@ -79,7 +79,7 @@ const editBrandQuery = gql`
     updateBrand(
       updateBrandInput: {
         id: $id
-        brandLogoUrl: $brandLogoUrl
+        logoUrl: $logoUrl
         brandName: $brandName
         categoryId: $categoryId
         imageUrls: $imageUrls

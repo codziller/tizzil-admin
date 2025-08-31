@@ -2,19 +2,17 @@ import React from "react";
 import PropTypes from "prop-types";
 import cerave from "assets/images/cerave.png";
 import shm from "assets/images/shm.png";
-import corsx from "assets/images/corsx.png";
-import rashel from "assets/images/rashel.png";
 const DetailBlock = ({ title, value, values }) => (
   <div className={`flex flex-col justify-center items-start w-full gap-2 px-4`}>
     <h6 className="text-base">{title}</h6>
     {value && <p className="text-grey-label text-sm">{value}</p>}
     {values?.map((item, i) => (
-      <div className="flex justify-start items-center gap-2 w-full">
+      <div key={i} className="flex justify-start items-center gap-2 w-full">
         <img
           src={item?.images?.[0]}
           className="w-[45px] h-[45px] min-w-[45px] min-h-[45px]"
         />
-        <p key={i} className="text-grey-label text-sm truncate max-w-[60%]">
+        <p className="text-grey-label text-sm truncate max-w-[60%]">
           {item?.name} <span className="text-red">x3</span>
         </p>
       </div>
@@ -60,6 +58,7 @@ const OrderDetails = ({ transaction }) => {
 DetailBlock.propTypes = {
   title: PropTypes.string,
   value: PropTypes.string,
+  values: PropTypes.array,
 };
 OrderDetails.propTypes = {
   transaction: PropTypes.object,

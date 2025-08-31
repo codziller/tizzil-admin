@@ -7,7 +7,7 @@ const ProviderDashboard = () => {
   return (
     <div>
       <Helmet>
-        <title>Provider - Beautyhut</title>
+        <title>Provider - Tizzil</title>
       </Helmet>
       <ProviderDashboardLayout>
         <Outlet />

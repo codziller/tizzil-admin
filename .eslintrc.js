@@ -2,6 +2,7 @@ module.exports = {
   env: {
     browser: true,
     es2021: true,
+    node: true,
   },
   extends: [
     "eslint:recommended",
@@ -20,11 +21,23 @@ module.exports = {
   rules: {
     "react/react-in-jsx-scope": 0,
     camelcase: 0,
+    "no-unused-vars": "warn",
+    "react/prop-types": "warn",
+    "no-console": "off",
+    "import/no-unresolved": "off",
+    "import/no-anonymous-default-export": "off",
+    "react/display-name": "off",
+    "no-undef": "warn",
     "prettier/prettier": [
-      "error",
+      "warn",
       {
         endOfLine: "auto",
       },
     ],
+  },
+  settings: {
+    react: {
+      version: "detect",
+    },
   },
 };

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const Tags = ({ name }) => {
   return (
@@ -6,6 +7,10 @@ const Tags = ({ name }) => {
       {name}
     </div>
   );
+};
+
+Tags.propTypes = {
+  name: PropTypes.string,
 };
 
 export default Tags;

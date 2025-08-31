@@ -180,6 +180,7 @@ PhoneNumber.propTypes = {
   flag_name: PropTypes.string,
   value: PropTypes.string,
   label: PropTypes.string,
+  labelClasses: PropTypes.string,
   onPhoneChange: PropTypes.func,
   onCountryChange: PropTypes.func,
   countryClicked: PropTypes.func,
@@ -191,6 +192,7 @@ PhoneNumber.propTypes = {
   noError: PropTypes.bool,
   isRequired: PropTypes.bool,
   labelControl: PropTypes.any,
+  formError: PropTypes.object,
 };
 
 CountrySelect.propTypes = {

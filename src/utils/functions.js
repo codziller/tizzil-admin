@@ -211,7 +211,11 @@ export const getMerchantDetails = (account_holder_details, type) =>
       account_holder_details?.last_name;
 
 export const getCurrentRoute = (route) => {
-  const { user } = getUserInfoFromStorage();
+  const userData = getUserInfoFromStorage();
+  if (!userData || !userData.user) {
+    return null;
+  }
+  const { user } = userData;
   return getLinks("", user)?.find((item) =>
     route.includes(item?.slug || item.link)
   );

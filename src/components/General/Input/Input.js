@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import NumberFormat from "react-number-format";
-import clsx from "classnames";
+import classNames from "classnames";
 import { TailSpin } from "react-loader-spinner";
 import { ReactComponent as InfoIcon } from "assets/icons/info-icon.svg";
 import { ReactComponent as AddIcon } from "assets/icons/add-circle.svg";
@@ -11,7 +11,6 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 import { FormErrorMessage } from "../FormErrorMessage";
 import ToolTip from "../ToolTip";
-import classNames from "classnames";
 
 const useClickOutside = (handler) => {
   const domNode = useRef();
@@ -102,7 +101,7 @@ const Input = ({
       {label && (
         <div className="flex flex-row justify-between items-center w-full">
           <label
-            className={clsx(
+            className={classNames(
               labelClasses,
               "general-input-label mb-1 relative text-[13px] font-bold text-grey-dark !flex justify-start items-center gap-1.5"
             )}
@@ -170,9 +169,12 @@ const Input = ({
           )}
           {type === "number" ? (
             <div
-              className={clsx("w-full h-full flex justify-start items-center", {
-                "pl-3": currency,
-              })}
+              className={classNames(
+                "w-full h-full flex justify-start items-center",
+                {
+                  "pl-3": currency,
+                }
+              )}
             >
               {currency && <span>{currency}</span>}
               <NumberFormat
@@ -269,7 +271,7 @@ const Input = ({
           {prefix && type !== "number" && (
             <span
               ref={prefixRef}
-              className={clsx(
+              className={classNames(
                 "absolute left-2 lowercase max-w-[300px] overflow-x-hidden ",
                 {
                   "text-grey-light": !value,

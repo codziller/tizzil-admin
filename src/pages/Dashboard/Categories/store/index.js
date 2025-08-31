@@ -72,6 +72,7 @@ class CategoriesStore {
       this.loadingHeaderNavsHidden = false;
     }
   };
+
   getCategoryBrands = async () => {
     this.loadingCategoryBrands = true;
     try {
@@ -84,6 +85,7 @@ class CategoriesStore {
       this.loadingCategoryBrands = false;
     }
   };
+
   getCategories = async () => {
     this.loading = true;
     try {

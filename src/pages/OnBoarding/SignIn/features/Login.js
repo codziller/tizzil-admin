@@ -1,6 +1,4 @@
-import React, { useEffect } from "react";
-import { isEmpty } from "lodash";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import PropTypes from "prop-types";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -13,7 +11,7 @@ import AuthStore from "../store";
 import Input from "components/General/Input/Input";
 import { observer } from "mobx-react-lite";
 
-const Login = ({ onBackClick, goToForgotPassword }) => {
+const Login = ({ onBackClick, goToForgotPassword, goToSignUp }) => {
   const { loading, login } = AuthStore;
   const schema = yup.object({
     email: yup
@@ -52,22 +50,58 @@ const Login = ({ onBackClick, goToForgotPassword }) => {
     password: watch("password"),
   };
   const handleOnSubmit = (e) => {
-    login(form, logUserIn);
+    // DEMO MODE: Comment out API request for demo purposes
+    // login(form, logUserIn);
+    
+    // Demo mode: Simulate successful login without API call
+    const demoUser = {
+      access_token: 'demo_token_123',
+      refresh_token: 'demo_refresh_token_123',
+      user: {
+        id: 1,
+        email: form.email,
+        firstName: 'Demo',
+        lastName: 'User',
+        userRole: {
+          name: 'BRAND_USER' // Set as brand user
+        },
+        role: 'BRAND_USER',
+        brandId: 1
+      },
+      // Add brand and brandUser data for complete demo experience
+      brand: {
+        id: 1,
+        name: 'Demo Brand',
+        description: 'This is a demo brand for testing purposes',
+        brandName: 'Demo Brand'
+      },
+      brandUser: {
+        id: 1,
+        role: 'BRAND_OWNER',
+        userId: 1,
+        brandId: 1
+      }
+    };
+    
+    // Simulate successful login with demo data
+    logUserIn(demoUser);
   };
 
   return (
-    <div className="md:p-7 py-8 px-3 form-container min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center">
+    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center">
       {onBackClick && (
         <button onClick={onBackClick} className="scale-90 mb-5">
           <ArrowBack />
         </button>
       )}
 
-      <h2 className="section-heading mb-1 text-xl">Welcome Back</h2>
-      <p className="text-base mb-3">Log into your account to continue</p>
+      <h2 className="section-heading mb-1 text-lg text-[#444444]">TAP IN.</h2>
+      <p className="text-sm mb-3 text-[#000000]">
+        Log in to shop, drop, or just lurk.
+      </p>
       <form
         onSubmit={handleSubmit(handleOnSubmit)}
-        className="flex flex-col justify-start items-start space-y-6 w-full"
+        className="flex flex-col justify-start items-start space-y-2 w-full"
       >
         <Input
           label="Email"
@@ -103,6 +137,14 @@ const Login = ({ onBackClick, goToForgotPassword }) => {
             isLoading={loading}
             isDisabled={!isValid}
           />
+          <div className="mt-[10px] w-full">
+            <Button
+              text="CREATE ACCOUNT"
+              fullWidth
+              isOutline
+              onClick={goToSignUp}
+            />
+          </div>
         </div>
       </form>
     </div>

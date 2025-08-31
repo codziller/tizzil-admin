@@ -7,7 +7,7 @@ const Referrals = () => {
   return (
     <div>
       <Helmet>
-        <title>Referrals - Beautyhut</title>
+        <title>Referrals - Tizzil</title>
       </Helmet>
       <DashboardLayout>
         <Outlet />

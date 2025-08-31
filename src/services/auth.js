@@ -23,10 +23,6 @@ const loginQuery = gql`
         email
         role
         gender
-        brandId
-        warehouseStaff {
-          warehouseId
-        }
       }
       accessToken
     }
@@ -76,6 +72,112 @@ const resendVerificationEmailQuery = gql`
     }
   }
 `;
+
+const authSendVerificationMailQuery = gql`
+  mutation authSendVerificationMail($email: String!) {
+    authSendVerificationMail(email: $email) {
+      status
+    }
+  }
+`;
+
+const authSignupQuery = gql`
+  mutation authSignup(
+    $dob: String
+    $email: String!
+    $firstName: String!
+    $gender: USER_GENDERS
+    $lastName: String!
+    $otp: String!
+    $password: String!
+    $phoneNumber: String
+  ) {
+    authSignup(
+      dob: $dob
+      email: $email
+      firstName: $firstName
+      gender: $gender
+      lastName: $lastName
+      otp: $otp
+      password: $password
+      phoneNumber: $phoneNumber
+    ) {
+      access_token
+      brand {
+        id
+        brandName
+        brandEmail
+        logoUrl
+      }
+      brandUser {
+        brandId
+        createdAt
+        id
+        invitedAt
+        isActive
+        joinedAt
+        role
+        updatedAt
+        userId
+      }
+      refresh_token
+      user {
+        id
+        firstName
+        lastName
+        email
+        userRole {
+          name
+        }
+      }
+    }
+  }
+`;
+
+const authLoginUserQuery = gql`
+  mutation authLoginUser($email: String!, $password: String!) {
+    authLoginUser(email: $email, password: $password) {
+      access_token
+      brand {
+        id
+        brandName
+        brandEmail
+        logoUrl
+      }
+      brandUser {
+        brandId
+        createdAt
+        id
+        invitedAt
+        isActive
+        joinedAt
+        role
+        updatedAt
+        userId
+      }
+      refresh_token
+      user {
+        id
+        firstName
+        lastName
+        email
+        userRole {
+          name
+        }
+      }
+    }
+  }
+`;
+
+const authBrandRegistrationQuery = gql`
+  mutation authBrandRegistration(
+    $registrationData: BrandRegistrationCreateInput!
+  ) {
+    authBrandRegistration(registrationData: $registrationData) {
+      status
+    }
+  }
+`;
 const apis = {
   getUser: (jwt) =>
     graphQlInstance(getMeQuery, {
@@ -99,6 +201,26 @@ const apis = {
     }),
   resendVerificationEmail: () =>
     graphQlInstance(resendVerificationEmailQuery, {}),
+
+  authSendVerificationMail: (variables) =>
+    graphQlInstance(authSendVerificationMailQuery, {
+      variables,
+    }),
+
+  authSignup: (variables) =>
+    graphQlInstance(authSignupQuery, {
+      variables,
+    }),
+
+  authLoginUser: (variables) =>
+    graphQlInstance(authLoginUserQuery, {
+      variables,
+    }),
+
+  authBrandRegistration: (variables) =>
+    graphQlInstance(authBrandRegistrationQuery, {
+      variables,
+    }),
 };
 
 export default apis;

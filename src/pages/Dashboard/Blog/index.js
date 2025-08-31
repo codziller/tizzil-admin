@@ -7,7 +7,7 @@ const Users = () => {
   return (
     <div>
       <Helmet>
-        <title>Blog - Beautyhut</title>
+        <title>Blog - Tizzil</title>
       </Helmet>
       <DashboardLayout>
         <Outlet />

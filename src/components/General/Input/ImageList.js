@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import ImageCard from "./ImageCard";
 import classNames from "classnames";
@@ -71,6 +72,17 @@ const ImageList = ({
       </DragDropContext>
     </div>
   );
+};
+
+ImageList.propTypes = {
+  images: PropTypes.array,
+  setImages: PropTypes.func,
+  multiple: PropTypes.bool,
+  type: PropTypes.string,
+  removeImage: PropTypes.func,
+  isBanner: PropTypes.bool,
+  isPost: PropTypes.bool,
+  isMarketingImg: PropTypes.bool,
 };
 
 export default ImageList;

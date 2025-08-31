@@ -1,5 +1,6 @@
 import { isString } from "lodash";
 import React from "react";
+import PropTypes from "prop-types";
 import { ReactComponent as Close } from "assets/icons/close-x.svg";
 import classNames from "classnames";
 const ImageCard = ({
@@ -72,6 +73,16 @@ const ImageCard = ({
       />
     </div>
   );
+};
+
+ImageCard.propTypes = {
+  image: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  multiple: PropTypes.bool,
+  type: PropTypes.string,
+  removeImage: PropTypes.func,
+  isBanner: PropTypes.bool,
+  isPost: PropTypes.bool,
+  isMarketingImg: PropTypes.bool,
 };
 
 export default ImageCard;

@@ -310,7 +310,6 @@ const EditInventoryForm = ({ details, toggler, handleOnChange }) => {
     } finally {
       handleChangeTwo("editLoading", false);
     }
-    return;
   };
 
   const selectedCostPrice =

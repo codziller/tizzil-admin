@@ -52,7 +52,7 @@ const ViewBrand = ({ isBrandStaff }) => {
     getProductQuantitySoldByDateFilterByBrandId({
       data: {
         endDate,
-        brandId: brandId,
+        brandId,
         startDate: moment(dateFilter.start_date).format("YYYY-MM-DD"),
       },
     });

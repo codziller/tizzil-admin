@@ -10,16 +10,16 @@ export const CLOSE_ICON = () => {
       <path
         d="M8.52344 16.0938L16.9312 7.68597"
         stroke="black"
-        stroke-width="2.24433"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2.24433"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M16.931 16.0943L8.52319 7.68652"
         stroke="black"
-        stroke-width="2.24433"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2.24433"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

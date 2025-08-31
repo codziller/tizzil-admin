@@ -18,7 +18,6 @@ import { ReactComponent as Plus } from "assets/icons/add.svg";
 import useWindowDimensions from "hooks/useWindowDimensions";
 
 import { paramsObjectToQueryString } from "utils/request";
-import { transactionAmount } from "utils/transactions";
 import TransactionDetailsModal from "./DetailsModal";
 import dateConstants from "utils/dateConstants";
 import SearchBar from "components/General/Searchbar/SearchBar";
@@ -49,11 +48,6 @@ export const dateFilters = [
 const AffiliateMarketersPage = () => {
   const navigate = useNavigate();
   const { warehouse_id } = useParams();
-  const requiredFilters = {
-    start_date: "2020-01-01",
-    end_date: moment().format("YYYY-MM-DD"),
-  };
-
   const defaultFilters = {
     start_date: "",
     end_date: "",
@@ -89,38 +83,6 @@ const AffiliateMarketersPage = () => {
     params,
   });
 
-  const fetchMerchants = () => {
-    const filters = {
-      start_date: hasValue(filterData?.start_date)
-        ? filterData?.start_date
-        : requiredFilters.start_date,
-      end_date: hasValue(filterData?.end_date)
-        ? filterData?.end_date
-        : requiredFilters.end_date,
-      ...(hasValue(searchQuery) && {
-        account_trade_name: searchQuery,
-      }),
-      ...(hasValue(filterData?.account_status) && {
-        account_status: filterData.account_status.value,
-      }),
-    };
-
-    const paramsData = {
-      ...filters,
-    };
-
-    if (
-      _.isEqual(
-        { start_date: paramsData.start_date, end_date: paramsData.end_date },
-        requiredFilters
-      )
-    ) {
-      delete paramsData.start_date;
-      delete paramsData.end_date;
-    }
-
-    window.location.hash = paramsObjectToQueryString(paramsData);
-  };
 
   useEffect(() => {
     if (searchQuery) {

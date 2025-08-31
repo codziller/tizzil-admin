@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import PropTypes from "prop-types";
 import {
@@ -19,7 +19,7 @@ import { ReactComponent as Edit } from "assets/icons/Edit/edit.svg";
 import Button from "components/General/Button/Button";
 import Input from "components/General/Input/Input";
 import Select from "components/General/Input/Select";
-import { useParams } from "react-router-dom";
+
 import CategoriesStore from "pages/Dashboard/Categories/store";
 import BrandsStore from "pages/Dashboard/Brands/store";
 import ImagePicker from "components/General/Input/ImagePicker";
@@ -93,7 +93,7 @@ const Form = ({ details, toggler }) => {
   const [formTwo, setFormTwo] = useState({
     currency: currencyOptions?.[0],
     country: "NG",
-    no_limit: product_id && Number(product?.preOrderLimit) ? false : true,
+    no_limit: !(product_id && Number(product?.preOrderLimit)),
     showFormError: false,
     formModified: false,
     currentProductVariant: {},
@@ -423,7 +423,6 @@ const Form = ({ details, toggler }) => {
         currentProductInventory: val,
         modalType: INVENTORY,
       });
-      return;
     }
   };
 
@@ -1310,7 +1309,7 @@ const Form = ({ details, toggler }) => {
                     handleChange({
                       prop: "warehouseInventory",
                       objectProp: "quantity",
-                      val: val,
+                      val,
                       isInventory: true,
                     })
                   }
@@ -1329,7 +1328,7 @@ const Form = ({ details, toggler }) => {
                     handleChange({
                       prop: "warehouseInventory",
                       objectProp: "lowInQuantityValue",
-                      val: val,
+                      val,
                       isInventory: true,
                     })
                   }

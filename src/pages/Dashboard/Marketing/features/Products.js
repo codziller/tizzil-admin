@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 import PropTypes from "prop-types";
 import { ReactComponent as ArrowBack } from "assets/icons/Arrow/arrow-left-black.svg";
@@ -6,7 +6,7 @@ import { ReactComponent as Close } from "assets/icons/close-x.svg";
 import { Link } from "react-router-dom";
 
 import { observer } from "mobx-react-lite";
-import { useCallback } from "react";
+
 import ProductsPage from "pages/Dashboard/Products/features";
 
 const Products = ({ details, toggler, handleChange, form }) => {

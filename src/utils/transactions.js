@@ -1,4 +1,3 @@
-import moment from "moment";
 import { TransactionType } from "styles/transactions";
 import { numberWithCommas } from "utils/formatter";
 import {
@@ -8,7 +7,6 @@ import {
   failedTransactionStatus,
   NAIRA,
 } from "./appConstant";
-import classNames from "classnames";
 
 export const determineTransactionType = (type, stringValue) => {
   if (type?.tx_verb) {

@@ -7,7 +7,7 @@ const Categories = () => {
   return (
     <div>
       <Helmet>
-        <title>Categories - Beautyhut</title>
+        <title>Categories - Tizzil</title>
       </Helmet>
       <DashboardLayout>
         <Outlet />

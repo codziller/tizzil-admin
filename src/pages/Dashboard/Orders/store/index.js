@@ -209,6 +209,7 @@ class OrdersStore {
       this.createOrderLoading = false;
     }
   };
+
   updateOrderStatus = async ({ data, onSuccess, page }) => {
     this.updateOrderStatusLoading = true;
     try {

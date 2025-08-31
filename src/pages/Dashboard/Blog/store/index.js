@@ -102,6 +102,7 @@ class BlogsStore {
       this.createBlogLoading = false;
     }
   };
+
   editBlog = async ({ data, onSuccess, page, currentData }) => {
     this.editBlogLoading = true;
     try {

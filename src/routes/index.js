@@ -9,6 +9,9 @@ import CreateProvider from "pages/Dashboard/WareHouses/features/CreateProvider";
 import Successful from "pages/Dashboard/WareHouses/features/Successful";
 import SignIn from "pages/OnBoarding/SignIn/features";
 import SignInPage from "pages/OnBoarding/SignIn";
+import SignUp from "pages/OnBoarding/SignUp/features";
+import SignUpPage from "pages/OnBoarding/SignUp";
+import AccountSetup from "pages/OnBoarding/AccountSetup";
 import Logs from "pages/Dashboard/Log";
 import ListOfLogs from "pages/Dashboard/Log/features";
 import ProductsPage from "pages/Dashboard/Products/features";
@@ -548,6 +551,37 @@ const Router = () => {
           <Route path=":warehouse_id" element={<ListOfLogs />} />
         </Route>
         {/* end team */}
+
+        <Route
+          path="/auth/login"
+          element={
+            <ProtectedRoute path="/auth/login" notProtected>
+              <SignInPage />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="" element={<SignIn />} />
+        </Route>
+
+        <Route
+          path="/auth/signup"
+          element={
+            <ProtectedRoute path="/auth/signup" notProtected>
+              <SignUpPage />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="" element={<SignUp />} />
+        </Route>
+
+        <Route
+          path="/auth/account-setup"
+          element={
+            <ProtectedRoute path="/auth/account-setup" notProtected>
+              <AccountSetup />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/"

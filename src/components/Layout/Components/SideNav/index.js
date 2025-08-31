@@ -9,7 +9,6 @@ import { ReactComponent as Products } from "assets/icons/products.svg";
 import { ReactComponent as Staff } from "assets/icons/staff.svg";
 import { ReactComponent as Gallery } from "assets/icons/gallery.svg";
 import { ReactComponent as Settings } from "assets/icons/settings.svg";
-import { ReactComponent as GiftCards } from "assets/icons/gift-cards.svg";
 
 import Logo from "assets/images/logo-main.png";
 import LogoSmall from "assets/images/logo-small.png";
@@ -30,16 +29,12 @@ import {
   MdOutlineCardGiftcard,
   // MdOutlineForwardToInbox,
   MdOutlineInventory,
-  MdOutlinePayments,
-  MdOutlinePeopleAlt,
-  MdOutlineRemoveShoppingCart,
   // MdOutlineStorage,
   MdOutlineReviews,
 } from "react-icons/md";
 import { FcBusinesswoman } from "react-icons/fc";
 
 import WareHousesStore from "pages/Dashboard/WareHouses/store";
-import ProductsStore from "pages/Dashboard/Products/store";
 import { observer } from "mobx-react-lite";
 import { getUserInfoFromStorage } from "utils/storage";
 import { GiReceiveMoney } from "react-icons/gi";
@@ -54,7 +49,6 @@ const getLinks = (warehouse_id, user, roles) => {
   const userIsGeneralAdmin = roles?.userIsGeneralAdmin;
   const userIsDeveloperStaff = roles?.userIsDeveloperStaff;
   const userIsMarketingStaff = roles?.userIsMarketingStaff;
-  const userIsWarehouseAdmin = roles?.userIsWarehouseAdmin;
   const userIsWarehouseStaff = roles?.userIsWarehouseStaff;
   const userIsGeneralAdminOrDeveloper =
     userIsGeneralAdmin || userIsDeveloperStaff;
@@ -64,7 +58,7 @@ const getLinks = (warehouse_id, user, roles) => {
         {
           title: "Orders",
           slug: "/dashboard/orders",
-          label: "Here’s what’s happening with Beautyhut today.",
+          label: "Here’s what’s happening with Tizzil today.",
           link: `/dashboard/orders/${warehouse_id}`,
           icon: (
             <TbPackageImport
@@ -79,7 +73,7 @@ const getLinks = (warehouse_id, user, roles) => {
           ? {
               title: "Overview",
               heading: `Welcome, ${user?.firstName}`,
-              label: "Here’s what’s happening with Beautyhut today.",
+              label: "Here’s what’s happening with Tizzil today.",
               slug: "/dashboard/home",
               link: `/dashboard/home/${warehouse_id}`,
               icon: (
@@ -95,7 +89,7 @@ const getLinks = (warehouse_id, user, roles) => {
                 : {
                     title: "Orders",
                     slug: "/dashboard/orders",
-                    label: "Here’s what’s happening with Beautyhut today.",
+                    label: "Here’s what’s happening with Tizzil today.",
                     link: `/dashboard/orders/${warehouse_id}`,
                     icon: (
                       <TbPackageImport
@@ -111,7 +105,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Marketing",
                       slug: "/dashboard/marketing",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/marketing/${warehouse_id}/?tab=discounts`,
                       icon: (
                         <Gallery className="stroke-current fill-current sidenav-item  transition-all duration-500 ease-in-out" />
@@ -123,7 +117,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Brands",
                       slug: "/dashboard/brands",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/brands/${warehouse_id}`,
                       icon: (
                         <TbBrandDenodo
@@ -136,7 +130,7 @@ const getLinks = (warehouse_id, user, roles) => {
                 : [
                     {
                       title: "Products",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/products/${warehouse_id}`,
                       slug: "/dashboard/products",
                       icon: (
@@ -151,8 +145,7 @@ const getLinks = (warehouse_id, user, roles) => {
                               <br /> wrong order
                             </p>
                           ),
-                          label:
-                            "Here’s what’s happening with Beautyhut today.",
+                          label: "Here’s what’s happening with Tizzil today.",
                           link: `/dashboard/variants/${warehouse_id}`,
                           slug: "/dashboard/variants",
                           icon: (
@@ -163,7 +156,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Inventory",
                       slug: "/dashboard/inventory",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/inventory/${warehouse_id}`,
                       icon: (
                         <MdOutlineInventory
@@ -175,7 +168,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Categories",
                       slug: "/dashboard/categories",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/categories/${warehouse_id}`,
                       icon: (
                         <TbCategory2
@@ -187,7 +180,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Brands",
                       slug: "/dashboard/brands",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/brands/${warehouse_id}`,
                       icon: (
                         <TbBrandDenodo
@@ -202,7 +195,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Reviews",
                       slug: "/dashboard/reviews",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/reviews/${warehouse_id}`,
                       icon: (
                         <MdOutlineReviews
@@ -215,7 +208,7 @@ const getLinks = (warehouse_id, user, roles) => {
                       title: "Affiliate Marketers",
                       slug: "/dashboard/affiliate-marketers",
                       heading: "Manage Affiliate Marketers",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/affiliate-marketers/${warehouse_id}`,
                       icon: (
                         <FcBusinesswoman
@@ -228,7 +221,7 @@ const getLinks = (warehouse_id, user, roles) => {
                       title: "Donations",
                       slug: "/dashboard/donations",
                       heading: "Manage Donations",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/donations/${warehouse_id}`,
                       icon: (
                         <GiReceiveMoney
@@ -242,7 +235,7 @@ const getLinks = (warehouse_id, user, roles) => {
                       title: "Staff",
                       slug: "/dashboard/staffs",
                       heading: "Manage Staffs",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/staffs/${warehouse_id}`,
                       icon: (
                         <Staff className="stroke-current fill-current sidenav-item  transition-all duration-500 ease-in-out" />
@@ -252,7 +245,7 @@ const getLinks = (warehouse_id, user, roles) => {
                       title: "Users",
                       slug: "/dashboard/users",
                       heading: "Manage Users",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/users/${warehouse_id}`,
                       icon: (
                         <PiUsersThree
@@ -265,7 +258,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Marketing",
                       slug: "/dashboard/marketing",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/marketing/${warehouse_id}/?tab=discounts`,
                       icon: (
                         <Gallery className="stroke-current fill-current sidenav-item  transition-all duration-500 ease-in-out" />
@@ -274,7 +267,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Blog",
                       slug: "/dashboard/blog",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/blog/${warehouse_id}/`,
                       icon: (
                         <TbBrandBlogger
@@ -286,7 +279,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Gift Cards",
                       slug: "/dashboard/gift-cards",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/gift-cards/${warehouse_id}/`,
                       icon: (
                         <MdOutlineCardGiftcard
@@ -298,7 +291,7 @@ const getLinks = (warehouse_id, user, roles) => {
                     {
                       title: "Settings",
                       slug: "/dashboard/settings",
-                      label: "Here’s what’s happening with Beautyhut today.",
+                      label: "Here’s what’s happening with Tizzil today.",
                       link: `/dashboard/settings/${warehouse_id}/?tab=warehouses`,
                       icon: (
                         <Settings className="stroke-current sidenav-item-alt  transition-all duration-500 ease-in-out" />
@@ -323,7 +316,6 @@ const SideNav = ({
   const {
     userIsGeneralAdmin,
     userIsBrandStaff,
-    userIsWarehouseAdmin,
     userIsWarehouseStaff,
     userIsDeveloperStaff,
     userIsMarketingStaff,
@@ -331,14 +323,13 @@ const SideNav = ({
     userIsCustomerSupport,
   } = AuthStore;
 
-  const { getBrand, getBrandLoading, brand } = BrandsStore;
+  const { getBrand, brand } = BrandsStore;
 
   const links = useMemo(
     () =>
       getLinks(warehouse_id, user, {
         userIsGeneralAdmin,
         userIsBrandStaff,
-        userIsWarehouseAdmin,
         userIsWarehouseStaff,
         userIsDeveloperStaff,
         userIsMarketingStaff,
@@ -355,7 +346,6 @@ const SideNav = ({
   );
 
   const { getWarehouse, warehouse, getWareHouseLoading } = WareHousesStore;
-  const { resetProductStore } = ProductsStore;
   useEffect(() => {
     warehouse_id &&
       !userIsBrandStaff &&

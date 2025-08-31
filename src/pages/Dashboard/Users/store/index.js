@@ -102,6 +102,7 @@ class UsersStore {
       this.createUserLoading = false;
     }
   };
+
   editUser = async ({ data, onSuccess, page }) => {
     this.editUserLoading = true;
     try {

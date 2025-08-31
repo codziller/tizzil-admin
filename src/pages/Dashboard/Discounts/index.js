@@ -7,7 +7,7 @@ const Discounts = () => {
   return (
     <div>
       <Helmet>
-        <title>Discount Codes - Beautyhut</title>
+        <title>Discount Codes - Tizzil</title>
       </Helmet>
       <DashboardLayout>
         <Outlet />

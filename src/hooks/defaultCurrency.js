@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function useDefaultCurrency() {
+export default function useDefaultCurrency(currentBusiness) {
   const [currency, setCurrency] = useState("");
 
   useEffect(() => {

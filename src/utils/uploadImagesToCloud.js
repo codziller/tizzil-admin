@@ -1,8 +1,5 @@
 import axios from "axios";
-import { errorToast } from "components/General/Toast/Toast";
 import { isEmpty } from "lodash";
-const CLOUDINARY_CLOUDNAME = process.env.REACT_APP_CLOUDINARY_CLOUDNAME;
-const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
 const REACT_APP_IMAGE_UPLOAD_URL = process.env.REACT_APP_IMAGE_UPLOAD_URL;
 export const uploadImagesToCloud = async (files) => {

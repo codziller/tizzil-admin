@@ -1,13 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-import Dropzone from "react-dropzone";
-import { isEmpty, isString } from "lodash";
 import { useDropzone } from "react-dropzone";
+import { isEmpty, isString } from "lodash";
 
-import { ReactComponent as Close } from "assets/icons/close-x.svg";
-import { ReactComponent as Gallery } from "assets/icons/gallery-black.svg";
+import { ReactComponent as Gallery } from "assets/icons/upload-icon.svg";
 import { FormErrorMessage } from "../FormErrorMessage";
-import classNames from "classnames";
 import ImageList from "./ImageList";
 import { TbDimensions } from "react-icons/tb";
 
@@ -140,4 +137,7 @@ ImagePicker.propTypes = {
   isPost: PropTypes.bool,
   isMarketingImg: PropTypes.bool,
   dimension: PropTypes.string,
+  setImages: PropTypes.func,
+  type: PropTypes.string,
+  multiple: PropTypes.bool,
 };

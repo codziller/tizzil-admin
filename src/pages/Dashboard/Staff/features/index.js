@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import _, { isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";

@@ -8,7 +8,7 @@ import { ReactComponent as InfoIcon } from "assets/icons/info-icon.svg";
 import { ReactComponent as BsCaretDownFill } from "assets/icons/Arrow/caret-down.svg";
 import { FormErrorMessage } from "../FormErrorMessage";
 import ToolTip from "../ToolTip";
-import { isObject, isString } from "lodash";
+import { isObject } from "lodash";
 
 const Select = ({
   label,
@@ -29,7 +29,6 @@ const Select = ({
   tooltip,
   ...rest
 }) => {
-  const GOOGLE_MAP_API_KEY = process.env.REACT_APP_GOOGLE_MAP_API_KEY;
   const classNames = `${
     fullWidth ? "w-full" : "w-fit"
   } h-fit mx-[1px] text-lg md:text-[13px] border-slate-300 placeholder-slate-400 !placeholder:text-grey cursor-pointer`;
@@ -188,6 +187,7 @@ Select.propTypes = {
   style: PropTypes.object,
   fullWidth: PropTypes.bool,
   value: PropTypes.any,
+  tooltip: PropTypes.string,
 };
 
 export default Select;

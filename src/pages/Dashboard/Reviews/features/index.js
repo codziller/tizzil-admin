@@ -69,7 +69,6 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
 
   const handleSearch = async () => {
     if (!searchQuery) {
-      return;
     }
   };
 
@@ -90,7 +89,6 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
   const handleEdit = (row) => {
     if (isModal) {
       handleUserSelect(row);
-      return;
     }
   };
 

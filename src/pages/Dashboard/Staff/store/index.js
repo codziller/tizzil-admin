@@ -108,6 +108,7 @@ class StaffsStore {
       this.createStaffLoading = false;
     }
   };
+
   editStaff = async ({ data, onSuccess, page }) => {
     this.editStaffLoading = true;
     try {

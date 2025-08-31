@@ -73,6 +73,7 @@ class BrandsStore {
       this.createBrandLoading = false;
     }
   };
+
   editBrand = async ({ data, onSuccess, page }) => {
     this.editBrandLoading = true;
     try {

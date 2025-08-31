@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import moment from "moment";
-import _, { isEmpty, lowerCase } from "lodash";
+import { isEmpty, lowerCase } from "lodash";
 import DashboardFilterDropdown from "components/General/Dropdown/DashboardFilterDropdown";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import Table from "components/General/Table";

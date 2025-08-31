@@ -56,7 +56,7 @@ const DeleteDialog = ({ details, toggler }) => {
 
       <p className="mb-3 text-sm text-grey text-center">
         Are you sure you want to {details?.archive ? "unarchive" : "archive"}{" "}
-        <span className="text-black">"{details?.name}"?</span>
+        <span className="text-black">&quot;{details?.name}&quot;?</span>
       </p>
 
       <Button

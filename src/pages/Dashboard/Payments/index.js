@@ -7,7 +7,7 @@ const Payments = () => {
   return (
     <div>
       <Helmet>
-        <title>Payments - Beautyhut</title>
+        <title>Payments - Tizzil</title>
       </Helmet>
       <DashboardLayout>
         <Outlet />

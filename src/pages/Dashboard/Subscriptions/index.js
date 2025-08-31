@@ -7,7 +7,7 @@ const Subscriptions = () => {
   return (
     <div>
       <Helmet>
-        <title>Subscriptions - Beautyhut</title>
+        <title>Subscriptions - Tizzil</title>
       </Helmet>
       <DashboardLayout>
         <Outlet />

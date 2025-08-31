@@ -36,6 +36,7 @@ class DonationsStore {
       this.loading = false;
     }
   };
+
   getDonationTransactions = async ({ data }) => {
     this.donationTransactionsLoading = true;
     try {

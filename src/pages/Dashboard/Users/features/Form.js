@@ -142,7 +142,7 @@ const Form = ({ details, toggler }) => {
   };
 
   const handleOnSubmit = () => {
-    let payload = {
+    const payload = {
       ...form,
       amount: "",
       transactionType: "",
@@ -171,7 +171,7 @@ const Form = ({ details, toggler }) => {
   };
 
   const handleOnWalletSubmit = () => {
-    let payload = {
+    const payload = {
       amount: parseFloat(form.amount),
       transactionType: form.transactionType,
       userId: user_id,
@@ -182,7 +182,6 @@ const Form = ({ details, toggler }) => {
         data: payload,
         onSuccess: () => navigate(-1),
       });
-      return;
     }
   };
 

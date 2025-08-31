@@ -162,6 +162,7 @@ DropdownHead.propTypes = {
   dropdownUp: PropTypes.bool,
   className: PropTypes.string,
   align: PropTypes.string,
+  containerClassName: PropTypes.string,
 };
 
 export default DropdownHead;

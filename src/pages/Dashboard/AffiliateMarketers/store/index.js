@@ -77,6 +77,7 @@ class AffiliateMarketersStore {
       this.createAffiliateMarketerLoading = false;
     }
   };
+
   editAffiliateMarketer = async ({ data, onSuccess }) => {
     this.editAffiliateMarketerLoading = true;
     try {

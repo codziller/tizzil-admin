@@ -57,7 +57,7 @@ const ProductVariant = ({
     variantSalePrice: currentProductVariant?.variantSalePrice || "",
     imageUrls: currentProductVariant?.imageUrls || [],
     videoUrls: currentProductVariant?.videoUrls || [],
-    visibility: currentProductVariant.visibility === false ? false : true,
+    visibility: currentProductVariant.visibility !== false,
     description: currentProductVariant?.description || "",
     main: !!currentProductVariant?.main,
     quantity: currentProductVariant?.quantity || "",
@@ -179,7 +179,6 @@ const ProductVariant = ({
       } finally {
         handleChangeTwo("editLoading", false);
       }
-      return;
     }
   };
 

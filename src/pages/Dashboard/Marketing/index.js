@@ -7,7 +7,7 @@ const Marketing = () => {
   return (
     <div>
       <Helmet>
-        <title>Marketing - Beautyhut</title>
+        <title>Marketing - Tizzil</title>
       </Helmet>
       <DashboardLayout>
         <Outlet />

@@ -123,7 +123,6 @@ const Form = observer(() => {
           data: payload,
           onSuccess: () => navigate(-1),
         });
-        return;
       } else {
         const payload = {
           ...form,
@@ -138,7 +137,6 @@ const Form = observer(() => {
           data: payload,
           onSuccess: () => navigate(-1),
         });
-        return;
       }
     } catch (error) {
       errorToast(

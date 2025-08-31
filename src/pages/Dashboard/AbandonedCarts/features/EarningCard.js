@@ -25,6 +25,7 @@ EarningCard.propTypes = {
   title: PropTypes.string,
   value: PropTypes.string,
   isDecimal: PropTypes.bool,
+  link: PropTypes.string,
 };
 
 export default EarningCard;

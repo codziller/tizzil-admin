@@ -107,7 +107,6 @@ const Form = ({ details, toggler }) => {
         currentProductOption: rest,
         modalType: PRODUCT_VARIANT,
       });
-      return;
     }
   };
 

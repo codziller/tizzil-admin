@@ -132,6 +132,7 @@ Modal.propTypes = {
   maxHeight: PropTypes.string,
   modalClassName: PropTypes.string,
   isSideModal: PropTypes.bool,
+  closeOnClickOutside: PropTypes.bool,
 };
 
 export default Modal;

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import clsx from "classnames";
+import classNames from "classnames";
 import PropTypes from "prop-types";
 import Popover from "@material-ui/core/Popover";
 import { ThreeDots } from "react-loader-spinner";
 import { ReactComponent as Check } from "assets/icons/CheckIcon/small-check.svg";
 import { ReactComponent as ArrowDownIcon } from "assets/icons/caret-down.svg";
-import classNames from "classnames";
 
 export default function TableDropdown({
   content,
@@ -16,12 +15,12 @@ export default function TableDropdown({
   isDisabled,
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selected, setSelected] = useState("");
+  const [selected] = useState("");
   const open = Boolean(anchorEl);
   return (
     <>
       <div
-        className={clsx(
+        className={classNames(
           "relative w-full flex items-center justify-between font-normal outline-none capitalize tracking-wider focus:outline-none transition-all duration-300 whitespace-nowrap leading-relaxed shadow-none cursor-pointer text-left  rounded-lg",
           { "rounded-bl-none rounded-br-none": open }
         )}
@@ -86,7 +85,7 @@ export default function TableDropdown({
         }}
       >
         <div
-          className={clsx(
+          className={classNames(
             "transition-all w-[270px] rounded-lg py-3 bg-white border-1/2 border-grey-bordercolor no-scroll"
           )}
         >

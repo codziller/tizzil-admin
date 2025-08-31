@@ -78,13 +78,11 @@ const Form = observer(() => {
         data: payload,
         onSuccess: () => navigate(-1),
       });
-      return;
     } else {
       await editPromoBanner({
         data: { ...payload, id: media_id },
         onSuccess: () => navigate(-1),
       });
-      return;
     }
   };
 

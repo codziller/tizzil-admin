@@ -146,6 +146,7 @@ class MarketingStore {
       this.loadingDiscountStat = false;
     }
   };
+
   getTopshipCountries = async () => {
     this.loadingTopshipCountries = true;
     try {
@@ -177,6 +178,7 @@ class MarketingStore {
       this.loadingTopshipStates = false;
     }
   };
+
   getImages = async ({ data }) => {
     this.loadingImages = true;
     try {
@@ -835,6 +837,7 @@ class MarketingStore {
       this.createHomeSliderImageLoading = false;
     }
   };
+
   editHomeSliderImage = async ({ data, onSuccess, page }) => {
     this.editHomeSliderImageLoading = true;
     try {
@@ -868,6 +871,7 @@ class MarketingStore {
       this.createMobilePagePostLoading = false;
     }
   };
+
   editMobilePagePost = async ({ data, onSuccess, page }) => {
     this.editMobilePagePostLoading = true;
     try {

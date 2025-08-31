@@ -7,7 +7,7 @@ const Logs = () => {
   return (
     <div>
       <Helmet>
-        <title>Team - Beautyhut</title>
+        <title>Team - Tizzil</title>
       </Helmet>
       <DashboardLayout>
         <Outlet />

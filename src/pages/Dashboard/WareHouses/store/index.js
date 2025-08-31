@@ -90,6 +90,7 @@ class WareHousesStore {
       this.createWareHouseLoading = false;
     }
   };
+
   editWarehouse = async ({ data, onSuccess }) => {
     this.editWareHouseLoading = true;
     try {
@@ -103,6 +104,7 @@ class WareHousesStore {
       this.editWareHouseLoading = false;
     }
   };
+
   deleteWarehouse = async ({ data, onSuccess }) => {
     this.deleteWarehouseLoading = true;
     try {
