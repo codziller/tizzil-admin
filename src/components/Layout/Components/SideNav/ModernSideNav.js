@@ -360,7 +360,7 @@ const ModernSideNav = ({
         </div>
 
         {/* User Details Section */}
-        <div className="p-4 border-t border-gray-600 mb-10">
+        <div className="p-4 border-t border-gray-600 mb-32 sm:mb-10">
           <div className="flex items-center gap-2">
             <div className="relative">
               <img

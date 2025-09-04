@@ -44,7 +44,7 @@ export default function Index({ children }) {
         {/* Right side content */}
         <div className="w-full md:w-3/5 lg:w-1/2 md:ml-auto h-full flex flex-col relative z-[8]">
           <div className="flex-1 overflow-y-auto px-6 md:px-12 py-6 md:py-12">
-            <div className="w-full max-w-[362px] md:mx-auto">
+            <div className="w-full md:max-w-[362px] md:mx-auto">
               <div className="md:hidden h-[200px]"></div>
               {children}
             </div>

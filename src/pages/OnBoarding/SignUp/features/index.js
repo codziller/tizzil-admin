@@ -67,7 +67,7 @@ const SignUpPage = () => {
         ref={scrollXContainerRef}
       >
         {SIGN_UP_STEPS.map((item, i) => (
-          <div className="w-fit" key={i + item.title}>
+          <div className="w-full md:w-fit" key={i + item.title}>
             {item.component}
           </div>
         ))}

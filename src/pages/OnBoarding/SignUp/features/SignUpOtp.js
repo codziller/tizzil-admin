@@ -149,7 +149,7 @@ const SignUpOtp = ({ goBackToSignup, isActive }) => {
   };
 
   return (
-    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center mt-20">
+    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-48px)] mini:!min-w-[362px] snap-center mt-20">
       <h2 className="section-heading mb-1 text-lg text-[#444444]">
         VERIFICATION CODE
       </h2>
