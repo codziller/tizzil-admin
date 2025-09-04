@@ -5,7 +5,11 @@ import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import PropTypes from "prop-types";
 import moment from "moment";
-
+import { ReactComponent as SearchBlackIcon } from "assets/icons/search-black.svg";
+import { ReactComponent as FilterIcon } from "assets/icons/filter-icon.svg";
+import { ReactComponent as ExportIcon } from "assets/icons/export-icon.svg";
+import { ReactComponent as PlusIcon } from "assets/icons/plus-icon.svg";
+import { ReactComponent as DividerIcon } from "assets/icons/divider-icon.svg";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import Table from "components/General/Table";
 import TableDropdown from "components/General/Dropdown/TableDropdown";
@@ -130,6 +134,7 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
   const [currentPageSearch, setCurrentPageSearch] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [activeTab, setActiveTab] = useState(TABS[0]?.name);
+  const [searchExpanded, setSearchExpanded] = useState(false);
   const searchQuery = searchInput?.trim();
   const isSearchMode = searchQuery?.length > 1;
   const isArchive = activeTab === TABS[1]?.name;
@@ -140,6 +145,13 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
     }
     const payload = { page: currentPage, searchQuery };
     await searchUsers({ data: payload });
+  };
+
+  const handleSearchToggle = () => {
+    setSearchExpanded(!searchExpanded);
+    if (!searchExpanded) {
+      setSearchInput("");
+    }
   };
 
   const handleGetData = () => {
@@ -164,7 +176,7 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
       return;
     }
 
-    navigate(`/dashboard/users/edit/${warehouse_id}/${row?.id}`);
+    // navigate(`/dashboard/users/edit`);
   };
   const columns = [
     {
@@ -302,27 +314,120 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
         })}
       >
         <div className="flex flex-col justify-start items-center h-full w-full gap-y-5">
-          <div className="flex justify-between items-center w-full mb-3 gap-1">
-            <div
-              className={classNames({
-                "w-full": isModal,
-                "w-full sm:w-[45%] sm:min-w-[300px]": !isModal,
-              })}
-            >
-              <SearchBar
-                placeholder={"Search users by name, email, phone number"}
-                onChange={setSearchInput}
-                value={searchInput}
-                className="flex"
-              />
+          {/* Title Section */}
+          <div className="flex justify-between items-center w-full">
+            <div className="flex items-center gap-2">
+              <h1 className="text-[22px] font-bold text-[#111111]">
+                Customers
+              </h1>
+              <span className="text-[14px] text-[#6D7280]">
+                {displayedUsers.length} TOTAL
+              </span>
             </div>
 
-            <Button
-              text="Add User"
-              icon={<Plus className="stroke-current" />}
-              className="hidden md:block"
-              onClick={() => navigate(`/dashboard/users/add/${warehouse_id}`)}
-            />
+            {!isEmpty(displayedUsers) && (
+              <div className="flex items-center gap-5">
+                {/* Search Section */}
+                <div className="flex items-center gap-2">
+                  {searchExpanded ? (
+                    <div className="flex items-center gap-2 transition-all duration-300">
+                      <input
+                        type="text"
+                        value={setSearchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        placeholder="Search products..."
+                        className="px-3 py-2 border border-gray-300 rounded-md text-sm w-64"
+                        autoFocus
+                      />
+                      <button
+                        onClick={handleSearchToggle}
+                        className="p-1 hover:bg-gray-100 rounded"
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M12 4L4 12M4 4l8 8"
+                            stroke="#111111"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {!isMobile && (
+                        <span className="text-[14px] text-[#111111]">
+                          Search
+                        </span>
+                      )}
+                      <button
+                        onClick={handleSearchToggle}
+                        className="p-1 hover:bg-gray-100 rounded"
+                      >
+                        <SearchBlackIcon className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                <DividerIcon />
+
+                {/* Filters Section */}
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  // onClick={() => setFilterModalOpen(true)}
+                >
+                  {!isMobile && (
+                    <span className="text-[14px] text-[#111111]">
+                      {/* Filters {appliedFilters > 0 && `(${appliedFilters})`} */}
+                      Filters
+                    </span>
+                  )}
+                  <button
+                    // onClick={() => setFilterModalOpen(true)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <FilterIcon
+                      className={classNames("w-4 h-4", {
+                        // "fill-[#690007]": appliedFilters > 0,
+                        // "fill-[#111111]": appliedFilters === 0,
+                      })}
+                    />
+                  </button>
+                </div>
+
+                <DividerIcon />
+
+                {/* Export Section */}
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  // onClick={() => setFilterModalOpen(true)}
+                >
+                  {!isMobile && (
+                    <span className="text-[14px] text-[#111111]">
+                      {/* Export {appliedFilters > 0 && `(${appliedFilters})`} */}
+                      Export
+                    </span>
+                  )}
+                  <button
+                    // onClick={() => setFilterModalOpen(true)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <ExportIcon
+                      className={classNames("w-4 h-4", {
+                        // "fill-[#690007]": appliedFilters > 0,
+                        // "fill-[#111111]": appliedFilters === 0,
+                      })}
+                    />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* <Tabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} /> */}

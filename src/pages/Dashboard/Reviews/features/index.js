@@ -163,7 +163,7 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
   const columns = [
     {
       name: "Order Code",
-      minWidth: "12%",
+      minWidth: "10%",
       selector: (review) => (
         <span className="text-[14px] text-[#666666]">{review.orderCode}</span>
       ),
@@ -171,7 +171,7 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
     },
     {
       name: "Customers",
-      minWidth: "20%",
+      minWidth: "15%",
       selector: (review) => {
         const userId = review.user.id.toString().padStart(6, "0").slice(-6);
         return (
@@ -199,16 +199,16 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
       selector: (review) => renderStars(review.rating),
       sortable: true,
     },
-    {
-      name: "Review",
-      minWidth: "25%",
-      selector: (review) => (
-        <span className="text-[14px] text-[#666666] line-clamp-2">
-          {review.review}
-        </span>
-      ),
-      sortable: true,
-    },
+    // {
+    //   name: "Review",
+    //   minWidth: "20%",
+    //   selector: (review) => (
+    //     <span className="text-[14px] text-[#666666] line-clamp-2 text-ellipsis">
+    //       {review.review}
+    //     </span>
+    //   ),
+    //   sortable: true,
+    // },
     {
       name: "Date",
       minWidth: "10%",
@@ -312,7 +312,7 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
             <>
               {isSearchMode &&
                 `Search results - ${numberWithCommas(searchResultCount)}`}
-              <div className="flex flex-col flex-grow justify-start items-center w-full h-full new-table">
+              <div className="flex flex-col flex-grow justify-start items-center w-full h-full">
                 {!isEmpty(displayedReviews) ? (
                   <Table
                     data={displayedReviews}

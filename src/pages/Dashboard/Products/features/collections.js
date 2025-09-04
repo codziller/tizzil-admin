@@ -10,7 +10,6 @@ import { ReactComponent as FilterIcon } from "assets/icons/filter-icon.svg";
 import { ReactComponent as PlusIcon } from "assets/icons/plus-icon.svg";
 import { ReactComponent as DividerIcon } from "assets/icons/divider-icon.svg";
 import { ReactComponent as EmptyListIcon } from "assets/icons/empty-list-icon.svg";
-import { ReactComponent as ChevronDown } from "assets/icons/Arrow/chevron-down.svg";
 import useWindowDimensions from "hooks/useWindowDimensions";
 import { Button } from "components/General/Button";
 import { observer } from "mobx-react-lite";
