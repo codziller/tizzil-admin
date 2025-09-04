@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import clsx from "classnames";
 import { ReactComponent as CancelIcon } from "assets/icons/cancel.svg";
-import { ReactComponent as CancelIconBlue } from "assets/icons/close-blue.svg";
 import { hideSideNav, showSideNav } from "utils/functions";
 
 const Modal = ({
@@ -17,12 +16,13 @@ const Modal = ({
   containerClassName = "overflow-y-auto",
   modalClassName,
   isSideModal,
+  title,
   closeOnClickOutside,
 }) => {
   const modalClassNames = {
     "w-full md:max-w-[86%] md:max-h-[89%] md:w-[86%] md:h-[89%]":
       size === "2xl",
-    "w-full md:max-w-[600px]": size === "xl",
+    "w-full md:max-w-[500px]": size === "xl",
     "w-full md:max-w-lg": size === "lg",
     "w-full md:max-w-md": size === "md",
     "w-full md:max-w-sm": size === "sm",
@@ -36,7 +36,7 @@ const Modal = ({
       active && isSideModal,
     "md:translate-x-1/4 translate-x-[1000px] opacity-0 pointer-events-none bottom-0":
       !active && isSideModal,
-    "p-[32px]": !noPadding,
+    "p-[24px]": !noPadding,
     [className]: className,
   };
 
@@ -51,7 +51,7 @@ const Modal = ({
   return (
     <div
       className={clsx(
-        `h-screen overflow-hidden w-full fixed !m-0 flex items-start backdrop z-[9998] bottom-0 md:top-0 left-0`,
+        `h-screen overflow-hidden w-full fixed !m-0 flex items-start backdrop z-[99999] bottom-0 md:top-0 left-0`,
         containerClassName,
         {
           "transition-all duration-100 ease-in-out opacity-100 pointer-events-auto":
@@ -72,7 +72,7 @@ const Modal = ({
       <div
         style={{ maxHeight }}
         className={clsx(
-          `!absolute md:!relative modal-content-area flex flex-col justify-start bg-white rounded-bl-none rounded-br-none  w-full transition-all z-[900] duration-300 ease-in-out`,
+          `!absolute md:!relative modal-content-area flex flex-col justify-start bg-white rounded-bl-none rounded-br-none  w-full transition-all z-[99999] duration-300 ease-in-out`,
 
           { "md:min-h-[100vh] overflow-y-auto overflow-x-hidden": isSideModal },
           {
@@ -84,12 +84,17 @@ const Modal = ({
         )}
       >
         {isSideModal && (
-          <div
-            className="cursor-pointer w-fit flex justify-start items-start text-white hover:bg-blue-border hover:text-black hover:bg-white rounded-full transition-all duration-150 ease-in-out "
-            onClick={toggler}
-          >
-            <div className="h-8 w-8 relative flex justify-center items-center">
-              <CancelIconBlue className="stroke-current" />
+          <div className="flex w-full justify-between items-center mb-3">
+            {title && (
+              <span className="text-[14px] #000000 font-600">{title}</span>
+            )}
+            <div
+              className="cursor-pointer w-fit flex justify-start items-start text-white hover:bg-blue-border hover:text-black hover:bg-white rounded-full transition-all duration-150 ease-in-out "
+              onClick={toggler}
+            >
+              <div className="h-8 w-8 relative flex justify-center items-center">
+                <CancelIcon className="stroke-current" />
+              </div>
             </div>
           </div>
         )}

@@ -12,6 +12,7 @@ const searchOrdersQuery = ({ page, searchQuery, warehouseId }) => gql`
           user {
             firstName
             lastName
+            phoneNumber
           }
         }
         id

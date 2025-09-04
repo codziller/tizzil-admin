@@ -80,9 +80,11 @@ export const getStoredBusinessCustomerRef = (currentBusiness) => {
 
 export const getUserInfoFromStorage = () => {
   try {
-    return JSON.parse(localStorage.getItem(USER_DATA));
+    const userData = localStorage.getItem(USER_DATA);
+    return userData ? JSON.parse(userData) : null;
   } catch (error) {
-    return error;
+    console.error("Error parsing user data from localStorage:", error);
+    return null;
   }
 };
 export const getCurrentRole = () => {

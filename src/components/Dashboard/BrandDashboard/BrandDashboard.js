@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { FiChevronDown } from 'react-icons/fi';
-import { BsBag } from 'react-icons/bs';
-import RateCard from '../RateCard/RateCard';
-import { SaleIcon, CustomerIcon, OrderIcon, WalletRateIcon, CartRateIcon } from '../RateCard/RateCardIcons';
-import { Line, Pie } from 'react-chartjs-2';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { FiChevronDown } from "react-icons/fi";
+import RateCard from "../RateCard/RateCard";
+import {
+  SaleIcon,
+  CustomerIcon,
+  OrderIcon,
+  WalletRateIcon,
+  CartRateIcon,
+} from "../RateCard/RateCardIcons";
+import { ReactComponent as EmptyBagIcon } from "assets/icons/empty-bag-icon.svg";
+import { Line, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,7 +21,7 @@ import {
   Tooltip,
   Legend,
   ArcElement,
-} from 'chart.js';
+} from "chart.js";
 
 // Register ChartJS components
 ChartJS.register(
@@ -30,15 +36,22 @@ ChartJS.register(
 );
 
 const BrandDashboard = ({ userRole }) => {
-  const [selectedGraphOption, setSelectedGraphOption] = useState('Sales');
+  const [selectedGraphOption, setSelectedGraphOption] = useState("Sales");
   const [showGraphDropdown, setShowGraphDropdown] = useState(false);
-  const [graphDateFilter, setGraphDateFilter] = useState('Today');
+  const [graphDateFilter, setGraphDateFilter] = useState("Today");
   const [showGraphDateDropdown, setShowGraphDateDropdown] = useState(false);
-  const [pieChartDateFilter, setPieChartDateFilter] = useState('Today');
+  const [pieChartDateFilter, setPieChartDateFilter] = useState("Today");
   const [showPieDateDropdown, setShowPieDateDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const dateFilterOptions = ["Today", "Yesterday", "This week", "This month", "All Time", "Custom date"];
+  const dateFilterOptions = [
+    "Today",
+    "Yesterday",
+    "This week",
+    "This month",
+    "All Time",
+    "Custom date",
+  ];
   const graphOptions = ["Sales", "Orders"];
 
   // Sample data for rate cards
@@ -47,34 +60,34 @@ const BrandDashboard = ({ userRole }) => {
       icon: SaleIcon,
       rateItems: [
         { label: "Sales", value: "₦0.00", rate: "0", type: "" },
-        { label: "Volume", value: "0", rate: "", type: "" }
-      ]
+        { label: "Volume", value: "0", rate: "", type: "" },
+      ],
     },
     {
       icon: CustomerIcon,
       rateItems: [
         { label: "Customers", value: "0", rate: "0", type: "" },
-        { label: "New", value: "0", rate: "", type: "" }
-      ]
+        { label: "New", value: "0", rate: "", type: "" },
+      ],
     },
     {
       icon: OrderIcon,
       rateItems: [
         { label: "Orders", value: "0", rate: "0", type: "" },
-        { label: "Pending", value: "0", rate: "", type: "" }
-      ]
-    }
+        { label: "Pending", value: "0", rate: "", type: "" },
+      ],
+    },
   ];
 
   // Sample chart data
   const chartData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
     datasets: [
       {
         label: selectedGraphOption,
         data: [12, 19, 3, 5, 2, 3],
-        borderColor: '#690007',
-        backgroundColor: 'rgba(105, 0, 7, 0.1)',
+        borderColor: "#690007",
+        backgroundColor: "rgba(105, 0, 7, 0.1)",
         tension: 0.1,
       },
     ],
@@ -84,7 +97,7 @@ const BrandDashboard = ({ userRole }) => {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top',
+        position: "top",
       },
       title: {
         display: false,
@@ -99,11 +112,11 @@ const BrandDashboard = ({ userRole }) => {
 
   // Sample pie chart data
   const pieData = {
-    labels: ['Nigeria', 'United States', 'Canada', 'Others'],
+    labels: ["Nigeria", "United States", "Canada", "Others"],
     datasets: [
       {
         data: [4765, 3241, 1876, 982],
-        backgroundColor: ['#0062FF', '#0CAF60', '#FFD023', '#FE964A'],
+        backgroundColor: ["#0062FF", "#0CAF60", "#FFD023", "#FE964A"],
         borderWidth: 0,
       },
     ],
@@ -219,7 +232,9 @@ const BrandDashboard = ({ userRole }) => {
             {/* Pie Chart Card */}
             <div className="lg:col-span-2 bg-white rounded-lg border border-[#E5E7EB]">
               <div className="px-[18px] py-[14px] border-b border-[#EAEBF0] flex justify-between items-center">
-                <h3 className="text-base text-[#050505]">Customer Demographics</h3>
+                <h3 className="text-base text-[#050505]">
+                  Customer Demographics
+                </h3>
                 <div className="relative">
                   <button
                     onClick={() => setShowPieDateDropdown(!showPieDateDropdown)}
@@ -247,20 +262,28 @@ const BrandDashboard = ({ userRole }) => {
                 </div>
               </div>
               <div className="p-4 flex items-center">
-                <div className="w-[200px] h-[200px]">
+                <div className="w-[150px] h-[150px]">
                   <Pie data={pieData} options={pieOptions} />
                 </div>
-                <div className="ml-6 space-y-3">
+                <div className="ml-5 space-y-3">
                   {pieData.labels.map((label, index) => (
-                    <div key={label} className="flex items-center justify-between min-w-[150px]">
+                    <div
+                      key={label}
+                      className="flex items-center justify-between min-w-[150px]"
+                    >
                       <div className="flex items-center gap-2">
                         <div
                           className="w-2.5 h-2.5 rounded-full"
-                          style={{ backgroundColor: pieData.datasets[0].backgroundColor[index] }}
+                          style={{
+                            backgroundColor:
+                              pieData.datasets[0].backgroundColor[index],
+                          }}
                         />
                         <span className="text-sm text-[#111827]">{label}</span>
                       </div>
-                      <span className="text-sm text-[#576477]">{pieData.datasets[0].data[index].toLocaleString()}</span>
+                      <span className="text-sm text-[#576477]">
+                        {pieData.datasets[0].data[index].toLocaleString()}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -273,7 +296,7 @@ const BrandDashboard = ({ userRole }) => {
                 icon={WalletRateIcon}
                 rateItems={[
                   { label: "All Products", value: "24" },
-                  { label: "Active", value: "18" }
+                  { label: "Active", value: "18" },
                 ]}
                 hasDateFilter={false}
                 cardStyle="dark"
@@ -282,7 +305,7 @@ const BrandDashboard = ({ userRole }) => {
                 icon={CartRateIcon}
                 rateItems={[
                   { label: "Abandoned Cart", value: "12" },
-                  { label: "Checkout rate", value: "78%" }
+                  { label: "Checkout rate", value: "78%" },
                 ]}
               />
             </div>
@@ -295,8 +318,10 @@ const BrandDashboard = ({ userRole }) => {
             <h3 className="text-base text-[#050505]">Recent Orders</h3>
           </div>
           <div className="p-6 flex flex-col items-center justify-center min-h-[300px]">
-            <BsBag className="w-12 h-12 text-gray-400 mb-4" />
-            <h4 className="text-lg font-bold text-[#050505] mb-2">No Orders Yet</h4>
+            <EmptyBagIcon className="mb-4" />
+            <h4 className="text-lg font-bold text-[#050505] mb-2">
+              No Orders Yet
+            </h4>
             <p className="text-sm text-[#6D7280] text-center">
               Add products to your store and start selling to see orders here.
             </p>

@@ -1,29 +1,30 @@
-import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import { BsImages } from 'react-icons/bs';
-import { MdClose } from 'react-icons/md';
+import React, { useRef, useState } from "react";
+import PropTypes from "prop-types";
+import { BsImages } from "react-icons/bs";
+import { ReactComponent as GalleryIcon } from "assets/icons/gallery-icon.svg";
+import { MdClose } from "react-icons/md";
 
-const ImageSelection = ({ 
-  label, 
-  value = [], 
-  onChange, 
-  multiple = false, 
+const ImageSelection = ({
+  label,
+  value = [],
+  onChange,
+  multiple = false,
   accept = "image/*",
   maxFiles = 1,
   className = "",
   required = false,
-  error = null
+  error = null,
 }) => {
   const fileInputRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
 
   const handleFiles = (files) => {
     const fileArray = Array.from(files);
-    const validFiles = fileArray.filter(file => {
-      if (accept.includes('image/*')) {
-        return file.type.startsWith('image/');
+    const validFiles = fileArray.filter((file) => {
+      if (accept.includes("image/*")) {
+        return file.type.startsWith("image/");
       }
-      return accept.split(',').some(type => file.type.includes(type.trim()));
+      return accept.split(",").some((type) => file.type.includes(type.trim()));
     });
 
     if (multiple) {
@@ -89,7 +90,7 @@ const ImageSelection = ({
     return null;
   };
 
-  const displayFiles = multiple ? (value || []) : (value ? [value] : []);
+  const displayFiles = multiple ? value || [] : value ? [value] : [];
 
   return (
     <div className={`flex flex-col ${className}`}>
@@ -98,14 +99,14 @@ const ImageSelection = ({
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
-      
+
       <div className="flex gap-3">
-        {/* Upload box */}
+        {/* Upload box - styled like Input.js container */}
         <div
-          className={`flex-shrink-0 w-24 h-24 border-2 border-dashed rounded-lg cursor-pointer transition-colors flex items-center justify-center ${
-            dragActive 
-              ? 'border-primary bg-primary/10' 
-              : 'border-gray-300 hover:border-primary hover:bg-gray-50'
+          className={`flex-shrink-0 w-12 h-11 border border-solid cursor-pointer transition-all duration-300 ease-in-out flex items-center justify-center ${
+            dragActive
+              ? "bg-white border-[#111111] shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)]"
+              : "bg-transparent border-[#BBBBBB] hover:border-[#111111] hover:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)] hover:bg-white"
           }`}
           onClick={handleClick}
           onDragEnter={handleDrag}
@@ -113,7 +114,7 @@ const ImageSelection = ({
           onDragOver={handleDrag}
           onDrop={handleDrop}
         >
-          <BsImages className="text-gray-400" size={24} />
+          <GalleryIcon />
           <input
             ref={fileInputRef}
             type="file"
@@ -124,14 +125,22 @@ const ImageSelection = ({
           />
         </div>
 
-        {/* File input field */}
+        {/* File input field - styled like Input.js */}
         <div className="flex-1">
           <input
             type="text"
-            value={displayFiles.length > 0 ? `${displayFiles.length} file(s) selected` : ''}
+            value={
+              displayFiles.length > 0
+                ? `${displayFiles.length} file(s) selected`
+                : ""
+            }
             placeholder="Click the gallery icon to select files"
             readOnly
-            className="w-full p-3 border border-[#D1D5DB] rounded-lg bg-gray-50 focus:outline-none cursor-pointer"
+            className={`relative h-11 w-full flex items-center font-normal outline-none transition-all duration-300 ease-in-out text-base leading-relaxed border border-solid px-3 cursor-pointer ${
+              displayFiles.length > 0
+                ? "bg-white border-[#111111] shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)]"
+                : "bg-transparent border-[#BBBBBB] hover:border-[#111111] hover:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)] hover:bg-white"
+            }`}
             onClick={handleClick}
           />
         </div>
@@ -145,9 +154,7 @@ const ImageSelection = ({
       )}
 
       {/* Error message */}
-      {error && (
-        <span className="text-red-500 text-xs mt-1">{error}</span>
-      )}
+      {error && <span className="text-red-500 text-xs mt-1">{error}</span>}
     </div>
   );
 };
@@ -157,7 +164,7 @@ ImageSelection.propTypes = {
   value: PropTypes.oneOfType([
     PropTypes.instanceOf(File),
     PropTypes.arrayOf(PropTypes.instanceOf(File)),
-    PropTypes.oneOf([null])
+    PropTypes.oneOf([null]),
   ]),
   onChange: PropTypes.func.isRequired,
   multiple: PropTypes.bool,

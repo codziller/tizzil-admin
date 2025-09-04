@@ -42,7 +42,6 @@ const HeaderSearch = () => {
     //     account_trade_name: searchQuery,
     //   }),
     // };
-
     // dispatch(
     //   actions.searchMerchants({
     //     data: filters,

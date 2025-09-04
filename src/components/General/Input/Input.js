@@ -123,13 +123,13 @@ const Input = ({
         ref={domNode}
       >
         <div
-          className={`relative h-11 w-full bg-grey-alt rounded flex  space-x-1 items-center justify-between  font-normal outline-none capitalize tracking-wider focus:outline-none transition-all duration-300 ease-in-out whitespace-nowrap  text-base leading-relaxed border border-solid shadow-none text-left 
+          className={`relative h-11 w-full flex space-x-1 items-center justify-between font-normal outline-none capitalize tracking-wider focus:outline-none transition-all duration-300 ease-in-out whitespace-nowrap text-base leading-relaxed border border-solid text-left 
         ${
           isError
-            ? "!border-red"
-            : active && !alterBlueBorder
-            ? "border-blue"
-            : "hover:bg-grey-whitesmoke border-grey-border"
+            ? "!border-red bg-white"
+            : active || value
+            ? "bg-white border-[#111111] shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)]"
+            : "bg-transparent border-[#BBBBBB] hover:border-[#111111] hover:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)] hover:bg-white"
         }
         ${isLoading && "pointer-events-none"}
         `}

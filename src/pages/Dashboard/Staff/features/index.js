@@ -198,7 +198,11 @@ const StaffsPage = ({ isModal, handleStaffSelect, isSelected }) => {
 
   return (
     <>
-      <div className={classNames("h-full w-full", { "md:pr-4": !isModal })}>
+      <div
+        className={classNames("min-h-[100px] h-fit  w-full mb-20", {
+          "md:pr-4": !isModal,
+        })}
+      >
         <div className="flex flex-col justify-start items-center h-full w-full gap-y-5">
           <div className="flex justify-between items-center w-full mb-3 gap-1">
             <div

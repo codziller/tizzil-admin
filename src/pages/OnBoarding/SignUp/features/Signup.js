@@ -58,13 +58,25 @@ const Signup = ({ goToLogin, goToSignUpOtp }) => {
 
   const handleOnSubmit = async (e) => {
     try {
+      console.log("Starting signup process with form data:", form);
+
       // First, send verification email
       await sendVerificationMail({ email: form.email }, (success) => {
         if (success) {
           // Store form data for later use in OTP verification
+          console.log("Storing signup data to localStorage:", form);
           localStorage.setItem("signupFormData", JSON.stringify(form));
+
+          // Verify the data was stored
+          const storedData = localStorage.getItem("signupFormData");
+          console.log("Verification - data stored successfully:", storedData);
+
           // Navigate to OTP page
           goToSignUpOtp();
+        } else {
+          console.log(
+            "Failed to send verification email, not proceeding to OTP"
+          );
         }
       });
     } catch (error) {
@@ -73,7 +85,7 @@ const Signup = ({ goToLogin, goToSignUpOtp }) => {
   };
 
   return (
-    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center">
+    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center mt-20">
       <h2 className="section-heading mb-1 text-lg text-[#444444]">
         LET'S GET YOU IN.
       </h2>

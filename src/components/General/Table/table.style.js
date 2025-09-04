@@ -73,7 +73,7 @@ export const TableWrapper = styled.div`
   }
   .table-container {
     margin-bottom: 24px;
-    background: #fff;
+    background: transparent;
     width: 100%;
     .rdt_TableCol,
     .rdt_TableCol_Sortable {
@@ -82,7 +82,8 @@ export const TableWrapper = styled.div`
 
     .rdt_TableHeadRow {
       align-items: center;
-      background-color: ${(props) => (props.header ? "#f5f5f5" : "#ffffff")};
+      background-color: ${(props) =>
+        props.header ? "transparent" : "transparent"};
     }
   }
 
@@ -125,6 +126,7 @@ export const TableWrapper = styled.div`
   }
   .rdt_TableHeadRow,
   .rdt_TableRow {
+    border-bottom: 1px solid #e5e7eb;
   }
 
   .rdt_TableHeadRow {

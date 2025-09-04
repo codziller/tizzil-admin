@@ -21,10 +21,13 @@ const loginQuery = gql`
         firstName
         lastName
         email
-        role
+        userRole {
+          name
+          id
+        }
         gender
       }
-      accessToken
+      access_token
     }
   }
 `;
@@ -141,7 +144,6 @@ const authLoginUserQuery = gql`
       brand {
         id
         brandName
-        brandEmail
         logoUrl
       }
       brandUser {

@@ -75,7 +75,6 @@ export default function AbandonedCartsPage() {
     params,
   });
 
-
   useEffect(() => {
     if (searchQuery) {
       setCurrentPage(1);

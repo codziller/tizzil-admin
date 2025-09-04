@@ -21,31 +21,34 @@ class AuthSignUpStore {
   sendVerificationMail = async (data, callback) => {
     try {
       this.setLoading(true);
-      
-      // DEMO MODE: Comment out actual API call for demo purposes
+
+      // Comment out API call for demo mode
       // const response = await authService.authSendVerificationMail(data);
-      
-      // Demo mode: Simulate successful verification email send
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-      const response = {
-        authSendVerificationMail: {
-          status: true,
-          message: "Verification email sent successfully (Demo Mode)"
+
+      // Demo mode - simulate successful verification email send
+      setTimeout(() => {
+        const demoResponse = {
+          authSendVerificationMail: {
+            status: true,
+          },
+        };
+
+        if (demoResponse?.authSendVerificationMail?.status) {
+          toast.success("Verification email sent successfully! (Demo Mode)");
+          callback && callback(true);
+        } else {
+          toast.error("Failed to send verification email");
+          callback && callback(false);
         }
-      };
-      
-      if (response?.authSendVerificationMail?.status) {
-        toast.success("Verification email sent successfully! (Demo Mode)");
-        callback && callback(true);
-      } else {
-        toast.error("Failed to send verification email");
-        callback && callback(false);
-      }
+
+        runInAction(() => {
+          this.setLoading(false);
+        });
+      }, 1000); // Simulate network delay
     } catch (error) {
       console.error("Send verification mail error:", error);
-      toast.error(error?.response?.errors?.[0]?.message || "Failed to send verification email");
+      toast.error("Failed to send verification email");
       callback && callback(false);
-    } finally {
       runInAction(() => {
         this.setLoading(false);
       });
@@ -55,42 +58,72 @@ class AuthSignUpStore {
   signup = async (data, callback) => {
     try {
       this.setLoading(true);
-      
-      // DEMO MODE: Comment out actual API call for demo purposes
+
+      // Comment out API call for demo mode
       // const response = await authService.authSignup(data);
-      
-      // Demo mode: Simulate successful signup
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
-      const response = {
-        authSignup: {
-          access_token: 'demo_signup_token_123',
-          user: {
-            id: 1,
-            email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            userRole: { name: 'BRAND_USER' }
+
+      // Demo mode - simulate successful account creation
+      setTimeout(() => {
+        // Check if email is the special fullbrand email
+        const isFullBrandUser = data.email === "fullbrand@gmail.com";
+
+        const demoResponse = {
+          authSignup: {
+            access_token: "demo_signup_access_token_12345",
+            refresh_token: "demo_signup_refresh_token_67890",
+            user: {
+              id: "demo-signup-user-id-123",
+              firstName: data.firstName || "Demo",
+              lastName: data.lastName || "User",
+              email: data.email || "demo@tizzil.com",
+              userRole: {
+                name: "BRAND_ADMIN",
+                id: "role-123",
+              },
+            },
+            // For fullbrand@gmail.com, include complete brand setup
+            // For other emails, exclude brand/brandUser to trigger account setup flow
+            brand: isFullBrandUser
+              ? {
+                  id: "demo-signup-brand-id-456",
+                  brandName: `${data.firstName || "Demo"}'s Brand Store`,
+                  brandEmail: data.email || "demo@tizzil.com",
+                  logoUrl:
+                    "https://via.placeholder.com/100/690007/FFFFFF?text=DB",
+                }
+              : null,
+            brandUser: isFullBrandUser
+              ? {
+                  brandId: "demo-signup-brand-id-456",
+                  createdAt: new Date().toISOString(),
+                  id: "demo-signup-brand-user-789",
+                  invitedAt: new Date().toISOString(),
+                  isActive: true,
+                  joinedAt: new Date().toISOString(),
+                  role: "OWNER",
+                  updatedAt: new Date().toISOString(),
+                  userId: "demo-signup-user-id-123",
+                }
+              : null,
           },
-          status: true
+        };
+
+        if (demoResponse?.authSignup) {
+          toast.success("Account created successfully! (Demo Mode)");
+          callback && callback(demoResponse.authSignup);
+        } else {
+          toast.error("Failed to create account");
+          callback && callback(null);
         }
-      };
-      
-      if (response?.authSignup) {
-        // Store demo user data
-        localStorage.setItem('access_token', response.authSignup.access_token);
-        localStorage.setItem('user', JSON.stringify(response.authSignup.user));
-        
-        toast.success("Account created successfully! (Demo Mode)");
-        callback && callback(response.authSignup);
-      } else {
-        toast.error("Failed to create account");
-        callback && callback(null);
-      }
+
+        runInAction(() => {
+          this.setLoading(false);
+        });
+      }, 1500); // Simulate network delay
     } catch (error) {
       console.error("Signup error:", error);
-      toast.error(error?.response?.errors?.[0]?.message || "Failed to create account");
+      toast.error("Failed to create account");
       callback && callback(null);
-    } finally {
       runInAction(() => {
         this.setLoading(false);
       });

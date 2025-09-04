@@ -83,7 +83,6 @@ const AffiliateMarketersPage = () => {
     params,
   });
 
-
   useEffect(() => {
     if (searchQuery) {
       setCurrentPage(1);

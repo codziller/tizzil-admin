@@ -3,7 +3,7 @@ import clsx from "classnames";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { ReactComponent as ArrowRight } from "assets/icons/Arrow/arrow-right.svg";
+import { ReactComponent as ArrowRight } from "assets/icons/chevron-right-grey.svg";
 import { BreadCrumbsWrapper } from "./style";
 
 export default function BreadCrumbs({ links, className }) {
@@ -11,17 +11,15 @@ export default function BreadCrumbs({ links, className }) {
     <BreadCrumbsWrapper
       className={clsx("flex justify-between items-center w-full", className)}
     >
-      <div className="flex flex-row justify-start items-center space-x-2 text-base">
+      <div className="flex flex-row justify-start items-center gap-x-1.5 text-base">
         {links.map(({ link, name, style }, index) =>
           link ? (
             <div
               key={name + index}
-              className="flex justify-start items-center space-x-2"
+              className="flex justify-start items-center gap-x-1.5"
             >
               <Link to={link}>
-                <span
-                  className={clsx("text-grey-ghostwhite cursor-pointer", style)}
-                >
+                <span className={clsx("text-[#888888] cursor-pointer", style)}>
                   {name}
                 </span>
               </Link>
@@ -32,7 +30,7 @@ export default function BreadCrumbs({ links, className }) {
           ) : (
             <div
               key={name + index}
-              className="flex justify-start items-center space-x-2"
+              className="flex justify-start items-center gap-x-1.5"
             >
               <span className={clsx("text-black", style)} key={name}>
                 {name}

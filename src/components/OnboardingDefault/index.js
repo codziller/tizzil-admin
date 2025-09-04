@@ -9,20 +9,22 @@ import signupImage from "assets/images/signup-image.png";
 export default function Index({ children }) {
   const location = useLocation().pathname;
   const isSignupPage =
-    location.includes("signup") || location.includes("register");
+    location.includes("signup") ||
+    location.includes("register") ||
+    location.includes("account-setup");
   const backgroundImage = isSignupPage ? signupImage : loginImage;
 
   return (
     <div
       className={`${
         IS_DEV ? "h-with-test-banner" : "h-screen"
-      } w-screen bg-white relative overflow-hidden`}
+      } w-screen bg-white relative overflow-hidden flex flex-col`}
     >
       <OnboardingHeader />
 
-      <div className="h-full flex items-start">
-        {/* Left side image - Desktop and Tablet */}
-        <div className="hidden md:block md:w-2/5 lg:w-1/2 h-full">
+      <div className="flex-1 flex items-start relative">
+        {/* Left side image section - Desktop and Tablet - Truly Fixed positioned */}
+        <div className="hidden md:block md:w-2/5 lg:w-1/2 fixed left-0 h-[calc(100vh)] z-0">
           <img
             src={backgroundImage}
             alt="Onboarding background"
@@ -40,10 +42,12 @@ export default function Index({ children }) {
         </div>
 
         {/* Right side content */}
-        <div className="w-full md:w-3/5 lg:w-1/2 h-full flex items-center justify-center px-6 md:px-12 relative z-10 mt-24">
-          <div className="w-full max-w-[362px] mt-[70px] md:mt-0">
-            <div className="md:hidden h-[200px]"></div>
-            {children}
+        <div className="w-full md:w-3/5 lg:w-1/2 md:ml-auto h-full flex flex-col relative z-[8]">
+          <div className="flex-1 overflow-y-auto px-6 md:px-12 py-6 md:py-12">
+            <div className="w-full max-w-[362px] md:mx-auto">
+              <div className="md:hidden h-[200px]"></div>
+              {children}
+            </div>
           </div>
         </div>
       </div>

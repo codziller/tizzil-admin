@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import DataTable, { createTheme } from "react-data-table-component";
 import PropTypes from "prop-types";
 import clsx from "classnames";
 import ReactPaginate from "react-paginate";
 import { ReactComponent as Calender } from "assets/icons/calender.svg";
 import { ReactComponent as Chevron } from "assets/icons/chevron-right.svg";
+import { ReactComponent as ChevronUpDown } from "assets/icons/chevron-up-down.svg";
+import { ReactComponent as TableMoreIcon } from "assets/icons/table-more-icon.svg";
+import { ReactComponent as MoreIcon } from "assets/icons/more-table-icon.svg";
 import { TableWrapper, PaginationWrapper } from "./table.style";
 import SearchBar from "../Searchbar/SearchBar";
 import DateRangeModal from "../Modal/DateRangeModal/DateRangeModal";
@@ -12,11 +15,11 @@ import DateRangePopUp from "../Modal/DateRangeModal/DateRangePop";
 
 createTheme("default", {
   text: {
-    primary: "#65717c",
-    secondary: "#000000",
+    primary: "#666666", // Table cell text color (14px)
+    secondary: "#444444", // Table header text color (14px)
   },
   background: {
-    default: "transparent",
+    default: "transparent", // Transparent background for all table elements
   },
   divider: {
     default: "rgba(245, 246, 250, 1);",
@@ -27,7 +30,128 @@ createTheme("default", {
   striped: {
     default: "rgba(245, 246, 250, 0.7)",
   },
+  headRow: {
+    style: {
+      backgroundColor: "transparent", // Table head row transparent bg
+      fontSize: "14px",
+      color: "#444444",
+    },
+  },
+  headCells: {
+    style: {
+      fontSize: "14px",
+      color: "#444444",
+      backgroundColor: "transparent",
+    },
+  },
+  rows: {
+    style: {
+      backgroundColor: "transparent", // Table body rows transparent bg
+    },
+  },
+  cells: {
+    style: {
+      fontSize: "14px",
+      color: "#666666",
+      backgroundColor: "transparent",
+    },
+  },
 });
+
+// Context Menu Component
+const ContextMenu = ({ isOpen, onClose, options, position }) => {
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      ref={menuRef}
+      className="absolute bg-white shadow-lg border border-gray-200 rounded-md py-1 min-w-[150px] z-50"
+      style={{
+        top: position.y,
+        left: position.x,
+      }}
+    >
+      {options.map((option, index) => (
+        <button
+          key={index}
+          onClick={() => {
+            option.onClick?.();
+            onClose();
+          }}
+          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 transition-colors flex items-center gap-2"
+          type="button"
+        >
+          {option.icon && <span className="w-4 h-4">{option.icon}</span>}
+          <span>{option.name}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+// Table Title Header Component
+const TableTitleHeader = ({ title, itemCount, menuOptions = [] }) => {
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+
+  const handleMenuIconClick = (e) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMenuPosition({
+      x: rect.right - 150, // Align menu to right of icon
+      y: rect.bottom + 5,
+    });
+    setShowMenu(true);
+  };
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-b border-[#D2D5DA] bg-transparent">
+      <div className="flex items-center gap-2">
+        <span className="text-base font-normal text-[#111827]">{title}</span>
+        {itemCount !== undefined && (
+          <div className="px-1.5 py-0.5 border border-[#690007] rounded-sm">
+            <span className="text-base text-[#690007]">{itemCount}</span>
+          </div>
+        )}
+      </div>
+
+      {menuOptions.length > 0 && (
+        <button
+          onClick={handleMenuIconClick}
+          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+          type="button"
+        >
+          <TableMoreIcon className="w-4 h-4 text-gray-600" />
+        </button>
+      )}
+
+      <ContextMenu
+        isOpen={showMenu}
+        onClose={() => setShowMenu(false)}
+        options={menuOptions}
+        position={menuPosition}
+      />
+    </div>
+  );
+};
 
 const renderMobileRows = (mobileRowRender, keyField, data, otherProps) => {
   const onRowPress = (row) => {
@@ -81,28 +205,48 @@ export default function Table({
   dataRangeFromTo,
   dateFilter,
   filterButton,
+  // Props for title header functionality
+  itemCount,
+  menuOptions = [],
   ...rest
 }) {
   const [showRangeModal, setShowRangeModal] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
   return (
     <TableWrapper
       hover={hover}
       extendMinHeight={extendMinHeight}
       noPadding={noPadding}
     >
-      <div className={`${isAlt ? "" : "table-container"} ${tableClassName}`}>
+      <div
+        className={clsx(
+          isAlt ? "" : "table-container",
+          tableClassName,
+          "border-[0.89px] border-[#D2D5DA] rounded-lg bg-transparent",
+          { "overflow-hidden": title } // Only add overflow-hidden when we have a title header
+        )}
+      >
+        {/* Top row with title and menu for all tables */}
+        {title && (
+          <TableTitleHeader
+            title={title}
+            itemCount={itemCount}
+            menuOptions={menuOptions}
+          />
+        )}
+
         {header ? (
           <div
             className={clsx(
               "flex flex-col justify-start items-start w-full pb-4",
-              { "px-[16px] md::px-[40px]": title },
+              { "px-[16px] md::px-[40px]": title && !title }, // Avoid double padding when using new title header
               { "pl-[10px]": noPadding },
-              { "pt-8": title || filterButton }
+              { "pt-8": (!title && title) || filterButton } // Only add top padding if not using new title header
             )}
           >
-            {title && (
+            {!title && ( // Only show old title if new title header is not being used
               <span className="text-base whitespace-nowrap font-600 mb-2 sm:mb-6">
                 {title}
               </span>
@@ -143,7 +287,7 @@ export default function Table({
             data={data}
             theme="default"
             progressPending={isLoading}
-            progressComponent={<h1>Loading...</h1>}
+            progressComponent={<h1 className="p-8">Loading...</h1>}
             {...rest}
           />
           {extraChild}
@@ -158,7 +302,7 @@ export default function Table({
                 data={data}
                 theme="default"
                 progressPending={isLoading}
-                progressComponent={<h1>Loading...</h1>}
+                progressComponent={<h1 className="p-8">Loading...</h1>}
                 {...rest}
               />
             </div>
@@ -228,4 +372,30 @@ Table.propTypes = {
   dataRangeFromTo: PropTypes.bool,
   dateFilter: PropTypes.bool,
   filterButton: PropTypes.element,
+  // Props for title header functionality
+  itemCount: PropTypes.number,
+  menuOptions: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      icon: PropTypes.element,
+      onClick: PropTypes.func,
+    })
+  ),
+};
+
+// PropTypes for helper components
+ContextMenu.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  options: PropTypes.array.isRequired,
+  position: PropTypes.shape({
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+  }).isRequired,
+};
+
+TableTitleHeader.propTypes = {
+  title: PropTypes.string.isRequired,
+  itemCount: PropTypes.number,
+  menuOptions: PropTypes.array,
 };

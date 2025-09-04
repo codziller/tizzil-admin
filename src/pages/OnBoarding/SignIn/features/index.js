@@ -38,7 +38,12 @@ const SignIn = () => {
     {
       title: "Login - Tizzil",
       route: "/auth/login",
-      component: <Login goToSignUp={goToSignUp} goToForgotPassword={goToForgotPassword} />,
+      component: (
+        <Login
+          goToSignUp={goToSignUp}
+          goToForgotPassword={goToForgotPassword}
+        />
+      ),
     },
   ];
 

@@ -6,7 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import ImageSelection from "components/General/Input/ImageSelection";
 import { observer } from "mobx-react-lite";
 
-const AccountSetupThree = ({ formData, updateFormData }) => {
+const AccountSetupThree = ({ formData, updateFormData, hideTitle = false }) => {
   const schema = yup.object({
     logo: yup.mixed().required("Please upload a logo"),
     banner: yup.mixed(), // Optional
@@ -41,12 +41,15 @@ const AccountSetupThree = ({ formData, updateFormData }) => {
 
   return (
     <div className="w-full">
-      <h3 className="text-xl font-bold text-[#111111] mb-2">ASSETS</h3>
+      {!hideTitle && (
+        <h3 className="text-xl font-bold text-[#111111] mb-2">ASSETS</h3>
+      )}
       <p className="text-sm text-[#6B7280] mb-6">
-        Logo – JPG or PNG, 500×500px<br />
+        Logo – JPG or PNG, 500×500px
+        <br />
         Banner – JPG, 1200×600px
       </p>
-      
+
       <div className="flex flex-col space-y-6">
         <ImageSelection
           label="Logo upload"
@@ -56,7 +59,7 @@ const AccountSetupThree = ({ formData, updateFormData }) => {
           required
           error={errors.logo?.message}
         />
-        
+
         <ImageSelection
           label="Banner image (optional)"
           value={form?.banner}
@@ -72,6 +75,7 @@ const AccountSetupThree = ({ formData, updateFormData }) => {
 AccountSetupThree.propTypes = {
   formData: PropTypes.object,
   updateFormData: PropTypes.func,
+  hideTitle: PropTypes.bool,
 };
 
 export default observer(AccountSetupThree);

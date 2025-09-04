@@ -3,28 +3,19 @@ import _, { isEmpty } from "lodash";
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import PropTypes from "prop-types";
+import moment from "moment";
 
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import Table from "components/General/Table";
 import { pageCount } from "utils/appConstant";
 import { ReactComponent as SearchIcon } from "assets/icons/SearchIcon/searchIcon.svg";
-import { ReactComponent as ProfileUser } from "assets/icons/profile-2user.svg";
-import { ReactComponent as IconBox } from "assets/icons/icon-box.svg";
-import { ReactComponent as CardCoin } from "assets/icons/card-coin.svg";
-import { ReactComponent as Star } from "assets/icons/star.svg";
-import { ReactComponent as MessageIcon } from "assets/icons/message-question.svg";
-import { ReactComponent as DangerIcon } from "assets/icons/danger.svg";
-import { ReactComponent as LastUpdatedIcon } from "assets/icons/maximize-circle.svg";
+import { ReactComponent as TrashIcon } from "assets/icons/trash-box.svg";
 import useWindowDimensions from "hooks/useWindowDimensions";
 import TransactionDetailsModal from "./DetailsModal";
 import dateConstants from "utils/dateConstants";
 import { numberWithCommas } from "utils/formatter";
-import Amount from "components/General/Numbers/Amount";
 import Tabs from "components/General/Tabs";
 import ProductsStore from "pages/Dashboard/Products/store";
-import { convertToJs } from "utils/functions";
-import AppRating from "components/General/Rating";
-import moment from "moment";
 import { Link, useParams } from "react-router-dom";
 import OrderDetailsModal from "pages/Dashboard/Orders/features/OrderDetailsModal";
 
@@ -48,6 +39,80 @@ export const dateFilters = [
     end_date: dateConstants?.today,
   },
 ];
+// Demo reviews data
+const sampleReviews = [
+  {
+    id: 1,
+    orderCode: "ORD-2024-001",
+    user: {
+      id: 1,
+      firstName: "John",
+      lastName: "Doe",
+      phoneNumber: "+1234567890",
+    },
+    productName: "Nike Air Max",
+    rating: 5,
+    review: "Excellent product! Great quality and fast delivery.",
+    createdAt: new Date("2024-03-01"),
+  },
+  {
+    id: 2,
+    orderCode: "ORD-2024-002",
+    user: {
+      id: 2,
+      firstName: "Jane",
+      lastName: "Smith",
+      phoneNumber: "+0987654321",
+    },
+    productName: "Adidas Ultraboost",
+    rating: 4,
+    review: "Good shoes, comfortable and stylish. Recommended!",
+    createdAt: new Date("2024-02-28"),
+  },
+  {
+    id: 3,
+    orderCode: "ORD-2024-003",
+    user: {
+      id: 3,
+      firstName: "Mike",
+      lastName: "Johnson",
+      phoneNumber: "+1122334455",
+    },
+    productName: "Puma RS-X",
+    rating: 3,
+    review: "Average quality, but the design is nice.",
+    createdAt: new Date("2024-02-25"),
+  },
+  {
+    id: 4,
+    orderCode: "ORD-2024-004",
+    user: {
+      id: 4,
+      firstName: "Sarah",
+      lastName: "Williams",
+      phoneNumber: "+5566778899",
+    },
+    productName: "Converse Chuck Taylor",
+    rating: 5,
+    review: "Love these classic sneakers! Perfect fit and great price.",
+    createdAt: new Date("2024-02-20"),
+  },
+  {
+    id: 5,
+    orderCode: "ORD-2024-005",
+    user: {
+      id: 5,
+      firstName: "David",
+      lastName: "Brown",
+      phoneNumber: "+9988776655",
+    },
+    productName: "Vans Old Skool",
+    rating: 2,
+    review: "Not what I expected. Quality could be better.",
+    createdAt: new Date("2024-02-15"),
+  },
+];
+
 const ReviewsPage = ({ isModal, handleUserSelect }) => {
   const { getReviews, reviews, reviewsLoading, reviewsCount } = ProductsStore;
 
@@ -97,135 +162,113 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
   };
   const columns = [
     {
-      name: (
-        <div className="flex justify-center items-center gap-1">
-          <ProfileUser />
-          <span className="font-700 text-sm">Customer&apos;s Name</span>
-        </div>
-      ),
-      minWidth: isMobile ? "35%" : "15%",
-      selector: (row) => (
-        <Link
-          onClick={() => handleEdit(row)}
-          className="py-4 mt-[5px] mb-[5px] flex-col justify-start items-start gap-1 flex underline"
-          to={`/dashboard/users/edit/${warehouse_id}/${row?.user?.id}`}
-        >
-          <div className="text-black text-sm font-medium font-700 capitalize whitespace-break-spaces">
-            {row?.user?.firstName} {row?.user?.lastName}
-          </div>
-          <div className="text-grey text-sm font-normal">
-            {row?.user?.phoneNumber}
-          </div>
-        </Link>
-      ),
-      sortable: false,
-    },
-
-    {
-      minWidth: isMobile ? "35%" : "20%",
-      name: (
-        <div className="flex justify-center items-center gap-1">
-          <IconBox />
-          <span className="font-700 text-sm">Product</span>
-        </div>
-      ),
-      selector: (row) => (
-        <Link
-          className="whitespace-break-spaces text-sm underline"
-          to={`/dashboard/products/edit/${warehouse_id}/${row?.productId}`}
-        >
-          {row.productName}
-        </Link>
-      ),
-      sortable: false,
-    },
-    {
-      maxWidth: "140px",
-      name: (
-        <div className="flex justify-center items-center gap-1">
-          <CardCoin />
-          <span className="font-700 text-sm">Order Code</span>
-        </div>
-      ),
-      selector: (row) => (
-        <span
-          className="font-700 text-base underline cursor-pointer"
-          onClick={() => handleView(row)}
-        >
-          {row.orderCode}
-        </span>
-      ),
-      sortable: false,
-    },
-
-    {
-      maxWidth: "120px",
-      name: (
-        <div className="flex justify-center items-center gap-1">
-          <Star />
-          <span className="font-700 text-sm">Rating</span>
-        </div>
-      ),
-      selector: (row) => (
-        <span className="">
-          <AppRating initialRating={row?.rating} readonly />
-        </span>
-      ),
-      sortable: false,
-    },
-
-    {
-      minWidth: isMobile ? "35%" : "20%",
-      name: (
-        <div className="flex justify-center items-center gap-1">
-          <MessageIcon />
-          <span className="font-700 text-sm">Review</span>
-        </div>
-      ),
-      selector: (row) => (
-        <span className="whitespace-break-spaces text-sm">{row.review}</span>
-      ),
-      sortable: false,
-    },
-
-    {
-      maxWidth: "150px",
-      name: (
-        <div className="flex justify-center items-center gap-1">
-          <LastUpdatedIcon />
-          <span className="font-700 text-sm">Date</span>
-        </div>
-      ),
-      selector: (row) => (
-        <span className="whitespace-break-spaces text-sm">
-          {moment(row.createdAt).format("MMM Do, YYYY hh:mma")}
-        </span>
-      ),
-      sortable: false,
-    },
-    {
-      name: (
-        <div className="flex justify-center items-center gap-1">
-          <DangerIcon />
-          <span className="font-700 text-sm">Action</span>
-        </div>
-      ),
-      maxWidth: "100px",
-      selector: (row) => (
-        <div className="flex justify-start items-center gap-1.5">
-          <span
-            onClick={() =>
-              setCurrentTxnDetails({ ...row, modalType: "delete" })
-            }
-            className=" cursor-pointer px-4 py-1 rounded-full bg-red-deep text-[11px] text-white "
-          >
-            {row?.isDeleted ? "Unarchive" : "Delete"}
-          </span>
-        </div>
+      name: "Order Code",
+      minWidth: "12%",
+      selector: (review) => (
+        <span className="text-[14px] text-[#666666]">{review.orderCode}</span>
       ),
       sortable: true,
     },
+    {
+      name: "Customers",
+      minWidth: "20%",
+      selector: (review) => {
+        const userId = review.user.id.toString().padStart(6, "0").slice(-6);
+        return (
+          <div className="flex flex-col">
+            <span className="text-[15px] text-[#111827] font-medium">
+              {review.user.firstName} {review.user.lastName}
+            </span>
+            <span className="text-[14px] text-[#6D7280] mt-1">#{userId}</span>
+          </div>
+        );
+      },
+      sortable: true,
+    },
+    {
+      name: "Product",
+      minWidth: "18%",
+      selector: (review) => (
+        <span className="text-[14px] text-[#666666]">{review.productName}</span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Ratings",
+      minWidth: "10%",
+      selector: (review) => renderStars(review.rating),
+      sortable: true,
+    },
+    {
+      name: "Review",
+      minWidth: "25%",
+      selector: (review) => (
+        <span className="text-[14px] text-[#666666] line-clamp-2">
+          {review.review}
+        </span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Date",
+      minWidth: "10%",
+      selector: (review) => (
+        <span className="text-[14px] text-[#666666]">
+          {moment(review.createdAt).format("DD/MM/YYYY")}
+        </span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Action",
+      minWidth: "5%",
+      selector: (review) => (
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteReview(review);
+          }}
+          className="flex items-center cursor-pointer text-[14px] text-[#666666] hover:text-red-600 transition-colors"
+        >
+          <TrashIcon className="w-4 h-4 mr-[7px]" />
+          Delete
+        </div>
+      ),
+      sortable: false,
+    },
   ];
+
+  const renderStars = (rating) => {
+    return (
+      <div className="flex items-center gap-[2px]">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <svg
+            key={star}
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            className="cursor-pointer"
+          >
+            <path
+              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              fill={star <= rating ? "#690007" : "none"}
+              stroke="#690007"
+              strokeWidth={star <= rating ? "0" : "1"}
+            />
+          </svg>
+        ))}
+      </div>
+    );
+  };
+
+  const handleDeleteReview = (review) => {
+    console.log("Delete review:", review.id);
+    setCurrentTxnDetails({ ...review, modalType: "delete" });
+  };
+
+  const handleRowClick = (review) => {
+    handleView(review);
+  };
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -235,12 +278,14 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
   };
 
   const displayedReviews = useMemo(() => {
-    return isSearchMode ? searchResult : isArchive ? [] : reviews;
+    const baseReviews = reviews.length > 0 ? reviews : sampleReviews;
+    return isSearchMode ? searchResult : isArchive ? [] : baseReviews;
   }, [searchResult, reviews, isSearchMode, isArchive]);
 
   const displayedReviewsCount = useMemo(() => {
-    return isSearchMode ? searchResultCount : isArchive ? [] : reviewsCount;
-  }, [searchResult, reviews, isSearchMode]);
+    const baseCount = reviewsCount > 0 ? reviewsCount : sampleReviews.length;
+    return isSearchMode ? searchResultCount : isArchive ? [] : baseCount;
+  }, [searchResult, reviews, isSearchMode, reviewsCount]);
 
   const isLoading = useMemo(() => {
     return isSearchMode
@@ -254,9 +299,13 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
 
   return (
     <>
-      <div className={classNames("h-full w-full", { "md:pr-4": !isModal })}>
+      <div
+        className={classNames("min-h-[100px] h-fit  w-full mb-20", {
+          "md:pr-4": !isModal,
+        })}
+      >
         <div className="flex flex-col justify-start items-center h-full w-full gap-y-5">
-          <Tabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} />
+          {/* <Tabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} /> */}
           {isLoading ? (
             <CircleLoader blue />
           ) : (
@@ -267,17 +316,10 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
                 {!isEmpty(displayedReviews) ? (
                   <Table
                     data={displayedReviews}
-                    columns={
-                      isModal
-                        ? columns.slice(0, 2)
-                        : width >= 640
-                        ? columns
-                        : columns.slice(0, 2)
-                    }
-                    onRowClicked={(e) => {
-                      handleEdit(e);
-                    }}
+                    columns={columns}
+                    onRowClicked={handleRowClick}
                     pointerOnHover
+                    isLoading={reviewsLoading}
                     pageCount={displayedReviewsCount / pageCount}
                     onPageChange={(page) =>
                       isSearchMode
@@ -295,6 +337,18 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
                     }
                     tableClassName="txn-section-table"
                     noPadding
+                    title="Reviews"
+                    itemCount={displayedReviewsCount}
+                    menuOptions={[
+                      {
+                        name: "Export Reviews",
+                        onClick: () => console.log("Export reviews"),
+                      },
+                      {
+                        name: "Filter Reviews",
+                        onClick: () => console.log("Filter reviews"),
+                      },
+                    ]}
                   />
                 ) : (
                   <>

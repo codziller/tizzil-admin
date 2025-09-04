@@ -37,19 +37,15 @@ const SignUpPage = () => {
   const SIGN_UP_STEPS = [
     {
       title: "Sign Up - Tizzil",
-      component: (
-        <Signup 
-          goToLogin={goToLogin} 
-          goToSignUpOtp={goToSignUpOtp} 
-        />
-      ),
+      component: <Signup goToLogin={goToLogin} goToSignUpOtp={goToSignUpOtp} />,
     },
     {
       title: "Verify Email - Tizzil",
       component: (
-        <SignUpOtp 
-          goToLogin={goToLogin} 
-          goBackToSignup={goBackToSignup} 
+        <SignUpOtp
+          goToLogin={goToLogin}
+          goBackToSignup={goBackToSignup}
+          isActive={currentStep === 1}
         />
       ),
     },

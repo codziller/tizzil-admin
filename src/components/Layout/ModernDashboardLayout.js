@@ -9,11 +9,13 @@ import { ReactComponent as DividerIcon } from "assets/icons/divider-icon.svg";
 import Loading from "components/General/CircleLoader/CircleLoader";
 import Toast from "../General/Toast/Toast";
 import ModernSideNav from "./Components/SideNav/ModernSideNav";
+import Hamburger from "./Components/hamburger";
 
 const ModernDashboardLayout = ({ children }) => {
   const topRef = useRef(null);
   const location = useLocation();
   const [sidenavCollapsed, setSidenavCollapsed] = useState(false);
+  const [sidenavOpen, setSidenavOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -28,21 +30,14 @@ const ModernDashboardLayout = ({ children }) => {
     return () => clearInterval(timer);
   }, []);
 
-  const handleScrollTop = () => {
-    if (window.scrollY >= 150) {
+  const handleScrollTop = (event) => {
+    const scrollTop = event?.target?.scrollTop || 0;
+    if (scrollTop >= 150) {
       setShowScrollTop(true);
     } else {
       setShowScrollTop(false);
     }
   };
-
-  useEffect(() => {
-    handleScrollTop();
-    window.addEventListener("scroll", handleScrollTop);
-    return () => {
-      window.removeEventListener("scroll", handleScrollTop);
-    };
-  }, []);
 
   const scrollToTop = () => {
     topRef.current.scrollIntoView();
@@ -83,23 +78,48 @@ const ModernDashboardLayout = ({ children }) => {
   ];
 
   return (
-    <div className="w-screen flex flex-grow flex-col h-full min-h-screen bg-[#F6F7F1]">
+    <div className="w-screen flex flex-grow flex-col h-full min-h-screen bg-[#111111]">
       <Toast />
 
-      {/* Main Layout Container */}
-      <div className="flex h-full min-h-screen">
-        {/* Sidebar */}
-        <ModernSideNav
-          isCollapsed={sidenavCollapsed}
-          toggleSidenav={toggleSidenav}
-        />
+      {/* Main Layout Container - Fixed height */}
+      <div className="flex h-screen overflow-hidden">
+        {/* Desktop Sidebar - Fixed position, own scroll */}
+        <div className="hidden lg:block">
+          <ModernSideNav
+            isCollapsed={sidenavCollapsed}
+            toggleSidenav={toggleSidenav}
+          />
+        </div>
 
-        {/* Main Content Area */}
+        {/* Mobile Sidebar - Modal style with backdrop */}
+        <div className="lg:hidden">
+          <ModernSideNav
+            isCollapsed={false}
+            toggleSidenav={() => setSidenavOpen(false)}
+            withBackDrop
+            sidenavOpen={sidenavOpen}
+            setSidenavOpen={setSidenavOpen}
+          />
+        </div>
+
+        {/* Main Content Area - Separate scrolling */}
         <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="bg-transparent border-none px-6 py-4 flex justify-between items-center h-[80px]">
-            {/* Left side - Greeting */}
-            <div className="flex items-center gap-2">
+          {/* Header - Fixed position */}
+          <header
+            className={classNames(
+              "!bg-[#F6F7F1] rounded-t-2xl mx-4 bg-transparent border-none px-6 py-4 flex justify-between items-center h-[80px] flex-shrink-0 z-10",
+              "shadow-[0px_12px_16px_-4px_rgba(16,24,40,0.04)] shadow-[0px_4px_6px_-2px_rgba(16,24,40,0.03)]"
+            )}
+          >
+            {/* Left side - Hamburger (mobile) and Greeting */}
+            <div className="flex items-center gap-4">
+              {/* Mobile Hamburger */}
+              <div className="lg:hidden">
+                <Hamburger
+                  click={() => setSidenavOpen(!sidenavOpen)}
+                  className={sidenavOpen ? "ham_crossed" : ""}
+                />
+              </div>
               <span className="text-sm text-[#111111]">
                 {greeting} {emoji} {timeString}
               </span>
@@ -150,12 +170,12 @@ const ModernDashboardLayout = ({ children }) => {
             </div>
           </header>
 
-          {/* Main Content */}
+          {/* Main Content - Scrollable independently */}
           <main
             className={classNames(
-              "flex-1 bg-[#F6F7F1] rounded-2xl mx-4 mb-4 p-6 overflow-y-auto",
-              "shadow-[0px_12px_16px_-4px_rgba(16,24,40,0.04)] shadow-[0px_4px_6px_-2px_rgba(16,24,40,0.03)]"
+              "flex-1 bg-[#F6F7F1] mx-4 mb-4 p-6 overflow-y-auto overflow-x-hidden"
             )}
+            onScroll={handleScrollTop}
           >
             <div ref={topRef} />
 

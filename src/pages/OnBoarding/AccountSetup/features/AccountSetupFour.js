@@ -6,20 +6,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import IconTypeInput from "components/General/Input/IconTypeInput";
 import { observer } from "mobx-react-lite";
 
-const AccountSetupFour = ({ formData, updateFormData }) => {
+const AccountSetupFour = ({ formData, updateFormData, hideTitle = false }) => {
   const schema = yup.object({
     instagramUrl: yup
       .string()
       .url("Please enter a valid Instagram URL")
       .nullable(),
-    tiktokUrl: yup
-      .string()
-      .url("Please enter a valid TikTok URL")
-      .nullable(),
-    websiteUrl: yup
-      .string()
-      .url("Please enter a valid website URL")
-      .nullable(),
+    tiktokUrl: yup.string().url("Please enter a valid TikTok URL").nullable(),
+    websiteUrl: yup.string().url("Please enter a valid website URL").nullable(),
   });
 
   const defaultValues = {
@@ -53,8 +47,12 @@ const AccountSetupFour = ({ formData, updateFormData }) => {
 
   return (
     <div className="w-full">
-      <h3 className="text-xl font-bold text-[#111111] mb-6">Social Links (optional)</h3>
-      
+      {!hideTitle && (
+        <h3 className="text-xl font-bold text-[#111111] mb-6">
+          Social Links (optional)
+        </h3>
+      )}
+
       <div className="flex flex-col space-y-6">
         <IconTypeInput
           label="Instagram"
@@ -63,7 +61,7 @@ const AccountSetupFour = ({ formData, updateFormData }) => {
           onChange={(val) => handleChange("instagramUrl", val)}
           error={errors.instagramUrl?.message}
         />
-        
+
         <IconTypeInput
           label="TikTok"
           type="tiktok"
@@ -71,7 +69,7 @@ const AccountSetupFour = ({ formData, updateFormData }) => {
           onChange={(val) => handleChange("tiktokUrl", val)}
           error={errors.tiktokUrl?.message}
         />
-        
+
         <IconTypeInput
           label="Website"
           type="website"
@@ -87,6 +85,7 @@ const AccountSetupFour = ({ formData, updateFormData }) => {
 AccountSetupFour.propTypes = {
   formData: PropTypes.object,
   updateFormData: PropTypes.func,
+  hideTitle: PropTypes.bool,
 };
 
 export default observer(AccountSetupFour);

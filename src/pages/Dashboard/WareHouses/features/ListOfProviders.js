@@ -70,7 +70,8 @@ const ListOfProviders = ({ isModal, handleSelect, isSelected }) => {
 
     setSearchResultsArchived(filteredResults);
   };
-  const { user } = getUserInfoFromStorage();
+  const userData = getUserInfoFromStorage();
+  const user = userData?.user;
 
   useEffect(() => {
     getWarehouses({ data: { page: currentPage } });

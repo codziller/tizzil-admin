@@ -79,7 +79,7 @@ export default function ImagePicker({
 
   return (
     <div className="flex-col justify-start items-start flex w-full">
-      <div className="general-input-label mb-2 relative text-[13px] font-bold text-grey-dark !flex justify-start items-center gap-1.5">
+      <div className="text-[14px] text-[#555555] flex mb-2">
         {label}
         {isRequired && <span className="text-red text-sm -mt-1 ">*</span>}
       </div>
@@ -89,7 +89,17 @@ export default function ImagePicker({
       >
         <input {...getInputProps()} />
         <Gallery />
-        <p className="text-xs text-grey">{placeholder}</p>
+        <div className="border-2 border-dashed text-center">
+          <div className="mb-2">
+            <span className="text-[16px] text-[#0D0D12] font-bold">
+              Click to upload{" "}
+            </span>
+            <span className="text-[16px] text-[#667085]">or drag and drop</span>
+          </div>
+          <p className="text-[14px] text-[#667085]">
+            SVG, PNG, JPG or GIF (max. 800x400px)
+          </p>
+        </div>
 
         {dimension ? (
           <p className="flex justify-center items-center gap-1 font-medium text-sm text-blue">
@@ -106,18 +116,20 @@ export default function ImagePicker({
         )}
       </div>
 
-      <ImageList
-        images={imageArray || []}
-        multiple={multiple}
-        type={type}
-        removeImage={removeImage}
-        isBanner={isBanner}
-        isPost={isPost}
-        isMarketingImg={isMarketingImg}
-        setImages={setImages}
-      />
+      {imageArray?.[0] ? (
+        <ImageList
+          images={imageArray || []}
+          multiple={multiple}
+          type={type}
+          removeImage={removeImage}
+          isBanner={isBanner}
+          isPost={isPost}
+          isMarketingImg={isMarketingImg}
+          setImages={setImages}
+        />
+      ) : null}
 
-      <div className="min-h-[13px] mb-4">
+      <div className="min-h-[13px]">
         {isError && <FormErrorMessage type={formError} />}
       </div>
     </div>

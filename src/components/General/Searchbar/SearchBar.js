@@ -43,7 +43,7 @@ const SearchBar = ({
 
   return (
     <div
-      className={`h-[40px] w-full mx-auto border-[0.5px] border-solid rounded  justify-start items-center relative transition-all duration-150 ease-in-out bg-white !z-0
+      className={`h-[40px] w-full mx-auto border-[0.5px] border-solid rounded  justify-start items-center relative transition-all duration-150 ease-in-out !z-0
       ${
         active
           ? " border-blue text-blue"

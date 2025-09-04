@@ -15,6 +15,8 @@ import AccountSetup from "pages/OnBoarding/AccountSetup";
 import Logs from "pages/Dashboard/Log";
 import ListOfLogs from "pages/Dashboard/Log/features";
 import ProductsPage from "pages/Dashboard/Products/features";
+import ProductCategoriesPage from "pages/Dashboard/Products/features/categories";
+import ProductCollectionsPage from "pages/Dashboard/Products/features/collections";
 import Products from "pages/Dashboard/Products";
 import AddProduct from "pages/Dashboard/Products/features/AddProduct";
 import StaffPage from "pages/Dashboard/Staff/features";
@@ -29,6 +31,7 @@ import FeaturedSectionPage from "pages/Dashboard/FeaturedSection/features";
 import FeaturedSection from "pages/Dashboard/FeaturedSection";
 import Orders from "pages/Dashboard/Orders";
 import OrdersPage from "pages/Dashboard/Orders/features";
+import OrderDetailsPage from "pages/Dashboard/Orders/features/OrderDetailsPage";
 import Inventory from "pages/Dashboard/Inventory";
 import InventoryPage from "pages/Dashboard/Inventory/features";
 import Categories from "pages/Dashboard/Categories";
@@ -82,6 +85,8 @@ import Blog from "pages/Dashboard/Blog";
 import AddBlog from "pages/Dashboard/Blog/features/AddBlog";
 import Activity from "pages/Dashboard/GiftCards/features/activity";
 import GiftCardDesigns from "pages/Dashboard/GiftCards/features/giftCardDesigns";
+import Wallet from "pages/Dashboard/Wallet";
+import WalletPage from "pages/Dashboard/Wallet/features";
 
 const Router = () => {
   return (
@@ -114,7 +119,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<HomePage />} />
+          <Route path="" element={<HomePage />} />
         </Route>
         {/* end home */}
 
@@ -127,16 +132,12 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<ProductsPage />} />
-          <Route path="add/:warehouse_id" element={<AddProduct />} />
-          <Route
-            path="edit/:warehouse_id/:product_id"
-            element={<AddProduct />}
-          />
-          <Route
-            path="view/:warehouse_id/:product_id"
-            element={<AddProduct />}
-          />
+          <Route path="all" element={<ProductsPage />} />
+          <Route path="categories" element={<ProductCategoriesPage />} />
+          <Route path="collections" element={<ProductCollectionsPage />} />
+          <Route path="add" element={<AddProduct />} />
+          <Route path="edit/:product_id" element={<AddProduct />} />
+          <Route path="view/:product_id" element={<AddProduct />} />
         </Route>
         {/* end products */}
 
@@ -149,7 +150,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<VariantsPage />} />
+          <Route path="" element={<VariantsPage />} />
         </Route>
         {/* end variants */}
 
@@ -162,7 +163,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<AffiliateMarketersPage />} />
+          <Route path="" element={<AffiliateMarketersPage />} />
           <Route path="add/:warehouse_id" element={<AddMarketer />} />
           <Route
             path="edit/:warehouse_id/:affiliateMarketer_id"
@@ -180,7 +181,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<DonationsPage />} />
+          <Route path="" element={<DonationsPage />} />
         </Route>
         {/* end affiliate-marketers */}
 
@@ -193,7 +194,9 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<OrdersPage />} />
+          <Route path="" element={<OrdersPage />} />
+
+          <Route path=":order_id" element={<OrderDetailsPage />} />
         </Route>
         {/* end orders */}
 
@@ -206,7 +209,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<InventoryPage />} />
+          <Route path="" element={<InventoryPage />} />
           <Route
             path="edit/:warehouse_id/:product_id"
             element={<EditInventory />}
@@ -223,7 +226,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<BrandsPage />} />
+          <Route path="" element={<BrandsPage />} />
           <Route
             path="view/:warehouse_id/:brand_id"
             element={<BrandDetails />}
@@ -240,7 +243,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<ReviewsPage />} />
+          <Route path="" element={<ReviewsPage />} />
         </Route>
         {/* end reviews */}
 
@@ -253,7 +256,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<CategoriesPage />} />
+          <Route path="" element={<CategoriesPage />} />
         </Route>
         {/* end categories */}
 
@@ -266,7 +269,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<BackInStockPage />} />
+          <Route path="" element={<BackInStockPage />} />
         </Route>
         {/* end back-in-stock */}
 
@@ -279,7 +282,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<AbandonedCartsPage />} />
+          <Route path="" element={<AbandonedCartsPage />} />
         </Route>
         {/* end abandoned-carts */}
 
@@ -292,7 +295,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<StaffPage />} />
+          <Route path="" element={<StaffPage />} />
           <Route path="add/:warehouse_id" element={<AddStaff />} />
           <Route path="edit/:warehouse_id/:staff_id" element={<AddStaff />} />
         </Route>
@@ -300,16 +303,16 @@ const Router = () => {
 
         {/* users */}
         <Route
-          path="/dashboard/users"
+          path="/dashboard/customers"
           element={
             <ProtectedRoute path="">
               <Users />
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<UsersPage />} />
-          <Route path="add/:warehouse_id" element={<AddUser />} />
-          <Route path="edit/:warehouse_id/:user_id" element={<AddUser />} />
+          <Route path="" element={<UsersPage />} />
+          <Route path="add/" element={<AddUser />} />
+          <Route path="edit/:user_id" element={<AddUser />} />
         </Route>
         {/* end users */}
 
@@ -322,7 +325,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<BlogPage />} />
+          <Route path="" element={<BlogPage />} />
           <Route path="add/:warehouse_id" element={<AddBlog />} />
           <Route path="edit/:warehouse_id/:blog_id" element={<AddBlog />} />
         </Route>
@@ -337,7 +340,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<PromoPage />} />
+          <Route path="" element={<PromoPage />} />
           <Route path="add-promo/:warehouse_id" element={<AddPromo />} />
         </Route>
         {/* end promo */}
@@ -351,7 +354,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<GiftCardsPage />} />
+          <Route path="" element={<GiftCardsPage />} />
           <Route
             path="activity/:warehouse_id/:gift_card_id"
             element={<Activity />}
@@ -373,7 +376,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<DiscountsPage />} />
+          <Route path="" element={<DiscountsPage />} />
           <Route
             path="add-discounts/:warehouse_id"
             element={<AddDiscounts />}
@@ -390,7 +393,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<ReferralsPage />} />
+          <Route path="" element={<ReferralsPage />} />
         </Route>
         {/* end referrals */}
 
@@ -403,7 +406,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<SubscriptionsPage />} />
+          <Route path="" element={<SubscriptionsPage />} />
         </Route>
         {/* end subscriptions */}
 
@@ -416,7 +419,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<PaymentsPage />} />
+          <Route path="" element={<PaymentsPage />} />
         </Route>
         {/* end payments */}
 
@@ -429,7 +432,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<MarketingPage />} />
+          <Route path="" element={<MarketingPage />} />
           <Route
             path="add-homepage-slider/:warehouse_id/:position"
             element={<AddHomePageSlider />}
@@ -523,7 +526,19 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<ExchangeRatePage />} />
+          <Route path="" element={<ExchangeRatePage />} />
+        </Route>
+
+        {/* wallet */}
+        <Route
+          path="/dashboard/wallet"
+          element={
+            <ProtectedRoute path="">
+              <Wallet />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="" element={<WalletPage />} />
         </Route>
 
         {/* featured-sections */}
@@ -535,7 +550,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<FeaturedSectionPage />} />
+          <Route path="" element={<FeaturedSectionPage />} />
         </Route>
         {/* end featured-sections */}
 
@@ -548,9 +563,18 @@ const Router = () => {
             </ProtectedRoute>
           }
         >
-          <Route path=":warehouse_id" element={<ListOfLogs />} />
+          <Route path="" element={<ListOfLogs />} />
         </Route>
         {/* end team */}
+
+        <Route
+          path="/auth/account-setup"
+          element={
+            <ProtectedRoute path="/auth/account-setup">
+              <AccountSetup />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/auth/login"
@@ -573,15 +597,6 @@ const Router = () => {
         >
           <Route path="" element={<SignUp />} />
         </Route>
-
-        <Route
-          path="/auth/account-setup"
-          element={
-            <ProtectedRoute path="/auth/account-setup" notProtected>
-              <AccountSetup />
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/"

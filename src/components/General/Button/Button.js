@@ -34,9 +34,7 @@ const Button = ({
   whitespace-nowrap ${
     isOutline
       ? `bg-transparent border border-primary ${
-          isDisabled
-            ? "bg-white/[.2] opacity-50"
-            : "hover:bg-primary/10"
+          isDisabled ? "bg-white/[.2] opacity-50" : "hover:bg-primary/10"
         } text-primary`
       : whiteBg
       ? `bg-white ${isDisabled ? "bg-white/[.2]" : ""} text-${

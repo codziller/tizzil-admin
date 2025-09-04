@@ -1,20 +1,33 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { FiChevronDown } from 'react-icons/fi';
-import { BsBag } from 'react-icons/bs';
-import RateCard from '../RateCard/RateCard';
-import { SaleIcon, CustomerIcon, OrderIcon, WalletRateIcon, CartRateIcon } from '../RateCard/RateCardIcons';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { FiChevronDown } from "react-icons/fi";
+import { BsBag } from "react-icons/bs";
+import RateCard from "../RateCard/RateCard";
+import {
+  SaleIcon,
+  CustomerIcon,
+  OrderIcon,
+  WalletRateIcon,
+  CartRateIcon,
+} from "../RateCard/RateCardIcons";
 
 const SimpleBrandDashboard = ({ userRole }) => {
-  const [selectedGraphOption, setSelectedGraphOption] = useState('Sales');
+  const [selectedGraphOption, setSelectedGraphOption] = useState("Sales");
   const [showGraphDropdown, setShowGraphDropdown] = useState(false);
-  const [graphDateFilter, setGraphDateFilter] = useState('Today');
+  const [graphDateFilter, setGraphDateFilter] = useState("Today");
   const [showGraphDateDropdown, setShowGraphDateDropdown] = useState(false);
-  const [pieChartDateFilter, setPieChartDateFilter] = useState('Today');
+  const [pieChartDateFilter, setPieChartDateFilter] = useState("Today");
   const [showPieDateDropdown, setShowPieDateDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const dateFilterOptions = ["Today", "Yesterday", "This week", "This month", "All Time", "Custom date"];
+  const dateFilterOptions = [
+    "Today",
+    "Yesterday",
+    "This week",
+    "This month",
+    "All Time",
+    "Custom date",
+  ];
   const graphOptions = ["Sales", "Orders"];
 
   // Sample data for rate cards
@@ -23,31 +36,31 @@ const SimpleBrandDashboard = ({ userRole }) => {
       icon: SaleIcon,
       rateItems: [
         { label: "Sales", value: "₦0.00", rate: "0", type: "" },
-        { label: "Volume", value: "0", rate: "", type: "" }
-      ]
+        { label: "Volume", value: "0", rate: "", type: "" },
+      ],
     },
     {
       icon: CustomerIcon,
       rateItems: [
         { label: "Customers", value: "0", rate: "0", type: "" },
-        { label: "New", value: "0", rate: "", type: "" }
-      ]
+        { label: "New", value: "0", rate: "", type: "" },
+      ],
     },
     {
       icon: OrderIcon,
       rateItems: [
         { label: "Orders", value: "0", rate: "0", type: "" },
-        { label: "Pending", value: "0", rate: "", type: "" }
-      ]
-    }
+        { label: "Pending", value: "0", rate: "", type: "" },
+      ],
+    },
   ];
 
   // Sample demographics data
   const demographicsData = [
-    { country: 'Nigeria', value: '4,765', color: '#0062FF' },
-    { country: 'United States', value: '3,241', color: '#0CAF60' },
-    { country: 'Canada', value: '1,876', color: '#FFD023' },
-    { country: 'Others', value: '982', color: '#FE964A' },
+    { country: "Nigeria", value: "4,765", color: "#0062FF" },
+    { country: "United States", value: "3,241", color: "#0CAF60" },
+    { country: "Canada", value: "1,876", color: "#FFD023" },
+    { country: "Others", value: "982", color: "#FE964A" },
   ];
 
   const handleDateFilterChange = () => {
@@ -143,8 +156,12 @@ const SimpleBrandDashboard = ({ userRole }) => {
               ) : (
                 <div className="w-full h-full bg-gray-50 rounded-lg flex items-center justify-center">
                   <div className="text-center text-gray-500">
-                    <div className="text-lg font-medium mb-2">{selectedGraphOption} Chart</div>
-                    <div className="text-sm">Demo chart visualization would appear here</div>
+                    <div className="text-lg font-medium mb-2">
+                      {selectedGraphOption} Chart
+                    </div>
+                    <div className="text-sm">
+                      Demo chart visualization would appear here
+                    </div>
                   </div>
                 </div>
               )}
@@ -156,7 +173,9 @@ const SimpleBrandDashboard = ({ userRole }) => {
             {/* Demographics Card */}
             <div className="lg:col-span-2 bg-white rounded-lg border border-[#E5E7EB]">
               <div className="px-[18px] py-[14px] border-b border-[#EAEBF0] flex justify-between items-center">
-                <h3 className="text-base text-[#050505]">Customer Demographics</h3>
+                <h3 className="text-base text-[#050505]">
+                  Customer Demographics
+                </h3>
                 <div className="relative">
                   <button
                     onClick={() => setShowPieDateDropdown(!showPieDateDropdown)}
@@ -192,15 +211,22 @@ const SimpleBrandDashboard = ({ userRole }) => {
                 </div>
                 <div className="space-y-3">
                   {demographicsData.map((item, index) => (
-                    <div key={item.country} className="flex items-center justify-between min-w-[150px]">
+                    <div
+                      key={item.country}
+                      className="flex items-center justify-between min-w-[150px]"
+                    >
                       <div className="flex items-center gap-2">
                         <div
                           className="w-2.5 h-2.5 rounded-full"
                           style={{ backgroundColor: item.color }}
                         />
-                        <span className="text-sm text-[#111827]">{item.country}</span>
+                        <span className="text-sm text-[#111827]">
+                          {item.country}
+                        </span>
                       </div>
-                      <span className="text-sm text-[#576477]">{item.value}</span>
+                      <span className="text-sm text-[#576477]">
+                        {item.value}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -213,7 +239,7 @@ const SimpleBrandDashboard = ({ userRole }) => {
                 icon={WalletRateIcon}
                 rateItems={[
                   { label: "All Products", value: "24" },
-                  { label: "Active", value: "18" }
+                  { label: "Active", value: "18" },
                 ]}
                 hasDateFilter={false}
                 cardStyle="dark"
@@ -222,7 +248,7 @@ const SimpleBrandDashboard = ({ userRole }) => {
                 icon={CartRateIcon}
                 rateItems={[
                   { label: "Abandoned Cart", value: "12" },
-                  { label: "Checkout rate", value: "78%" }
+                  { label: "Checkout rate", value: "78%" },
                 ]}
               />
             </div>
@@ -236,7 +262,9 @@ const SimpleBrandDashboard = ({ userRole }) => {
           </div>
           <div className="p-6 flex flex-col items-center justify-center min-h-[300px]">
             <BsBag className="w-12 h-12 text-gray-400 mb-4" />
-            <h4 className="text-lg font-bold text-[#050505] mb-2">No Orders Yet</h4>
+            <h4 className="text-lg font-bold text-[#050505] mb-2">
+              No Orders Yet
+            </h4>
             <p className="text-sm text-[#6D7280] text-center">
               Add products to your store and start selling to see orders here.
             </p>

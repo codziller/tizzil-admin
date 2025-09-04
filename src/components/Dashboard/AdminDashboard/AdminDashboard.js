@@ -1,134 +1,157 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { FiChevronDown, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
-import { 
-  BsClipboardData, 
-  BsCurrencyDollar, 
-  BsGraphUp, 
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { FiChevronDown, FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import {
+  BsClipboardData,
+  BsCurrencyDollar,
+  BsGraphUp,
   BsCalculator,
   BsBox,
   BsShop,
   BsPeople,
-  BsCartCheck 
-} from 'react-icons/bs';
-import RateCard from '../RateCard/RateCard';
+  BsCartCheck,
+} from "react-icons/bs";
+import RateCard from "../RateCard/RateCard";
 
 const AdminDashboard = () => {
-  const [revenueDateFilter, setRevenueDateFilter] = useState('Today');
+  const [revenueDateFilter, setRevenueDateFilter] = useState("Today");
   const [showRevenueDateDropdown, setShowRevenueDateDropdown] = useState(false);
 
-  const dateFilterOptions = ["Today", "Yesterday", "This week", "This month", "All Time", "Custom date"];
+  const dateFilterOptions = [
+    "Today",
+    "Yesterday",
+    "This week",
+    "This month",
+    "All Time",
+    "Custom date",
+  ];
 
   // Admin rate cards data (8 cards in 4x2 grid)
   const adminRateCards = [
     {
       icon: BsClipboardData,
       title: "Total Orders",
-      rateItems: [{ 
-        label: "Total Orders", 
-        value: "1,247", 
-        rate: "12.5%", 
-        type: "up" 
-      }]
+      rateItems: [
+        {
+          label: "Total Orders",
+          value: "1,247",
+          rate: "12.5%",
+          type: "up",
+        },
+      ],
     },
     {
       icon: BsCurrencyDollar,
-      title: "Total Income", 
-      rateItems: [{ 
-        label: "Total Income", 
-        value: "$89,432", 
-        rate: "8.2%", 
-        type: "up" 
-      }]
+      title: "Total Income",
+      rateItems: [
+        {
+          label: "Total Income",
+          value: "$89,432",
+          rate: "8.2%",
+          type: "up",
+        },
+      ],
     },
     {
       icon: BsGraphUp,
       title: "Tizzil Revenue",
-      rateItems: [{ 
-        label: "Tizzil Revenue", 
-        value: "$23,156", 
-        rate: "15.3%", 
-        type: "up" 
-      }]
+      rateItems: [
+        {
+          label: "Tizzil Revenue",
+          value: "$23,156",
+          rate: "15.3%",
+          type: "up",
+        },
+      ],
     },
     {
       icon: BsCalculator,
       title: "Average Order Value",
-      rateItems: [{ 
-        label: "Average Order Value", 
-        value: "$71.80", 
-        rate: "3.2%", 
-        type: "down" 
-      }]
+      rateItems: [
+        {
+          label: "Average Order Value",
+          value: "$71.80",
+          rate: "3.2%",
+          type: "down",
+        },
+      ],
     },
     {
       icon: BsBox,
       title: "Total Product Created",
-      rateItems: [{ 
-        label: "Total Product Created", 
-        value: "2,847", 
-        rate: "18.7%", 
-        type: "up" 
-      }]
+      rateItems: [
+        {
+          label: "Total Product Created",
+          value: "2,847",
+          rate: "18.7%",
+          type: "up",
+        },
+      ],
     },
     {
       icon: BsShop,
       title: "No. of Active Brands",
-      rateItems: [{ 
-        label: "No. of Active Brands", 
-        value: "184", 
-        rate: "5.1%", 
-        type: "up" 
-      }]
+      rateItems: [
+        {
+          label: "No. of Active Brands",
+          value: "184",
+          rate: "5.1%",
+          type: "up",
+        },
+      ],
     },
     {
       icon: BsPeople,
       title: "Total No. of New Users",
-      rateItems: [{ 
-        label: "Total No. of New Users", 
-        value: "3,672", 
-        rate: "22.4%", 
-        type: "up" 
-      }]
+      rateItems: [
+        {
+          label: "Total No. of New Users",
+          value: "3,672",
+          rate: "22.4%",
+          type: "up",
+        },
+      ],
     },
     {
       icon: BsCartCheck,
       title: "No. of Products Sold",
-      rateItems: [{ 
-        label: "No. of Products Sold", 
-        value: "5,934", 
-        rate: "9.8%", 
-        type: "up" 
-      }]
-    }
+      rateItems: [
+        {
+          label: "No. of Products Sold",
+          value: "5,934",
+          rate: "9.8%",
+          type: "up",
+        },
+      ],
+    },
   ];
 
   // Progress bar data
   const progressData = [
-    { 
-      title: "Tizzil Revenue", 
-      value: "21,043/48,345", 
+    {
+      title: "Tizzil Revenue",
+      value: "21,043/48,345",
       percentage: 43.5,
-      color: "#690007" 
+      color: "#690007",
     },
-    { 
-      title: "Brands Revenue", 
-      value: "14,058/30,000", 
+    {
+      title: "Brands Revenue",
+      value: "14,058/30,000",
       percentage: 46.9,
-      color: "#0CAF60" 
+      color: "#0CAF60",
     },
-    { 
-      title: "Affiliate Revenue", 
-      value: "8,234/20,000", 
+    {
+      title: "Affiliate Revenue",
+      value: "8,234/20,000",
       percentage: 41.2,
-      color: "#FFD023" 
+      color: "#FFD023",
     },
-    { 
-      title: "Delivery Cost", 
-      value: "12,456/25,000", 
+    {
+      title: "Delivery Cost",
+      value: "12,456/25,000",
       percentage: 49.8,
-      color: "#FE964A" 
-    }
+      color: "#FE964A",
+    },
   ];
 
   const ProgressBar = ({ title, value, percentage, color }) => (
@@ -140,9 +163,9 @@ const AdminDashboard = () => {
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div
           className="h-2 rounded-full transition-all duration-300"
-          style={{ 
-            width: `${percentage}%`, 
-            backgroundColor: color 
+          style={{
+            width: `${percentage}%`,
+            backgroundColor: color,
           }}
         />
       </div>
@@ -152,7 +175,9 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Page Title */}
-      <h1 className="text-[22px] font-bold text-[#111111]">Dashboard Overview</h1>
+      <h1 className="text-[22px] font-bold text-[#111111]">
+        Dashboard Overview
+      </h1>
 
       {/* Admin Rate Cards - 4 per row on desktop, 3 on tablet, 1 on mobile */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -187,7 +212,9 @@ const AdminDashboard = () => {
             <h3 className="text-base font-bold text-[#111827]">Revenue</h3>
             <div className="relative">
               <button
-                onClick={() => setShowRevenueDateDropdown(!showRevenueDateDropdown)}
+                onClick={() =>
+                  setShowRevenueDateDropdown(!showRevenueDateDropdown)
+                }
                 className="flex items-center gap-2 text-xs text-[#6D7280] hover:text-[#374151] transition-colors"
               >
                 <span>{revenueDateFilter}</span>
@@ -216,13 +243,19 @@ const AdminDashboard = () => {
             {/* Revenue Details */}
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-[22px] font-bold text-[#111827]">$76,345</span>
+                <span className="text-[22px] font-bold text-[#111827]">
+                  $76,345
+                </span>
                 <div className="bg-[#0CAF60] px-1 py-0.5 rounded-full flex items-center gap-1">
                   <FiTrendingUp className="w-2 h-2 text-white" />
-                  <span className="text-[8px] text-white font-medium">12.00%</span>
+                  <span className="text-[8px] text-white font-medium">
+                    12.00%
+                  </span>
                 </div>
               </div>
-              <p className="text-[10px] text-[#718096]">Compared to last month</p>
+              <p className="text-[10px] text-[#718096]">
+                Compared to last month
+              </p>
             </div>
 
             {/* Progress Bars */}

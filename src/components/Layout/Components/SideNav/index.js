@@ -311,7 +311,8 @@ const SideNav = ({
   setSidenavCollapsed,
 }) => {
   const { warehouse_id } = useParams();
-  const { user } = getUserInfoFromStorage();
+  const userData = getUserInfoFromStorage();
+  const user = userData?.user;
   const navigate = useNavigate();
   const {
     userIsGeneralAdmin,

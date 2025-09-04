@@ -7,7 +7,12 @@ import Input from "components/General/Input/Input";
 import Select from "components/General/Input/Select";
 import { observer } from "mobx-react-lite";
 
-const AccountSetupOne = ({ formData, updateFormData, nextStep }) => {
+const AccountSetupOne = ({
+  formData,
+  updateFormData,
+  nextStep,
+  hideTitle = false,
+}) => {
   const schema = yup.object({
     brandName: yup.string().required("Please enter your brand name"),
     brandEmail: yup
@@ -90,8 +95,10 @@ const AccountSetupOne = ({ formData, updateFormData, nextStep }) => {
 
   return (
     <div className="w-full">
-      <h3 className="text-xl font-bold text-[#111111] mb-6">Brand Info</h3>
-      
+      {!hideTitle && (
+        <h3 className="text-xl font-bold text-[#111111] mb-6">Brand Info</h3>
+      )}
+
       <form className="flex flex-col space-y-4">
         <Input
           label="Brand Name"
@@ -102,7 +109,7 @@ const AccountSetupOne = ({ formData, updateFormData, nextStep }) => {
           formError={errors.brandName}
           required
         />
-        
+
         <Input
           label="Brand E-mail"
           value={form?.brandEmail}
@@ -112,7 +119,7 @@ const AccountSetupOne = ({ formData, updateFormData, nextStep }) => {
           formError={errors.brandEmail}
           required
         />
-        
+
         <Input
           label="Address"
           value={form?.addressLine1}
@@ -122,35 +129,40 @@ const AccountSetupOne = ({ formData, updateFormData, nextStep }) => {
           formError={errors.addressLine1}
           required
         />
-        
+
         <Select
           label="Country"
           value={form?.country}
-          onChangeFunc={(val) => handleChange("country", val)}
+          onChange={(selected) => handleChange("country", selected?.value)}
           placeholder="Select your country"
           options={countryOptions}
           formError={errors.country}
           required
+          fullWidth
         />
-        
+
         <Select
           label="City"
           value={form?.city}
-          onChangeFunc={(val) => handleChange("city", val)}
+          onChange={(selected) => handleChange("city", selected?.value)}
           placeholder="Select your city"
           options={cityOptions}
           formError={errors.city}
           required
+          fullWidth
         />
-        
+
         <Select
           label="Product Category"
           value={form?.productCategory}
-          onChangeFunc={(val) => handleChange("productCategory", val)}
+          onChange={(selected) =>
+            handleChange("productCategory", selected?.value)
+          }
           placeholder="Select product category"
           options={categoryOptions}
           formError={errors.productCategory}
           required
+          fullWidth
         />
       </form>
     </div>
@@ -161,6 +173,7 @@ AccountSetupOne.propTypes = {
   formData: PropTypes.object,
   updateFormData: PropTypes.func,
   nextStep: PropTypes.func,
+  hideTitle: PropTypes.bool,
 };
 
 export default observer(AccountSetupOne);

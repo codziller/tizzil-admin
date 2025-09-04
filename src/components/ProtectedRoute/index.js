@@ -1,7 +1,7 @@
 import { string, bool, node } from "prop-types";
 import { Navigate } from "react-router-dom";
 import useAuth from "hooks/useAuth";
-import DashboardLayout from "components/Layout/DashboardLayout";
+import DashboardLayout from "components/Layout/ModernDashboardLayout";
 import { getUserInfoFromStorage } from "utils/storage";
 import { ALL_ROLES } from "utils/appConstant";
 
@@ -14,26 +14,20 @@ export const ProtectedRoute = ({ path, notProtected, children, ...rest }) => {
 
   const defaultUrl =
     userRole === BRAND_STAFF
-      ? `/dashboard/home/${brandId}`
+      ? `/dashboard/home`
       : userRole === GENERAL_ADMIN
-      ? `/dashboard/home/${warehouse_id}`
-      : `/dashboard/orders/${warehouse_id}`;
+      ? `/dashboard/home`
+      : `/dashboard/home`;
 
   const { isAuthenticated } = useAuth();
 
-  // if (notProtected && isAuthenticated) {
-  //   return (
-  //     <DashboardLayout>
-  //       <Navigate replace to={defaultUrl} />;
-  //     </DashboardLayout>
-  //   );
-  // }
-
-  return (
-    <DashboardLayout>
-      <Navigate replace to={defaultUrl} />;
-    </DashboardLayout>
-  );
+  if (notProtected && isAuthenticated) {
+    return (
+      <DashboardLayout>
+        <Navigate replace to={defaultUrl} />;
+      </DashboardLayout>
+    );
+  }
 
   if (!isAuthenticated && !notProtected) {
     return (

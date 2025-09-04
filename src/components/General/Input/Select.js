@@ -47,19 +47,25 @@ const Select = ({
 
       height: address ? "38px" : "40px",
       minHeight: address ? "38px" : "40px",
-      borderRadius: 4,
+      borderRadius: 0,
       border: isError
-        ? `1px solid ${"#F3564D"} !important`
-        : state.isFocused
-        ? `1px solid ${style?.color || "#1E1E1E"} !important`
-        : `1px solid ${style?.color || "#E1E1E1"} !important`,
-      outline: state.isFocused ? "none !important" : "none !important",
-      boxShadow: "none",
+        ? `1px solid #F3564D !important`
+        : state.isFocused || state.hasValue
+        ? `1px solid #111111 !important`
+        : `1px solid #BBBBBB !important`,
+      outline: "none !important",
+      boxShadow:
+        state.isFocused || state.hasValue
+          ? "0px 0px 0px 2.5px rgba(8,8,8,0.1) !important"
+          : "none",
       cursor: "pointer",
       transition: `all 0.3s ease-in-out`,
-      backgroundColor: `${style?.background || "#F4F4F4"}`,
+      backgroundColor:
+        state.isFocused || state.hasValue ? "#FFFFFF" : "transparent",
       "&:hover": {
-        backgroundColor: "#F6F6F6",
+        backgroundColor: "#FFFFFF",
+        border: `1px solid #111111 !important`,
+        boxShadow: "0px 0px 0px 2.5px rgba(8,8,8,0.1) !important",
       },
     }),
 

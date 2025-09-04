@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { FiChevronDown, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { FiChevronDown, FiTrendingUp, FiTrendingDown } from "react-icons/fi";
 
-const RateCard = ({ 
-  icon: Icon, 
-  rateItems = [], 
+const RateCard = ({
+  icon: Icon,
+  rateItems = [],
   hasDateFilter = true,
   title,
   className = "",
-  cardStyle = "default" // "default", "dark", "admin"
+  cardStyle = "default", // "default", "dark", "admin"
 }) => {
   const [selectedFilter, setSelectedFilter] = useState("Today");
   const [showDateFilter, setShowDateFilter] = useState(false);
 
   const dateFilterOptions = [
     "Today",
-    "Yesterday", 
+    "Yesterday",
     "This week",
     "This month",
     "All Time",
-    "Custom date"
+    "Custom date",
   ];
 
   const getCardStyles = () => {
@@ -33,39 +33,45 @@ const RateCard = ({
     }
   };
 
-  const getIconPlacement = () => {
-    return cardStyle === "admin" ? "justify-between" : "justify-start";
-  };
-
   const renderRateIndicator = (rate, type) => {
     if (!rate) return null;
-    
-    const isPositive = type === 'up' || (!type && !rate.startsWith('-'));
-    const color = isPositive ? '#22C55E' : '#FD6A6A';
+
+    const isPositive = type === "up" || (!type && !rate.startsWith("-"));
+    const color = isPositive ? "#22C55E" : "#FD6A6A";
     const IconComponent = isPositive ? FiTrendingUp : FiTrendingDown;
-    
+
     return (
       <div className="flex items-center gap-1 ml-2">
         <IconComponent size={12} color={color} />
-        <span 
-          className="text-xs font-medium"
-          style={{ color }}
-        >
-          {isPositive && !rate.startsWith('+') ? '+' : ''}{rate}
+        <span className="text-xs font-medium" style={{ color }}>
+          {isPositive && !rate.startsWith("+") ? "+" : ""}
+          {rate}
         </span>
       </div>
     );
   };
 
   return (
-    <div className={`rounded-lg px-[18px] py-[10px] ${getCardStyles()} ${className}`}>
+    <div
+      className={`rounded-lg px-[18px] py-[10px] ${getCardStyles()} ${className}`}
+    >
       {/* Top Section */}
-      <div className={`flex items-center ${getIconPlacement()} mb-[30px]`}>
+      <div className={`flex w-full justify-between items-center mb-[30px]`}>
         {/* Icon and Title */}
         <div className="flex items-center gap-3">
-          {Icon && <Icon className={`w-5 h-5 ${cardStyle === "admin" ? "text-gray-600" : ""}`} />}
+          {Icon && (
+            <Icon
+              className={`w-5 h-5 ${
+                cardStyle === "admin" ? "text-gray-600" : ""
+              }`}
+            />
+          )}
           {title && (
-            <h3 className={`text-sm ${cardStyle === "dark" ? "text-white" : "text-[#888888]"}`}>
+            <h3
+              className={`text-sm ${
+                cardStyle === "dark" ? "text-white" : "text-[#888888]"
+              }`}
+            >
               {title}
             </h3>
           )}
@@ -80,11 +86,11 @@ const RateCard = ({
             >
               <span>{selectedFilter}</span>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-1 bg-[#9CA3AF] rounded-full"></div>
-                <FiChevronDown 
+                {/* <div className="w-2 h-1 bg-[#9CA3AF] rounded-full"></div> */}
+                <FiChevronDown
                   className={`w-3 h-3 transition-transform ${
-                    showDateFilter ? 'rotate-180' : ''
-                  }`} 
+                    showDateFilter ? "rotate-180" : ""
+                  }`}
                 />
               </div>
             </button>
@@ -100,7 +106,7 @@ const RateCard = ({
                       setShowDateFilter(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-100 transition-colors ${
-                      selectedFilter === option ? 'bg-gray-100 font-medium' : ''
+                      selectedFilter === option ? "bg-gray-100 font-medium" : ""
                     }`}
                   >
                     {option}
@@ -120,32 +126,42 @@ const RateCard = ({
       )}
 
       {/* Rate Items Grid */}
-      <div className={`grid gap-4 ${
-        rateItems.length === 3 ? 'grid-cols-3' : 
-        rateItems.length === 2 ? 'grid-cols-2' : 
-        'grid-cols-1'
-      }`}>
+      <div
+        className={`grid gap-4 ${
+          rateItems.length === 3
+            ? "grid-cols-3"
+            : rateItems.length === 2
+            ? "grid-cols-2"
+            : "grid-cols-1"
+        }`}
+      >
         {rateItems.map((item, index) => (
           <div key={index} className="flex flex-col items-start">
             <div className="flex items-center">
               <div className="flex flex-col">
                 {/* Value */}
                 <div className="flex items-center">
-                  <span className={`text-lg font-bold ${
-                    cardStyle === "dark" ? "text-white" : "text-[#111111]"
-                  }`}>
+                  <span
+                    className={`text-lg font-bold ${
+                      cardStyle === "dark" ? "text-white" : "text-[#111111]"
+                    }`}
+                  >
                     {item.value}
                   </span>
                   {/* Rate indicator for admin cards */}
-                  {cardStyle === "admin" && item.rate && (
-                    renderRateIndicator(item.rate, item.type)
-                  )}
+                  {cardStyle === "admin" &&
+                    item.rate &&
+                    renderRateIndicator(item.rate, item.type)}
                 </div>
-                
+
                 {/* Label */}
-                <span className={`text-sm mt-3 ${
-                  cardStyle === "dark" ? "text-white opacity-80" : "text-[#888888]"
-                }`}>
+                <span
+                  className={`text-sm mt-3 ${
+                    cardStyle === "dark"
+                      ? "text-white opacity-80"
+                      : "text-[#888888]"
+                  }`}
+                >
                   {item.label}
                 </span>
 
@@ -179,13 +195,13 @@ RateCard.propTypes = {
       label: PropTypes.string.isRequired,
       value: PropTypes.string.isRequired,
       rate: PropTypes.string,
-      type: PropTypes.oneOf(['up', 'down', '']),
+      type: PropTypes.oneOf(["up", "down", ""]),
     })
   ).isRequired,
   hasDateFilter: PropTypes.bool,
   title: PropTypes.string,
   className: PropTypes.string,
-  cardStyle: PropTypes.oneOf(['default', 'dark', 'admin']),
+  cardStyle: PropTypes.oneOf(["default", "dark", "admin"]),
 };
 
 export default RateCard;

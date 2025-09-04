@@ -37,8 +37,8 @@ const Wysiwyg = ({
         //   toolbarClassName="toolbarClassName"
         //   wrapperClassName="wrapperClassName"
         editorClassName={`
-      relative p-3 w-full bg-grey-alt rounded font-normal outline-none focus:outline-none transition-all duration-150 whitespace-nowrap  text-base leading-relaxed  border border-solid shadow-none text-left
-        hover:bg-grey-whitesmoke border-grey-border focus:border-blue active:!border-blue active:!border-blue text-black text-[16px] sm:text-base placeholder:text-grey placeholder:font-extralight min-h-[150px]
+      relative p-3 w-full font-normal outline-none focus:outline-none transition-all duration-300 ease-in-out whitespace-nowrap text-base leading-relaxed border border-solid text-left text-black text-[16px] sm:text-base placeholder:text-grey placeholder:font-extralight min-h-[150px]
+      bg-transparent border-[#BBBBBB] hover:border-[#111111] hover:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)] hover:bg-white focus:bg-white focus:border-[#111111] focus:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)]
 
         ${isLoading && "pointer-events-none"}
         `}

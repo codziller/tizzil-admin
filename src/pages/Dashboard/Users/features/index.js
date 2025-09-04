@@ -4,12 +4,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import PropTypes from "prop-types";
+import moment from "moment";
 
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import Table from "components/General/Table";
+import TableDropdown from "components/General/Dropdown/TableDropdown";
 import { pageCount } from "utils/appConstant";
 import { ReactComponent as SearchIcon } from "assets/icons/SearchIcon/searchIcon.svg";
 import { ReactComponent as Plus } from "assets/icons/add.svg";
+import { ReactComponent as TrashIcon } from "assets/icons/trash-box.svg";
 import useWindowDimensions from "hooks/useWindowDimensions";
 import TransactionDetailsModal from "./DetailsModal";
 import dateConstants from "utils/dateConstants";
@@ -40,6 +43,61 @@ export const dateFilters = [
     end_date: dateConstants?.today,
   },
 ];
+// Demo user data
+const sampleUsers = [
+  {
+    id: 1,
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@email.com",
+    phoneNumber: "+1234567890",
+    createdAt: new Date("2024-01-15"),
+    status: "Active",
+  },
+  {
+    id: 2,
+    firstName: "Jane",
+    lastName: "Smith",
+    email: "jane.smith@email.com",
+    phoneNumber: "+0987654321",
+    createdAt: new Date("2024-02-10"),
+    status: "Inactive",
+  },
+  {
+    id: 3,
+    firstName: "Michael",
+    lastName: "Johnson",
+    email: "michael.johnson@email.com",
+    phoneNumber: "+1122334455",
+    createdAt: new Date("2024-03-05"),
+    status: "Active",
+  },
+  {
+    id: 4,
+    firstName: "Sarah",
+    lastName: "Williams",
+    email: "sarah.williams@email.com",
+    phoneNumber: "+5566778899",
+    createdAt: new Date("2024-02-28"),
+    status: "Suspended",
+  },
+  {
+    id: 5,
+    firstName: "David",
+    lastName: "Brown",
+    email: "david.brown@email.com",
+    phoneNumber: "+9988776655",
+    createdAt: new Date("2024-01-22"),
+    status: "Active",
+  },
+];
+
+const USER_STATUS_OPTIONS = [
+  { label: "Active", value: "Active" },
+  { label: "Inactive", value: "Inactive" },
+  { label: "Suspended", value: "Suspended" },
+];
+
 const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
   const navigate = useNavigate();
   const { warehouse_id } = useParams();
@@ -91,12 +149,12 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
   };
 
   useEffect(() => {
-    isSearchMode ? handleSearch() : handleGetData();
+    // isSearchMode ? handleSearch() : handleGetData();
   }, [currentPage, currentPageSearch, currentPageArchived, isArchive]);
 
   useEffect(() => {
     if (searchQuery?.length > 1 || !searchQuery) {
-      handleSearch();
+      // handleSearch();
     }
   }, [searchInput]);
 
@@ -110,77 +168,100 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
   };
   const columns = [
     {
-      name: "Name",
-      minWidth: isMobile ? "50%" : "30%",
-      selector: (row) => (
-        <div
-          onClick={() => handleEdit(row)}
-          className="py-4 mt-[5px] mb-[5px] flex-col justify-start items-start gap-1 flex"
-        >
-          <div className="text-black text-sm font-medium font-700">
-            {row?.firstName} {row?.lastName}
+      name: "Users",
+      minWidth: "25%",
+      selector: (user) => {
+        const userId = user.id.toString().padStart(6, "0").slice(-6);
+        return (
+          <div className="flex flex-col">
+            <span className="text-[15px] text-[#111827] font-medium">
+              {user.firstName} {user.lastName}
+            </span>
+            <span className="text-[14px] text-[#6D7280] mt-1">#{userId}</span>
           </div>
-          <div className="text-grey text-sm font-normal">{row.email}</div>
-        </div>
-      ),
-      sortable: false,
+        );
+      },
+      sortable: true,
     },
-
+    {
+      name: "Email",
+      minWidth: "20%",
+      selector: (user) => (
+        <span className="text-[14px] text-[#666666]">{user.email}</span>
+      ),
+      sortable: true,
+    },
     {
       name: "Phone Number",
-      selector: "phoneNumber",
-      sortable: false,
-    },
-    {
-      name: "Role",
-      selector: (row) => (
-        <span onClick={() => handleEdit(row)}>{row?.role}</span>
-      ),
-      sortable: false,
-    },
-
-    {
-      name: "Wallet Balance",
-      selector: (row) => (
-        <Amount value={row?.balance} onClick={() => handleEdit(row)} />
+      minWidth: "15%",
+      selector: (user) => (
+        <span className="text-[14px] text-[#666666]">{user.phoneNumber}</span>
       ),
       sortable: true,
     },
-
     {
-      name: "Actions",
-      minWidth: isMobile ? "50%" : "25%",
-      selector: (row) => (
-        <div className="flex justify-start items-center gap-1.5">
-          <span
-            onClick={() =>
-              setCurrentTxnDetails({ ...row, modalType: "delete" })
-            }
-            className=" cursor-pointer px-4 py-1 rounded-full bg-red-deep text-[11px] text-white "
-          >
-            {row?.isDeleted ? "Unarchive" : "Archive"}
-          </span>
-
-          <span
-            onClick={() => handleEdit(row)}
-            className=" cursor-pointer px-4 py-1 rounded-full bg-black text-[11px] text-white "
-          >
-            Edit
-          </span>
-
-          <span
-            onClick={() =>
-              navigate(`/dashboard/staffs/edit/${warehouse_id}/${row?.id}`)
-            }
-            className=" cursor-pointer px-4 py-1 rounded-full bg-black text-[11px] text-white "
-          >
-            Edit as staff
-          </span>
+      name: "Date Created",
+      minWidth: "15%",
+      selector: (user) => (
+        <span className="text-[14px] text-[#666666]">
+          {moment(user.createdAt).format("DD/MM/YYYY")}
+        </span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Status",
+      minWidth: "15%",
+      selector: (user) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <TableDropdown
+            className={classNames({
+              "text-green": user.status === "Active",
+              "text-yellow": user.status === "Inactive",
+              "text-red-deep": user.status === "Suspended",
+            })}
+            options={USER_STATUS_OPTIONS}
+            content={user.status}
+            handleClick={(option) => handleUserStatusChange(user, option)}
+            isLoading={false}
+            isDisabled
+          />
         </div>
       ),
       sortable: true,
     },
+    {
+      name: "Action",
+      minWidth: "10%",
+      selector: (user) => (
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteUser(user);
+          }}
+          className="flex items-center cursor-pointer text-[14px] text-[#666666] hover:text-red-600 transition-colors"
+        >
+          <TrashIcon className="mr-[7px]" />
+          Delete
+        </div>
+      ),
+      sortable: false,
+    },
   ];
+
+  const handleDeleteUser = (user) => {
+    console.log("Delete user:", user.id);
+    setCurrentTxnDetails({ ...user, modalType: "delete" });
+  };
+
+  const handleUserStatusChange = (user, newStatus) => {
+    console.log("User status change:", user.id, newStatus);
+    // Implement status change logic
+  };
+
+  const handleRowClick = (user) => {
+    handleEdit(user);
+  };
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -190,15 +271,17 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
   };
 
   const displayedUsers = useMemo(() => {
-    return isSearchMode ? searchResult : isArchive ? usersArchived : users;
+    const baseUsers = users.length > 0 ? users : sampleUsers;
+    return isSearchMode ? searchResult : isArchive ? usersArchived : baseUsers;
   }, [searchResult, users, usersArchived, isSearchMode, isArchive]);
 
   const displayedUsersCount = useMemo(() => {
+    const baseCount = usersCount > 0 ? usersCount : sampleUsers.length;
     return isSearchMode
       ? searchResultCount
       : isArchive
       ? usersArchivedCount
-      : usersCount;
+      : baseCount;
   }, [searchResult, users, isSearchMode, usersArchivedCount]);
 
   const isLoading = useMemo(() => {
@@ -213,7 +296,11 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
 
   return (
     <>
-      <div className={classNames("h-full w-full", { "md:pr-4": !isModal })}>
+      <div
+        className={classNames("min-h-[100px] h-fit  w-full mb-20", {
+          "md:pr-4": !isModal,
+        })}
+      >
         <div className="flex flex-col justify-start items-center h-full w-full gap-y-5">
           <div className="flex justify-between items-center w-full mb-3 gap-1">
             <div
@@ -238,7 +325,7 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
             />
           </div>
 
-          <Tabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} />
+          {/* <Tabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} /> */}
           {isLoading ? (
             <CircleLoader blue />
           ) : (
@@ -249,17 +336,10 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
                 {!isEmpty(displayedUsers) ? (
                   <Table
                     data={displayedUsers}
-                    columns={
-                      isModal
-                        ? columns.slice(0, 2)
-                        : width >= 640
-                        ? columns
-                        : columns.slice(0, 2)
-                    }
-                    onRowClicked={(e) => {
-                      handleEdit(e);
-                    }}
+                    columns={columns}
+                    onRowClicked={handleRowClick}
                     pointerOnHover
+                    isLoading={loading}
                     pageCount={displayedUsersCount / pageCount}
                     onPageChange={(page) =>
                       isSearchMode
@@ -277,6 +357,19 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
                     }
                     tableClassName="txn-section-table"
                     noPadding
+                    title="Users"
+                    itemCount={displayedUsersCount}
+                    menuOptions={[
+                      {
+                        name: "Export Users",
+                        onClick: () => console.log("Export users"),
+                      },
+                      {
+                        name: "Add New User",
+                        onClick: () =>
+                          navigate(`/dashboard/users/add/${warehouse_id}`),
+                      },
+                    ]}
                   />
                 ) : (
                   <>

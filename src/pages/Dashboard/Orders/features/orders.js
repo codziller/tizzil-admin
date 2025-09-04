@@ -1,502 +1,314 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
-import moment from "moment";
-import _, { isEmpty, lowerCase } from "lodash";
-import DashboardFilterDropdown from "components/General/Dropdown/DashboardFilterDropdown";
-import CircleLoader from "components/General/CircleLoader/CircleLoader";
-import Table from "components/General/Table";
-import {
-  ORDER_STATUSES,
-  ORDER_STATUS_OPTIONS,
-  pageCount,
-} from "utils/appConstant";
-import { ReactComponent as SearchIcon } from "assets/icons/SearchIcon/searchIcon.svg";
-
-import useWindowDimensions from "hooks/useWindowDimensions";
-import { transactionAmount } from "utils/transactions";
-import OrderDetailsModal from "./OrderDetailsModal";
-import DateRangeModal from "components/General/Modal/DateRangeModal/DateRangeModal";
-import OrdersStore from "../store";
-import SearchBar from "components/General/Searchbar/SearchBar";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { numberWithCommas } from "utils/formatter";
+import PropTypes from "prop-types";
+import moment from "moment";
 import classNames from "classnames";
-import Tabs from "components/General/Tabs";
+
+import DateFilter from "components/General/DateFilter";
+import Table from "components/General/Table";
 import TableDropdown from "components/General/Dropdown/TableDropdown";
-import { dateFilters } from "pages/Dashboard/Home/features";
-import cleanPayload from "utils/cleanPayload";
+import { ORDER_STATUS_OPTIONS } from "utils/appConstant";
+import { ReactComponent as MoreIcon } from "assets/icons/more-table-icon.svg";
+import OrdersStore from "../store";
+import OrderDetailsModal from "./OrderDetailsModal";
+import SearchBar from "components/General/Searchbar/SearchBar";
 
-const { DISPATCHED, CANCELLED, COMPLETED, INPROGRESS, PENDING, REFUNDED } =
-  ORDER_STATUSES;
-const deliveryHandlers = [
-  {
-    value: "ALL",
-    label: "All Delivery Handlers",
-  },
-  {
-    value: "BEAUTYHUT",
-    label: "BeautyHut",
-  },
-  {
-    value: "CHOWDECK",
-    label: "Chowdeck",
-  },
-  {
-    value: "TOPSHIP",
-    label: "Topship",
-  },
-];
-const Orders = ({ isRecent }) => {
-  const {
-    getOrders,
-    loading,
-    ordersCount,
-    orders,
-    searchOrders,
-    searchLoading,
-    searchResult,
-    searchResultCount,
+const Orders = ({ isRecent = false }) => {
+  const navigate = useNavigate();
+  const { warehouse_id } = useParams();
+  const { getOrders, loading, ordersCount, orders } = OrdersStore;
 
-    in_progressOrders,
-    in_progressOrdersCount,
-    pendingOrders,
-    pendingOrdersCount,
-    dispatchedOrders,
-    dispatchedOrdersCount,
-    completedOrders,
-    completedOrdersCount,
-    cancelledOrders,
-    cancelledOrdersCount,
-
-    getRefundedOrders,
-    refundedOrders,
-    refundedOrdersCount,
-    refundedOrdersLoading,
-    updateOrderStatusLoading,
-  } = OrdersStore;
-
-  const TABS = [
+  // State for the new design
+  const [selectedDateFilter, setSelectedDateFilter] = useState({
+    label: "Today",
+    value: "today",
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentTxnDetails, setCurrentTxnDetails] = useState(null);
+  const [searchInput, setSearchInput] = useState("");
+  // Sample orders data - replace with actual API data
+  const sampleOrders = [
     {
-      name: INPROGRESS,
-      label: `Inprogress orders (${in_progressOrdersCount || "0"})`,
+      id: 1,
+      orderCode: "ORD-2024-001",
+      calculatedOrder: {
+        user: {
+          firstName: "John",
+          lastName: "Doe",
+          phoneNumber: "+1234567890",
+        },
+        totalAmount: 15000,
+      },
+      calculatedOrderProducts: [
+        {
+          product: {
+            brand: {
+              brandName: "Nike",
+            },
+          },
+          user: {
+            firstName: "Nike",
+            lastName: "Store",
+          },
+        },
+      ],
+      updatedAt: new Date(),
+      orderStatus: "PENDING",
+      deliveryMethod: "Local",
     },
     {
-      name: DISPATCHED,
-      label: `Dispatched orders (${dispatchedOrdersCount || "0"})`,
-    },
-    {
-      name: COMPLETED,
-      label: `Completed orders (${completedOrdersCount || "0"})`,
-    },
-    {
-      name: CANCELLED,
-      label: `Cancelled orders (${cancelledOrdersCount || "0"})`,
-    },
-    {
-      name: REFUNDED,
-      label: `Refunded orders (${refundedOrdersCount || "0"})`,
+      id: 2,
+      orderCode: "ORD-2024-002",
+      calculatedOrder: {
+        user: {
+          firstName: "Jane",
+          lastName: "Smith",
+          phoneNumber: "+0987654321",
+        },
+        totalAmount: 25000,
+      },
+      calculatedOrderProducts: [
+        {
+          product: {
+            brand: {
+              brandName: "Adidas",
+            },
+          },
+          user: {
+            firstName: "Adidas",
+            lastName: "Official",
+          },
+        },
+      ],
+      updatedAt: new Date(),
+      orderStatus: "COMPLETED",
+      deliveryMethod: "International",
     },
   ];
 
-  const { width } = useWindowDimensions();
-  const { warehouse_id } = useParams();
-  const [currentTxnDetails, setCurrentTxnDetails] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentPageSearch, setCurrentPageSearch] = useState(1);
-  const [currentPageRefund, setCurrentPageRefund] = useState(1);
-  const [dateFilter, setDateFilter] = useState(dateFilters[0]);
-  const [deliveryHandler, setDeliveryHandler] = useState(deliveryHandlers[0]);
-  const [showDateModal, setShowDateModal] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
-  const [activeTab, setActiveTab] = useState(TABS[0]?.name);
+  const displayOrders = orders.length > 0 ? orders : sampleOrders;
 
-  const searchQuery = searchInput?.trim();
-  const isSearchMode = searchQuery?.length > 1;
-  const isRefundTab = activeTab === REFUNDED;
+  // Table configuration
+  const tableMenuOptions = [
+    {
+      name: "Export Orders",
+      onClick: () => console.log("Export orders clicked"),
+    },
+    {
+      name: "Bulk Actions",
+      onClick: () => console.log("Bulk actions clicked"),
+    },
+  ];
 
-  const handleSearch = async () => {
-    if (!searchQuery) {
-      return;
-    }
-    const payload = {
-      page: currentPageSearch,
-      searchQuery,
-      warehouseId: warehouse_id,
-    };
-    await searchOrders({ data: payload });
-  };
+  const deliveryMethods = ["Local", "International", "Tizzil"];
 
-  const handleGetAllData = () => {
-    const endDate = moment(dateFilter.end_date)
-      .add(1, "day")
-      .format("YYYY-MM-DD");
-    const datePayload = {
-      startDate: dateFilter.start_date,
-      endDate,
-    };
-    const payload = {
-      page: 1,
-      warehouseId: warehouse_id,
-    };
-    getOrders({ data: { ...payload, status: DISPATCHED, ...datePayload } });
-    getOrders({ data: { ...payload, status: COMPLETED, ...datePayload } });
-    getOrders({ data: { ...payload, status: CANCELLED, ...datePayload } });
-    getRefundedOrders({ data: { ...payload, ...datePayload } });
-  };
-  const handleGetData = () => {
-    const endDate = moment(dateFilter.end_date)
-      .add(1, "day")
-      .format("YYYY-MM-DD");
-    const datePayload = {
-      startDate: moment(dateFilter.start_date).format("YYYY-MM-DD"),
-      endDate,
-      deliveryHandler:
-        deliveryHandler?.value === "ALL" ? "" : deliveryHandler?.value,
-    };
-    cleanPayload(datePayload);
-    if (isRefundTab) {
-      getRefundedOrders({
-        data: {
-          warehouseId: warehouse_id,
-          page: currentPageRefund,
-          ...datePayload,
-        },
-      });
-      return;
-    }
-    getOrders({
-      data: {
-        warehouseId: warehouse_id,
-        page: currentPage,
-        status: activeTab,
-        ...datePayload,
-      },
-    });
-  };
-
-  useEffect(() => {
-    handleGetAllData();
-  }, []);
-  useEffect(() => {
-    isSearchMode ? handleSearch() : handleGetData();
-  }, [
-    currentPage,
-    currentPageSearch,
-    activeTab,
-    dateFilter,
-    deliveryHandler,
-    currentPageRefund,
-  ]);
-
-  useEffect(() => {
-    if (searchQuery?.length > 1 || !searchQuery) {
-      handleSearch();
-    }
-  }, [searchInput]);
-
-  const handleView = (row) => {
-    setCurrentTxnDetails({
-      ...row,
-      isRefundTab,
-      modalType: "details",
-      isSideModal: true,
-    });
-  };
   const columns = [
     {
-      name: "Order Code",
-      selector: "orderCode",
-      sortable: false,
+      name: "Order ID",
+      minWidth: "15%",
+      selector: (order) => (
+        <span className="text-[12.7px] text-[#6D7280]">{order.orderCode}</span>
+      ),
+      sortable: true,
     },
     {
-      name: "Customer",
-      selector: (row) => (
-        <span onClick={() => handleView(row)}>
-          {row?.guestFirstName || row?.calculatedOrder?.user?.firstName}{" "}
-          {row?.guestLastName || row?.calculatedOrder?.user?.lastName}
+      name: "Customers",
+      minWidth: "15%",
+      selector: (order) => (
+        <div className="flex flex-col">
+          <span className="text-[14.3px] text-[#111827] font-medium">
+            {order.calculatedOrder?.user?.firstName}{" "}
+            {order.calculatedOrder?.user?.lastName}
+          </span>
+          <span className="text-[12.5px] text-[#6D7280] mt-1">
+            {order.calculatedOrder?.user?.phoneNumber}
+          </span>
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Brand Name",
+      minWidth: "15%",
+      selector: (order) => (
+        <div className="flex flex-col">
+          <span className="text-[14.3px] text-[#111827] font-medium">
+            {order.calculatedOrderProducts?.[0]?.user?.firstName}{" "}
+            {order.calculatedOrderProducts?.[0]?.user?.lastName}
+          </span>
+          <span className="text-[14.2px] text-[#666666] mt-1 underline cursor-pointer hover:text-[#690007]">
+            {order.calculatedOrderProducts?.[0]?.product?.brand?.brandName}
+          </span>
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Total Amount",
+      minWidth: "15%",
+      selector: (order) => (
+        <span className="text-[14.2px] text-[#666666]">
+          ₦{order.calculatedOrder?.totalAmount?.toLocaleString()}
         </span>
       ),
-      sortable: false,
-    },
-    {
-      name: "Order Status",
-
-      selector: (row) => (
-        <TableDropdown
-          className={classNames({
-            "text-yellow":
-              row?.orderStatus === "IN_PROGRESS" ||
-              row?.orderStatus === "PENDING" ||
-              row?.orderStatus === "DISPATCHED",
-            "text-green": row?.orderStatus === "COMPLETED",
-            "text-red-deep": row?.orderStatus === "CANCELLED",
-          })}
-          options={ORDER_STATUS_OPTIONS}
-          content={row.orderStatus}
-          isDisabled={isRefundTab}
-          handleClick={(e) => {
-            setCurrentTxnDetails({ ...row, modalType: "prompt", ...e });
-          }}
-          isLoading={
-            currentTxnDetails?.orderCode === row?.orderCode &&
-            updateOrderStatusLoading
-          }
-        />
-      ),
-      sortable: false,
-    },
-
-    {
-      name: "Order Source",
-      selector: (row) => (
-        <span
-          className={classNames({
-            "text-grey-text3": !row?.orderSource,
-            "text-blue-bright":
-              row?.orderSource === "WEB" || row?.orderSource === "APP",
-            "text-blue-textHover": row?.orderSource === "STORE",
-            "text-green": row?.orderSource === "WHATSAPP",
-            "text-red-deep": row?.orderSource === "INSTAGRAM",
-          })}
-          onClick={() => handleView(row)}
-        >
-          {row?.orderSource}
-        </span>
-      ),
-      sortable: false,
-    },
-
-    {
-      name: "Delivery Method",
-      selector: (row) => (
-        <span onClick={() => handleView(row)}>{row?.deliveryMethod}</span>
-      ),
-      sortable: false,
+      sortable: true,
     },
     {
       name: "Order Date",
-      selector: (row) => moment(row.updatedAt).format("MMM Do, YYYY hh:mma"),
+      minWidth: "15%",
+      selector: (order) => (
+        <span className="text-[14.2px] text-[#666666]">
+          {moment(order.updatedAt).format("DD/MM/YYYY HH:mm")}
+        </span>
+      ),
       sortable: true,
     },
-
     {
-      name: "Total",
-      selector: (row) => (
-        <span onClick={() => handleView(row)} className="uppercase">
-          {transactionAmount(row)}
-        </span>
+      name: "Order Status",
+      minWidth: "15%",
+      selector: (order) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <TableDropdown
+            className={classNames({
+              "text-yellow":
+                order?.orderStatus === "IN_PROGRESS" ||
+                order?.orderStatus === "PENDING" ||
+                order?.orderStatus === "DISPATCHED",
+              "text-green": order?.orderStatus === "COMPLETED",
+              "text-red-deep": order?.orderStatus === "CANCELLED",
+            })}
+            options={ORDER_STATUS_OPTIONS}
+            content={order.orderStatus}
+            handleClick={(option) => handleOrderStatusChange(order, option)}
+            isLoading={false}
+          />
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      name: "",
+      maxWidth: "30px",
+      selector: (order) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <MoreIcon />
+        </div>
       ),
       sortable: true,
     },
   ];
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+  const handleDeliveryMethodFilter = (method) => {
+    console.log("Filter by delivery method:", method);
+    // Implement delivery method filtering logic here
   };
-  const displayedItems = useMemo(() => {
-    let items = [];
-    switch (activeTab) {
-      case INPROGRESS:
-        items = in_progressOrders;
-        break;
-      case PENDING:
-        items = pendingOrders;
-        break;
-      case DISPATCHED:
-        items = dispatchedOrders;
-        break;
-      case COMPLETED:
-        items = completedOrders;
-        break;
-      case CANCELLED:
-        items = cancelledOrders;
-        break;
-      case REFUNDED:
-        items = refundedOrders;
-        break;
-      default:
-        items = orders;
-        break;
+
+  const handleOrderStatusChange = (order, newStatus) => {
+    console.log("Order status change:", order.orderCode, newStatus);
+    // Implement confirmation modal and status update logic
+  };
+
+  const handleRowClick = (order) => {
+    // Navigate to order details page or open order details
+    navigate(`/dashboard/orders/${order.id}`);
+    // setCurrentTxnDetails({
+    //   ...order,
+    //   modalType: "details",
+    //   isSideModal: true,
+    // });
+  };
+
+  useEffect(() => {
+    // Fetch orders on component mount and when filters change
+    if (warehouse_id) {
+      getOrders({
+        data: {
+          page: currentPage,
+          warehouseId: warehouse_id,
+        },
+      });
     }
-    return isSearchMode ? searchResult : items;
-  }, [
-    searchResult,
-    activeTab,
-    isSearchMode,
-    in_progressOrders,
-    pendingOrders,
-    dispatchedOrders,
-    completedOrders,
-    cancelledOrders,
-    refundedOrders,
-  ]);
+  }, [currentPage, selectedDateFilter, warehouse_id]);
 
-  const displayedItemsCount = useMemo(() => {
-    let itemsCount;
-    switch (activeTab) {
-      case INPROGRESS:
-        itemsCount = in_progressOrdersCount;
-        break;
-      case PENDING:
-        itemsCount = pendingOrdersCount;
-        break;
-      case DISPATCHED:
-        itemsCount = dispatchedOrdersCount;
-        break;
-      case COMPLETED:
-        itemsCount = completedOrdersCount;
-        break;
-      case CANCELLED:
-        itemsCount = cancelledOrdersCount;
-        break;
-      case REFUNDED:
-        itemsCount = refundedOrdersCount;
-        break;
-      default:
-        itemsCount = ordersCount;
-        break;
-    }
-    return isSearchMode ? searchResultCount : itemsCount;
-  }, [
-    searchResult,
-    activeTab,
-    isSearchMode,
-    displayedItems,
-    in_progressOrdersCount,
-    pendingOrdersCount,
-    dispatchedOrdersCount,
-    completedOrdersCount,
-    cancelledOrdersCount,
-    ordersCount,
-    refundedOrdersCount,
-  ]);
+  if (isRecent) {
+    // Return simplified version for recent orders view
+    return (
+      <div className="w-full">
+        <p className="font-bold text-start w-full pl-3 mt-5 mb-4">
+          Recent Orders
+        </p>
+        <Table
+          data={displayOrders.slice(0, 5)}
+          columns={columns.slice(0, 4)} // Show fewer columns
+          onRowClicked={handleRowClick}
+          pointerOnHover
+          isLoading={loading}
+          tableClassName="txn-section-table"
+          noPadding
+          title="Recent Orders"
+          itemCount={5}
+          menuOptions={[
+            {
+              name: "View All Orders",
+              onClick: () => console.log("View all orders"),
+            },
+            {
+              name: "Export Recent",
+              onClick: () => console.log("Export recent orders"),
+            },
+          ]}
+        />
 
-  const isLoading = useMemo(() => {
-    return isSearchMode ? searchLoading : loading;
-  }, [searchLoading, loading]);
-
-  useEffect(() => scrollToTop(), [displayedItems]);
+        <OrderDetailsModal
+          active={!!currentTxnDetails}
+          details={currentTxnDetails}
+          toggler={() => setCurrentTxnDetails(null)}
+        />
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="h-full w-full min-h-[400px]">
-        <div className="flex flex-col justify-start items-center h-full w-full gap-y-5">
-          {!isRecent && (
-            <div className="flex justify-between items-center w-full mb-3 gap-1">
-              <div className="sm:min-w-[200px]">
-                <DashboardFilterDropdown
-                  placeholder="Filter by: "
-                  options={dateFilters}
-                  name="payout_filter"
-                  onClick={(e) => {
-                    if (e.value === "custom") {
-                      setShowDateModal(true);
-                      return;
-                    }
-                    setDateFilter(e);
-                  }}
-                  value={dateFilter?.label}
-                />
-              </div>
+    <div className="w-full h-full">
+      <div className="flex flex-col gap-5">
+        {/* Title Section */}
+        <div className="flex items-center justify-between w-full gap-4">
+          <h1 className="text-[22px] font-bold text-[#111111]">Orders</h1>
 
-              <div className="flex justify-start items-center w-full truncate text-base">
-                {dateFilter.value === "today"
-                  ? moment(dateFilter.start_date).format("MMM Do, YYYY")
-                  : `${moment(dateFilter.start_date).format(
-                      "MMM Do, YYYY"
-                    )} - ${moment(dateFilter.end_date).format("MMM Do, YYYY")}`}
-              </div>
-
-              <div className="min-w-[200px] max-w-[200px] flex justify-end">
-                <DashboardFilterDropdown
-                  align="items-end"
-                  placeholder="Delivery by: "
-                  options={deliveryHandlers}
-                  name="delivery_by"
-                  onClick={(e) => {
-                    setDeliveryHandler(e);
-                  }}
-                  value={deliveryHandler?.label}
-                />
-              </div>
-            </div>
-          )}
-          {isRecent && (
-            <p className="font-700 text-start w-full pl-3 mt-5">
-              Recent Orders
-            </p>
-          )}
-          <div className="flex justify-between items-center w-full mb-3 gap-1">
-            <div
-              className={classNames("w-full sm:w-[45%] sm:min-w-[300px]", {
-                "ml-3 mt-3": isRecent,
-              })}
-            >
-              <SearchBar
-                placeholder={"Search orders"}
-                onChange={setSearchInput}
-                value={searchInput}
-                className="flex"
-              />
-            </div>
+          <div className="flex items-center justify-between gap-4">
+            <SearchBar
+              placeholder={"Search orders"}
+              onChange={setSearchInput}
+              value={searchInput}
+              className="flex !w-[250px]"
+            />
+            <DateFilter
+              selectedOption={selectedDateFilter}
+              onOptionChange={setSelectedDateFilter}
+              placeholder="Filter by date"
+              className="w-auto"
+            />
           </div>
-          <Tabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} />
-          {isLoading ? (
-            <CircleLoader blue />
-          ) : (
-            <>
-              {isSearchMode &&
-                `Search results - ${numberWithCommas(searchResultCount)}`}
+        </div>
 
-              <div className="flex flex-col flex-grow justify-start items-center w-full h-full">
-                {!isEmpty(displayedItems) ? (
-                  <Table
-                    data={displayedItems}
-                    columns={width >= 640 ? columns : columns.slice(0, 2)}
-                    onRowClicked={(e) => {
-                      handleView(e);
-                    }}
-                    pointerOnHover
-                    pageCount={displayedItemsCount / pageCount}
-                    onPageChange={(page) =>
-                      isSearchMode
-                        ? setCurrentPageSearch(page)
-                        : isRefundTab
-                        ? setCurrentPageRefund(page)
-                        : setCurrentPage(page)
-                    }
-                    currentPage={
-                      isSearchMode
-                        ? currentPageSearch
-                        : isRefundTab
-                        ? currentPageRefund
-                        : currentPage
-                    }
-                    tableClassName="txn-section-table"
-                    noPadding
-                  />
-                ) : (
-                  <>
-                    <div className="text-grey-text flex flex-col justify-center items-center space-y-3 h-full">
-                      <SearchIcon className="stroke-current" />
-                      {
-                        <span>
-                          {isSearchMode && isEmpty(searchResult)
-                            ? `There are no results for your search '${searchQuery}'`
-                            : `There are currently no ${lowerCase(
-                                activeTab?.replaceAll("_", " ")
-                              )} orders`}
-                        </span>
-                      }
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
-          )}
+        {/* Enhanced Table */}
+        <div className="mt-6">
+          <Table
+            data={displayOrders}
+            columns={columns}
+            onRowClicked={handleRowClick}
+            pointerOnHover
+            isLoading={loading}
+            pageCount={Math.ceil(ordersCount / 20)}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            tableClassName="txn-section-table"
+            noPadding
+            title="All Orders"
+            itemCount={displayOrders.length}
+            menuOptions={tableMenuOptions}
+          />
         </div>
       </div>
 
@@ -504,31 +316,13 @@ const Orders = ({ isRecent }) => {
         active={!!currentTxnDetails}
         details={currentTxnDetails}
         toggler={() => setCurrentTxnDetails(null)}
-        handleRefund={setCurrentTxnDetails}
       />
-      <DateRangeModal
-        active={showDateModal}
-        defaultDate={{
-          startDate: new Date(dateFilter.start_date),
-          endDate: new Date(dateFilter.end_date),
-          key: "selection",
-        }}
-        onApply={(date) =>
-          setDateFilter({
-            value: `${moment(date?.startDate).format("DD MMM")} - ${moment(
-              date?.endDate
-            ).format("DD MMM")}`,
-            label: `${moment(date?.startDate).format("DD MMM")} - ${moment(
-              date?.endDate
-            ).format("DD MMM")}`,
-            start_date: date?.startDate,
-            end_date: date?.endDate,
-          })
-        }
-        toggler={() => setShowDateModal(false)}
-      />
-    </>
+    </div>
   );
+};
+
+Orders.propTypes = {
+  isRecent: PropTypes.bool,
 };
 
 export default observer(Orders);

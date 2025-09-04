@@ -3,9 +3,10 @@ import PropTypes from "prop-types";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import Textarea from "components/General/Textarea/Textarea";
 import { observer } from "mobx-react-lite";
 
-const AccountSetupTwo = ({ formData, updateFormData }) => {
+const AccountSetupTwo = ({ formData, updateFormData, hideTitle = false }) => {
   const schema = yup.object({
     brandDescription: yup
       .string()
@@ -40,26 +41,20 @@ const AccountSetupTwo = ({ formData, updateFormData }) => {
 
   return (
     <div className="w-full">
-      <h3 className="text-xl font-bold text-[#111111] mb-6">Brand Bio</h3>
-      
+      {!hideTitle && (
+        <h3 className="text-xl font-bold text-[#111111] mb-6">Brand Bio</h3>
+      )}
+
       <div className="flex flex-col space-y-4">
-        <div className="flex flex-col">
-          <label className="text-sm font-medium text-[#374151] mb-2">
-            Brand Description
-          </label>
-          <textarea
-            value={form?.brandDescription}
-            onChange={(e) => handleChange("brandDescription", e.target.value)}
-            placeholder="Short description (who you are, what you make, why it matters)"
-            className="w-full min-h-[120px] p-3 border border-[#D1D5DB] rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-vertical"
-            rows={5}
-          />
-          {errors.brandDescription && (
-            <span className="text-red-500 text-xs mt-1">
-              {errors.brandDescription.message}
-            </span>
-          )}
-        </div>
+        <Textarea
+          label="Brand Description"
+          value={form?.brandDescription}
+          onChangeFunc={(val) => handleChange("brandDescription", val)}
+          placeholder="Short description (who you are, what you make, why it matters)"
+          formError={errors.brandDescription}
+          rows={5}
+          required
+        />
       </div>
     </div>
   );
@@ -68,6 +63,7 @@ const AccountSetupTwo = ({ formData, updateFormData }) => {
 AccountSetupTwo.propTypes = {
   formData: PropTypes.object,
   updateFormData: PropTypes.func,
+  hideTitle: PropTypes.bool,
 };
 
 export default observer(AccountSetupTwo);

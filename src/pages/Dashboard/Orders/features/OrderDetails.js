@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
-import OrderDetailsModal from "./OrderDetailsModal";
 import OrdersStore from "../store";
 import { observer } from "mobx-react-lite";
 import moment from "moment";
@@ -11,7 +10,7 @@ import { Link, useParams } from "react-router-dom";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { TbCopy } from "react-icons/tb";
 import { successToast } from "components/General/Toast/Toast";
-import { NAIRA, NAIRA_ABBR } from "utils/appConstant";
+import { NAIRA } from "utils/appConstant";
 import { numberWithCommas } from "utils/formatter";
 import Accordion from "components/General/Accordion";
 
@@ -36,6 +35,7 @@ export const DetailBlock = ({ title, value, values, valueClassName }) => {
           {value}
         </p>
       )}
+      {/* order  Products */}
       {values?.map((item, i) => {
         const selectedChoice = item?.productOption?.choices?.find(
           (_, index) => index === item?.productOptionChoiceIndex

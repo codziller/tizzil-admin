@@ -8,7 +8,6 @@ import Button from "components/General/Button/Button";
 import { Link } from "react-router-dom";
 
 export default function DeleteDialog({ details, toggler }) {
-
   return (
     <div className="flex flex-col justify-center items-center gap-y-2 w-full h-full pb-4 overflow-y-auto">
       {details?.link ? (

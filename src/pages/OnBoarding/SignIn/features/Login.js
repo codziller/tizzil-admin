@@ -50,45 +50,11 @@ const Login = ({ onBackClick, goToForgotPassword, goToSignUp }) => {
     password: watch("password"),
   };
   const handleOnSubmit = (e) => {
-    // DEMO MODE: Comment out API request for demo purposes
-    // login(form, logUserIn);
-    
-    // Demo mode: Simulate successful login without API call
-    const demoUser = {
-      access_token: 'demo_token_123',
-      refresh_token: 'demo_refresh_token_123',
-      user: {
-        id: 1,
-        email: form.email,
-        firstName: 'Demo',
-        lastName: 'User',
-        userRole: {
-          name: 'BRAND_USER' // Set as brand user
-        },
-        role: 'BRAND_USER',
-        brandId: 1
-      },
-      // Add brand and brandUser data for complete demo experience
-      brand: {
-        id: 1,
-        name: 'Demo Brand',
-        description: 'This is a demo brand for testing purposes',
-        brandName: 'Demo Brand'
-      },
-      brandUser: {
-        id: 1,
-        role: 'BRAND_OWNER',
-        userId: 1,
-        brandId: 1
-      }
-    };
-    
-    // Simulate successful login with demo data
-    logUserIn(demoUser);
+    login(form, logUserIn);
   };
 
   return (
-    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center">
+    <div className="md:px-2 md:py-0 py-8 px-3 form-container sm:min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center mt-20">
       {onBackClick && (
         <button onClick={onBackClick} className="scale-90 mb-5">
           <ArrowBack />

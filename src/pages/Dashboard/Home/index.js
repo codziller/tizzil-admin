@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router";
 import { Helmet } from "react-helmet";
-import DashboardLayout from "components/Layout/DashboardLayout";
+import DashboardLayout from "components/Layout/ModernDashboardLayout";
 
 const Home = () => {
   return (

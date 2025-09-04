@@ -35,7 +35,8 @@ const HeaderDropDown = () => {
     if (!y) return;
     y > innerHeight / 1.5 ? setPositionTop(true) : setPositionTop(false);
   }, [innerHeight, y]);
-  const { user } = getUserInfoFromStorage();
+  const userData = getUserInfoFromStorage();
+  const user = userData?.user;
   const userName = user?.firstName && `${user?.firstName} ${user?.lastName}`;
 
   return (
