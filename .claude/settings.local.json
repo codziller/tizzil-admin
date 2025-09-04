@@ -8,7 +8,12 @@
       "Bash(npm start)",
       "Bash(npm run build:*)",
       "Bash(npm run lint:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin/**)",
+      "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin/**)",
+      "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin/**)",
+      "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin/**)",
+      "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin\\node_modules\\.bin/**)"
     ],
     "deny": [],
     "ask": []
