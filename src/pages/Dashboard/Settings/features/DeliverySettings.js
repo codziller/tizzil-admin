@@ -352,7 +352,7 @@ const DeliverySettings = () => {
             {/* Add Country Button */}
             <button
               onClick={() => addCountryField("international")}
-              className="flex items-center gap-2 text-[#2F78EE] hover:text-blue-700 transition-colors"
+              className="flex items-center gap-2 text-[#2F78EE] hover:text-blue-700 transition-colors text-sm"
               style={{ fontSize: "15px", marginTop: "32px" }}
             >
               <PlusIcon
