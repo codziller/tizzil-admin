@@ -109,7 +109,6 @@ const authSignupQuery = gql`
       brand {
         id
         brandName
-        brandEmail
         logoUrl
       }
       brandUser {

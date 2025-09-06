@@ -46,14 +46,14 @@ const SignUpOtp = ({ goBackToSignup, isActive }) => {
     }
   }, []);
 
-  // Start countdown only when component becomes active (visible)
+  // Reset countdown whenever the screen becomes active (entered from signup)
   useEffect(() => {
-    if (isActive && countdown === null) {
-      console.log("SignUpOtp component is now active, starting countdown");
+    if (isActive) {
+      console.log("SignUpOtp component is now active, resetting countdown");
       setCountdown(59);
       setCanResend(false);
     }
-  }, [isActive, countdown]);
+  }, [isActive]);
 
   useEffect(() => {
     let timer = null;
@@ -88,12 +88,7 @@ const SignUpOtp = ({ goBackToSignup, isActive }) => {
     );
 
     // Check each condition individually for better debugging
-    if (otp.length !== 4) {
-      console.log(
-        "OTP validation failed - length is",
-        otp.length,
-        "expected 4"
-      );
+    if (otp.length !== 6) {
       return;
     }
 
@@ -149,7 +144,7 @@ const SignUpOtp = ({ goBackToSignup, isActive }) => {
   };
 
   return (
-    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-48px)] mini:!min-w-[362px] snap-center mt-20">
+    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-48px)] md:!min-w-[362px] snap-center mt-20">
       <h2 className="section-heading mb-1 text-lg text-[#444444]">
         VERIFICATION CODE
       </h2>
@@ -159,7 +154,7 @@ const SignUpOtp = ({ goBackToSignup, isActive }) => {
       </p>
 
       <div className="flex flex-col items-center mb-6">
-        <OTPInput value={otp} onChange={handleOTPChange} numInputs={4} />
+        <OTPInput value={otp} onChange={handleOTPChange} numInputs={6} />
       </div>
 
       <div className="flex justify-between items-center mb-6 text-xs">
@@ -185,7 +180,7 @@ const SignUpOtp = ({ goBackToSignup, isActive }) => {
           text="Continue"
           fullWidth
           isLoading={loading}
-          isDisabled={otp.length !== 4}
+          isDisabled={otp.length !== 6}
           onClick={handleSubmit}
         />
         <div className="mt-[10px] w-full">

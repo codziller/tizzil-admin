@@ -7,25 +7,7 @@
 ## 📋 Pending Features/Fixes
 
 <!-- Pending Tasks start -->
-
-1. Update src\components\Dashboard\RateCard\RateCard.js so that if cardStyle is 'admin', the icon should be right the right, and the title at the left, the Icon and Title div should be full space between, mb-[30px] shold be reduced to 6px, the Label in rateItems should be hidden, Rate indicator should be 4px below the item.value.
-2. Update src\components\Dashboard\AdminDashboard\AdminDashboard.js so that under Main Content Split, You put 3 TopItemsCard 'Top Brands', 'Top Products', 'Top Customers' in a 20px gap grid container(3 cards per row on desktop, 2 on tabs, 1 on mobile). Below this container, put a container(20px gap) with Pie Chart Card(2/5 basis), and two TopItemsCard 'Top Affliates' and 'Visitors', on tabs put first 2 cards on a row, third below, and on desktop, put them all on different lines. Below, put Orders table from src\pages\Dashboard\Orders\features\orders.js. Import it directly from there and add props to hide the Title Section of orders in AdminDashboard.
-
-TopItemsCard:
-TopItemsCard container should be bg #FFFFFF, br 16px, p 16px, At the top should be a space between row, title(#718096, 16px) by the left, Date Filter by the right. The Date Filter used in src\components\Dashboard\RateCard\RateCard.js should be made into a reusable component, and used in both cards. 12px below the top row, map through the card list passed to it to return a list of the items(px 8px, py-4px, alternating bg of #F9FAFB and white.), each item should be a space between full width row with a row(8px gap) of the icon(if icon - 16px is not passed, use different colors bg circle of 8px size i.e all the items in the list will have the circle in different color) and the item name(12px #111827), and the item value(#718096 12px) by the right.
-Note that only the 'Top Brands' TopItemsCard will have icons, use versace, Tom ford, ZTTW, Zanotti, Balenciaga logos(make sure to use the logos). For other TopItemsCards populate with five list items
-
-3. Update src\pages\Dashboard\Brands\features\index.js so that the table is like that in src\pages\Dashboard\Orders\features\orders.js. Pass an array title objects [{title:"Approved Brands", itemCount:approvedBrandsCount}, {title:"Pending Brands", itemCount:pendingBrandsCount} ] and loop through to show Title section in src\components\General\Table\index.js in tab like form. This means if title is passed to the Table, it should show Title section the way it already is, else it should show the Title sections in a tab row, active tab should have the title(#111827), count border and text color (#690007), border-bottom: 2.14px solid #690007, inactive tab should have the title(#999999), count border and text color (#999999), all tabs will have px 20px py 7px.
-
-The table shown should be based on the active tab, in this case, the "Approved Brands" and "Pending Brands" tabs Table will have same Fields 'Brand Logo' (45 px h/w), 'Brand Name', 'No. of orders', 'Revenue', 'Wallet Balance', 'Product Category' (#690007 uppercase), 'AOV', and then the MoreIcon last. On click of a brand, open BrandDetailModal which should be just like src\pages\Dashboard\Products\features\ProductDetailsModal.js. Title will be 'Brand Details', at the top will be the banner section where the brand imageUrls[0] is displayed in a 124px height full w banner box with br 16px br. Put an overlay of background: #0000006E; over the image, and in the box, put a row(16px gap) with brand.logoUrl(48px w/h) in the left, and a column(5px gap) with brandName(#FFFFFF bold 16px) and brand email or 'SInce ${yearsInBusiness}'(14px #FFFFFF) below it. 20px below banner section, put row card(bg white, border: 1px solid #DDDDDD, p 20px) the row should be spilt into 3 equal columns with a #E5E7EB 2px w divider. each column(8px gap) should have title(14px #777777), and value(16px #111111 bold) all aligned center with text align left, the titles are 'Total orders', 'Total Revenue', 'Wallet Balance'. 24 px below, put 'Details'(#111827 17px bold) and 20px below, put the details rows. each detail row(py 8px, border-bottom: 1px solid #BBBBBB80, space between) will have label(16px #4B5563) by the left and value(16px #444444) by the right. The labels are 'Product Category', 'Address', 'Country/City', 'Brand Bio'( brand bio should be a 18px gap column, label at the top, value below).
-20px below put Socials(16px #4B5563), and 18px below it, put a column(4px gap column) with details rows. The addition to the detail row here is that there'd be an icon 8px to the left of the label. The labels will be 'Instagram', 'Tiktok', 'Website', 'Shopify Store Url'(shopifyStoreUrl). make sure the value in details row does not overflow but insteads breaks to the next line with text align right and put a gap of 6px in the row for good measure. If the brand is a pending(from status(UNDER_REVIEW) of the brand which can be APPROVED
-REJECTED
-UNDER_REVIEW) brand, show in the modal footer (mt 24px), 'Have you reviewed this brand? If yes you can proceed to approve or otherwise.'(#000000 16px), and 20px below, put 'APPROVE' primary button and 'REJECT' isOutline button.
-
-4. inside src\pages\Dashboard\Users\features, add the file for Discover users. use src\pages\Dashboard\Products\features\categories.js to model it. Replace of ProductCard, with UserCard which is just like ProductCard with the exceptions that the card container and image at the top have no br, the name is not bold, and the product images circles should be 6px to the left of the name and should just be one instead of a loop of 4. The the description will be kept too, and 16px below the description, put the action section inside a px-16px py-6px container. The action section(bg #F6F7F1 px-12px py-8px) is s row split into two parts by a 1px #D9D9D9 divider, either parts of the action section should be 6px gap row with icon and text, first src\assets\icons\approve-icon.svg and 'Approve'(13px #111111), second src\assets\icons\reject-icon.svg 'Reject'(13px #690007). Open approve or reject modal based on the button clicked. which is a modal asking them to confirm the action.
-   Make sure that you make UserCard a component in its own file and import as necessary. Also, make ProductCard in src\pages\Dashboard\Products\features\categories.js a component in its own file and import to be used in src\pages\Dashboard\Products\features\categories.js, src\pages\Dashboard\Products\features\collections.js, and src\pages\Dashboard\Products\features\index.js
-
-5. Inside src\pages\Dashboard\Users\features, put AdminUsers.js. User src\pages\Dashboard\Users\features\index.js as guide for the AdminUsers page. In the Title Section, replace the Export Section with Add User Button (arranged just like Add Collection Button in src\pages\Dashboard\Products\features\collections.js). On click of the Add User Button, open AddUserModal which should be just like src\pages\Dashboard\Products\features\AddCollectionModal.js with the title 'Add New User', and fields 'Enter first name', 'Enter first name'(both in a 20px gap row), 'Enter email', 'Enter password', and 'Select permission' (multi selction) the permision options should be all the labels in adminNavItems in src\components\Layout\Components\SideNav\ModernSideNav.js. Update components/General/Input/Select so that if isMulti, the selected options are arranged below the select input just like in src\pages\Dashboard\Settings\features\DeliverySettings.js, so that there's no need to do the mapping everywhere isMulti select is used, also, hide the selected options showing inside the actual select input for isMulti as they are currently look distorted and overflow out of the confines of the select, so the options showing below is better. When a User is clicked, open the UserDetailsModal(put all modals in a differnt file and import as needed). For the UserDetailsModal, the title is 'USER PERMISIONS', and at the top, put a row with user icon(24px while) in a 46px br 8px box, and a column(4px gap) 16px to its right. The column should have the user firstName and lastName(14px #111827) at the top, and user email(#6D7280 12px) below. 24px below the row, put "Details"(16px. #4B5563), and 20px below it put a column(border: 1px solid #DDDDDD, bg white, br 4px, p 16px, gap 8px). Inside the column, put a list of permission items (the adminNavItems from ModernSideNav). Each permission item will be a row(full width, border-bottom: 0.8px solid #D2D2D2, pb 8px, space between), by the left, put a 13px gap row with the icon(icon from adminNavItems) in a box(37px w/h, br 3px, bg #6900071A;, text color #690007, and also add a className of sidenav-active ), a column(2px gap) right of the box with the permission name(label from adminNavItems, 16px, #111827) at the top, and permision label(12px #111827) at the bottom of the column. At the right end of the permission item, put Toggle from components/General/Toggle to toggle on or off a permission.
+1. 
 
 <!-- Pending Tasks end -->
 
@@ -74,6 +56,118 @@ const user = userData?.user; // Safe even if userData is null
 - Future-proof against similar destructuring issues
 
 ## ✅ Completed Features/Fixes
+
+### SignUp Form Enhancement & OTP Countdown Fix - 🎉 Fixed!
+
+**Summary:** Enhanced signup form with phone number field and fixed OTP countdown reset functionality
+
+**Issues Resolved:**
+
+1. ✅ **OTP Countdown Reset Fix** - Updated SignUpOtp.js to reset countdown timer every time the screen is entered from Signup.js
+2. ✅ **Phone Number Field Addition** - Added phoneNumber field to Signup.js below email field using PhoneNumber component
+3. ✅ **PhoneNumber Component Styling Update** - Updated PhoneNumber component styling to match Input.js design standards
+4. ✅ **Form Validation Integration** - Added proper form validation and error handling for phone number field
+
+**Technical Implementation:**
+
+- **SignUpOtp.js Updates**:
+  - Modified countdown useEffect to remove the `countdown === null` condition
+  - Now resets countdown to 59 seconds every time `isActive` becomes true
+  - Improved user experience when navigating back and forth between signup and OTP screens
+
+- **Signup.js Enhancements**:
+  - Added PhoneNumber component import
+  - Added phoneNumber to yup schema validation with required validation
+  - Updated defaultValues to include phoneNumber field
+  - Added phoneNumber to form watch values
+  - Added country state management for phone number country selection
+  - Integrated PhoneNumber component with proper props and error handling
+
+- **PhoneNumber Component Styling**:
+  - Updated container div to match Input.js styling standards:
+    - Added `transition-all duration-300 ease-in-out` for smooth transitions
+    - Updated border styling: `border-solid` instead of `border-gray-border rounded`
+    - Applied Input.js color scheme:
+      - Default: `bg-transparent border-[#BBBBBB]`
+      - Active/Focus: `bg-white border-[#111111] shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)]`
+      - Hover: `hover:border-[#111111] hover:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)] hover:bg-white`
+      - Error: `!border-red bg-white`
+
+**Code Quality Improvements:**
+
+- **Consistent User Experience**: Phone number field follows the same interaction patterns as other input fields
+- **Proper Form Validation**: Added required validation for phone number with proper error messaging
+- **State Management**: Proper handling of country selection and phone number value changes
+- **Responsive Design**: PhoneNumber component maintains responsive behavior consistent with other form fields
+
+**Result:**
+
+- ✅ OTP countdown now properly resets every time user navigates to OTP screen
+- ✅ Signup form now includes phone number field with proper validation
+- ✅ PhoneNumber component styling matches Input.js design standards perfectly
+- ✅ Consistent user experience across all form input fields
+- ✅ Enhanced form validation with comprehensive error handling
+- ✅ Improved signup flow with complete user data collection
+
+### Authentication Service Integration - 🎉 Fixed!
+
+**Summary:** Updated authentication system to use real API calls instead of demo responses for production readiness
+
+**Issues Resolved:**
+
+1. ✅ **SignUp Store API Integration** - Updated sendVerificationMail and signup methods to use real authService calls instead of demo responses
+2. ✅ **Brand Registration API Addition** - Added authBrandRegistration method to SignUp store with proper error handling and callback support
+3. ✅ **SignIn Store API Integration** - Updated login and loginAdmin methods to use real API responses from brandAdminLoginUser and adminLoginUser
+4. ✅ **AccountSetup API Integration** - Updated AccountSetup form submission to call authBrandRegistration with proper payload mapping
+5. ✅ **Demo Response Cleanup** - Commented out all demo responses while preserving them for potential future development use
+
+**Technical Implementation:**
+
+- **SignUp Store Updates**:
+
+  - Uncommented `await authService.authSendVerificationMail(data)` and `await authService.authSignup(data)` calls
+  - Added new `authBrandRegistration` method with proper error handling and MobX action decoration
+  - Commented out demo setTimeout responses while preserving real API response handling
+
+- **SignIn Store Updates**:
+
+  - Uncommented `await apis.brandAdminLoginUser(data)` and `await apis.adminLoginUser(data)` calls
+  - Updated to use `res?.user` and `res` instead of demo response objects
+  - Removed "(Demo Mode)" indicators from success messages
+
+- **AccountSetup Integration**:
+  - Updated handleSubmit to call `AuthStore.authBrandRegistration(brandRegistrationData, callback)`
+  - Implemented proper payload mapping according to BrandRegistrationCreateInput schema:
+    ```javascript
+    const brandRegistrationData = {
+      addressLine1: formData.addressLine1 || formData.address || "",
+      brandDescription: formData.brandDescription || formData.description || "",
+      brandName: formData.brandName || "",
+      city: formData.city || "",
+      country: formData.country || "",
+      postalCode: formData.postalCode || formData.zipCode || "",
+      state: formData.state || "",
+      // ... additional fields with proper type conversion
+    };
+    ```
+
+**BrandRegistrationCreateInput Schema Compliance:**
+
+Implemented proper mapping for all required and optional fields:
+
+- **Required Fields**: addressLine1, brandDescription, brandName, city, country, postalCode, state
+- **Optional Fields**: addressLine2, brandShortText, businessRegistrationNumber, estimatedMonthlyOrders, productImportMethod, shopifyAccessToken, shopifyStoreUrl, yearsInBusiness
+- **Type Safety**: Added proper parseFloat conversion for numeric fields
+
+**Result:**
+
+- ✅ Authentication system now uses real API calls for production readiness
+- ✅ Brand registration process properly integrated with backend API
+- ✅ All demo responses preserved as comments for future development reference
+- ✅ Proper error handling and user feedback maintained throughout
+- ✅ Form data mapping compliant with GraphQL schema requirements
+- ✅ Toast notifications updated to reflect real API operations
+- ✅ Maintained backward compatibility while enabling production functionality
 
 ### Enhanced Table Header and Cell Alignment Fix - 🎉 Fixed!
 

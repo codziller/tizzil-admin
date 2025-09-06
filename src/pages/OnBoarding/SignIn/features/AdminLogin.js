@@ -54,7 +54,7 @@ const Login = ({ onBackClick, goToForgotPassword, goToSignUp }) => {
   };
 
   return (
-    <div className="md:px-2 md:py-0 py-8 px-3 form-container  sm:min-w-[calc(100vw-24px)] mini:!min-w-[362px] snap-center mt-20">
+    <div className="md:px-2 md:py-0 py-8 px-3 form-container  sm:min-w-[calc(100vw-24px)] md:!min-w-[362px] snap-center mt-20">
       {onBackClick && (
         <button onClick={onBackClick} className="scale-90 mb-5">
           <ArrowBack />

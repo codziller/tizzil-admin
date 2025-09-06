@@ -35,41 +35,71 @@ const AccountSetupContainer = () => {
     try {
       setIsLoading(true);
 
-      // Demo mode - simulate successful brand registration and update user data
-      setTimeout(() => {
-        // Create updated demo response with brand setup complete
-        const updatedDemoResponse = {
-          access_token: "demo_access_token_after_setup_12345",
-          refresh_token: "demo_refresh_token_after_setup_67890",
-          user: JSON.parse(localStorage.getItem("user") || "{}"),
-          brand: {
-            id: "demo-brand-id-456",
-            brandName: formData.brandName || "Demo Brand Store",
-            brandEmail: formData.brandEmail || "demo@tizzil.com",
-            logoUrl: "https://via.placeholder.com/100/690007/FFFFFF?text=DB",
-          },
-          brandUser: {
-            brandId: "demo-brand-id-456",
-            createdAt: new Date().toISOString(),
-            id: "demo-brand-user-789",
-            invitedAt: new Date().toISOString(),
-            isActive: true,
-            joinedAt: new Date().toISOString(),
-            role: "OWNER",
-            updatedAt: new Date().toISOString(),
-            userId:
-              JSON.parse(localStorage.getItem("user") || "{}")?.id ||
-              "demo-user-id-123",
-          },
-        };
+      // Prepare brand registration data according to BrandRegistrationCreateInput
+      const brandRegistrationData = {
+        addressLine1: formData.addressLine1 || formData.address || "",
+        addressLine2: formData.addressLine2 || "",
+        brandDescription: formData.brandDescription || formData.description || "",
+        brandName: formData.brandName || "",
+        brandShortText: formData.brandShortText || formData.shortDescription || "",
+        businessRegistrationNumber: formData.businessRegistrationNumber || formData.registrationNumber || "",
+        city: formData.city || "",
+        country: formData.country || "",
+        estimatedMonthlyOrders: formData.estimatedMonthlyOrders ? parseFloat(formData.estimatedMonthlyOrders) : null,
+        postalCode: formData.postalCode || formData.zipCode || "",
+        productImportMethod: formData.productImportMethod || null,
+        shopifyAccessToken: formData.shopifyAccessToken || "",
+        shopifyStoreUrl: formData.shopifyStoreUrl || "",
+        state: formData.state || "",
+        yearsInBusiness: formData.yearsInBusiness ? parseFloat(formData.yearsInBusiness) : null,
+      };
 
-        // Update localStorage with complete brand setup
-        saveUserInfoToStorage(updatedDemoResponse);
-
-        setShowSuccessModal(true);
-        toast.success("Brand setup completed successfully! (Demo Mode)");
+      // Call the brand registration API
+      const success = await AuthStore.authBrandRegistration(brandRegistrationData, (result) => {
+        if (result) {
+          setShowSuccessModal(true);
+          toast.success("Brand setup completed successfully!");
+        } else {
+          toast.error("Failed to submit brand registration");
+        }
         setIsLoading(false);
-      }, 1500); // Simulate processing time
+      });
+
+      // Demo mode - simulate successful brand registration and update user data
+      // setTimeout(() => {
+      //   // Create updated demo response with brand setup complete
+      //   const updatedDemoResponse = {
+      //     access_token: "demo_access_token_after_setup_12345",
+      //     refresh_token: "demo_refresh_token_after_setup_67890",
+      //     user: JSON.parse(localStorage.getItem("user") || "{}"),
+      //     brand: {
+      //       id: "demo-brand-id-456",
+      //       brandName: formData.brandName || "Demo Brand Store",
+      //       brandEmail: formData.brandEmail || "demo@tizzil.com",
+      //       logoUrl: "https://via.placeholder.com/100/690007/FFFFFF?text=DB",
+      //     },
+      //     brandUser: {
+      //       brandId: "demo-brand-id-456",
+      //       createdAt: new Date().toISOString(),
+      //       id: "demo-brand-user-789",
+      //       invitedAt: new Date().toISOString(),
+      //       isActive: true,
+      //       joinedAt: new Date().toISOString(),
+      //       role: "OWNER",
+      //       updatedAt: new Date().toISOString(),
+      //       userId:
+      //         JSON.parse(localStorage.getItem("user") || "{}")?.id ||
+      //         "demo-user-id-123",
+      //     },
+      //   };
+
+      //   // Update localStorage with complete brand setup
+      //   saveUserInfoToStorage(updatedDemoResponse);
+
+      //   setShowSuccessModal(true);
+      //   toast.success("Brand setup completed successfully! (Demo Mode)");
+      //   setIsLoading(false);
+      // }, 1500); // Simulate processing time
     } catch (error) {
       console.error("Brand registration error:", error);
       toast.error("Failed to submit brand registration");

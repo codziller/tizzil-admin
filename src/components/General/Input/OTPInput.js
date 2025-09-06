@@ -72,7 +72,7 @@ const OTPInput = ({ value, onChange, numInputs = 4 }) => {
           onKeyDown={(e) => handleKeyDown(e, index)}
           onPaste={handlePaste}
           maxLength={1}
-          className={`w-[70px] h-[60px] text-center text-[28px] font-bold text-[#1E1E1E] border transition-all duration-300 ease-in-out focus:outline-none ${
+          className={`w-[50px] h-[45px] text-center text-[28px] font-bold text-[#1E1E1E] border transition-all duration-300 ease-in-out focus:outline-none ${
             digit
               ? "bg-white border-[#111111] shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)]"
               : "bg-transparent border-[#BBBBBB] hover:border-[#111111] hover:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)] hover:bg-white focus:bg-white focus:border-[#111111] focus:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)]"

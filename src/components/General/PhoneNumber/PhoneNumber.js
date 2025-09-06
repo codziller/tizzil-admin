@@ -107,13 +107,13 @@ const PhoneNumber = ({
         </div>
       )}
       <div
-        className={`h-11 border border-gray-border rounded text-grey focus:border flex flex-row w-full text-gray leading-normal shadow-none outline-none focus:outline-none focus:ring-0 focus:text-gray overflow-ellipsis overflow-hidden whitespace-nowrap
+        className={`h-11 border border-solid flex flex-row w-full text-gray leading-normal shadow-none outline-none focus:outline-none focus:ring-0 focus:text-gray overflow-ellipsis overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out
         ${
           error
-            ? "!border-red"
-            : active
-            ? "border-blue"
-            : "hover:bg-grey-whitesmoke border-grey-border"
+            ? "!border-red bg-white"
+            : active || value
+            ? "bg-white border-[#111111] shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)]"
+            : "bg-transparent border-[#BBBBBB] hover:border-[#111111] hover:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)] hover:bg-white"
         }
         `}
         ref={domNode}
@@ -153,7 +153,7 @@ const PhoneNumber = ({
           <Input
             country={country || "NG"}
             value={value}
-            className={`shadow-none outline-none focus:outline-none focus:ring-0 focus:text-black h-full w-full pl-2 placeholder:text-grey bg-grey-alt text-base
+            className={`shadow-none outline-none focus:outline-none focus:ring-0 focus:text-black h-full w-full pl-2 placeholder:text-grey bg-transparent text-base
             ${value && value.length > 1 && "text-black"}
             `}
             disabled={isDisabled}

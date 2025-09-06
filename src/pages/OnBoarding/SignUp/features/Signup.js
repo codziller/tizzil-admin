@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -6,11 +6,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import Button from "components/General/Button/Button";
 import Input from "components/General/Input/Input";
+import PhoneNumber from "components/General/PhoneNumber/PhoneNumber";
 import { observer } from "mobx-react-lite";
 import AuthStore from "../store";
 
 const Signup = ({ goToLogin, goToSignUpOtp }) => {
   const { loading, signup, sendVerificationMail } = AuthStore;
+  const [country, setCountry] = useState("NG");
 
   const schema = yup.object({
     firstName: yup.string().required("Please enter your first name"),
@@ -19,6 +21,7 @@ const Signup = ({ goToLogin, goToSignUpOtp }) => {
       .string()
       .email("Please enter a valid email address")
       .required("Please enter your email"),
+    phoneNumber: yup.string().required("Please enter your phone number"),
     password: yup
       .string()
       .min(6, "Password must be at least 6 characters")
@@ -29,6 +32,7 @@ const Signup = ({ goToLogin, goToSignUpOtp }) => {
     firstName: "",
     lastName: "",
     email: "",
+    phoneNumber: "",
     password: "",
   };
 
@@ -53,6 +57,7 @@ const Signup = ({ goToLogin, goToSignUpOtp }) => {
     firstName: watch("firstName"),
     lastName: watch("lastName"),
     email: watch("email"),
+    phoneNumber: watch("phoneNumber"),
     password: watch("password"),
   };
 
@@ -85,7 +90,7 @@ const Signup = ({ goToLogin, goToSignUpOtp }) => {
   };
 
   return (
-    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-48px)] mini:!min-w-[362px] snap-center mt-20">
+    <div className="md:px-2 md:py-0 py-8 px-3 form-container min-w-[calc(100vw-48px)] md:!min-w-[362px] snap-center mt-20">
       <h2 className="section-heading mb-1 text-lg text-[#444444]">
         LET'S GET YOU IN.
       </h2>
@@ -130,6 +135,19 @@ const Signup = ({ goToLogin, goToSignUpOtp }) => {
           type="email"
           formError={errors.email}
           required
+        />
+
+        <PhoneNumber
+          label="Phone Number"
+          name="phoneNumber"
+          value={form?.phoneNumber}
+          countryClicked={country}
+          onPhoneChange={(val) => handleChange("phoneNumber", val)}
+          onCountryChange={(val) => setCountry(val)}
+          placeholder="Enter your phone number"
+          formError={errors.phoneNumber}
+          showFormError={true}
+          isRequired
         />
 
         <Input

@@ -15,10 +15,6 @@ const AccountSetupOne = ({
 }) => {
   const schema = yup.object({
     brandName: yup.string().required("Please enter your brand name"),
-    brandEmail: yup
-      .string()
-      .email("Please enter a valid email address")
-      .required("Please enter your brand email"),
     addressLine1: yup.string().required("Please enter your address"),
     country: yup.string().required("Please select your country"),
     city: yup.string().required("Please enter your city"),
@@ -27,7 +23,6 @@ const AccountSetupOne = ({
 
   const defaultValues = {
     brandName: formData?.brandName || "",
-    brandEmail: formData?.brandEmail || "",
     addressLine1: formData?.addressLine1 || "",
     country: formData?.country || "",
     city: formData?.city || "",
@@ -54,7 +49,6 @@ const AccountSetupOne = ({
 
   const form = {
     brandName: watch("brandName"),
-    brandEmail: watch("brandEmail"),
     addressLine1: watch("addressLine1"),
     country: watch("country"),
     city: watch("city"),
@@ -107,16 +101,6 @@ const AccountSetupOne = ({
           placeholder="Enter your brand name"
           type="text"
           formError={errors.brandName}
-          required
-        />
-
-        <Input
-          label="Brand E-mail"
-          value={form?.brandEmail}
-          onChangeFunc={(val) => handleChange("brandEmail", val)}
-          placeholder="Enter your brand email"
-          type="email"
-          formError={errors.brandEmail}
           required
         />
 
