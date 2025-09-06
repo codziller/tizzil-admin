@@ -127,7 +127,7 @@ const ModernSideNav = ({
       id: "discover-users",
       label: "Discover Users",
       icon: DiscoverUsersIcon,
-      path: "/dashboard/users",
+      path: "/dashboard/discover-users",
     },
     {
       id: "payout",
@@ -139,7 +139,7 @@ const ModernSideNav = ({
       id: "user-management",
       label: "User Management",
       icon: UserManagementIcon,
-      path: "/dashboard/user-management",
+      path: "/dashboard/users",
     },
   ];
 
@@ -193,7 +193,7 @@ const ModernSideNav = ({
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/auth/login";
+    window.location.href = isAdmin ? "/auth/login/admin" : "/auth/login";
   };
 
   if (isCollapsed) {

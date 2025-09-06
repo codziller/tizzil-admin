@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FiChevronDown, FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import { FiChevronDown, FiTrendingUp } from "react-icons/fi";
 import {
   BsClipboardData,
   BsCurrencyDollar,
@@ -11,7 +11,10 @@ import {
   BsPeople,
   BsCartCheck,
 } from "react-icons/bs";
+import { ReactComponent as PieIcon } from "assets/icons/piec-icon.svg";
 import RateCard from "../RateCard/RateCard";
+import TopItemsCard from "../../General/TopItemsCard";
+import Orders from "../../../pages/Dashboard/Orders/features/orders";
 
 const AdminDashboard = () => {
   const [revenueDateFilter, setRevenueDateFilter] = useState("Today");
@@ -29,7 +32,7 @@ const AdminDashboard = () => {
   // Admin rate cards data (8 cards in 4x2 grid)
   const adminRateCards = [
     {
-      icon: BsClipboardData,
+      icon: PieIcon,
       title: "Total Orders",
       rateItems: [
         {
@@ -41,7 +44,7 @@ const AdminDashboard = () => {
       ],
     },
     {
-      icon: BsCurrencyDollar,
+      icon: PieIcon,
       title: "Total Income",
       rateItems: [
         {
@@ -53,7 +56,7 @@ const AdminDashboard = () => {
       ],
     },
     {
-      icon: BsGraphUp,
+      icon: PieIcon,
       title: "Tizzil Revenue",
       rateItems: [
         {
@@ -65,7 +68,7 @@ const AdminDashboard = () => {
       ],
     },
     {
-      icon: BsCalculator,
+      icon: PieIcon,
       title: "Average Order Value",
       rateItems: [
         {
@@ -77,7 +80,7 @@ const AdminDashboard = () => {
       ],
     },
     {
-      icon: BsBox,
+      icon: PieIcon,
       title: "Total Product Created",
       rateItems: [
         {
@@ -89,7 +92,7 @@ const AdminDashboard = () => {
       ],
     },
     {
-      icon: BsShop,
+      icon: PieIcon,
       title: "No. of Active Brands",
       rateItems: [
         {
@@ -101,7 +104,7 @@ const AdminDashboard = () => {
       ],
     },
     {
-      icon: BsPeople,
+      icon: PieIcon,
       title: "Total No. of New Users",
       rateItems: [
         {
@@ -113,7 +116,7 @@ const AdminDashboard = () => {
       ],
     },
     {
-      icon: BsCartCheck,
+      icon: PieIcon,
       title: "No. of Products Sold",
       rateItems: [
         {
@@ -124,6 +127,47 @@ const AdminDashboard = () => {
         },
       ],
     },
+  ];
+
+  // Top Items Data
+  const topBrandsData = [
+    { name: "Versace", value: "₦2,450,000", icon: "https://logo.clearbit.com/versace.com" },
+    { name: "Tom Ford", value: "₦1,890,000", icon: "https://logo.clearbit.com/tomford.com" },
+    { name: "ZTTW", value: "₦1,650,000" },
+    { name: "Zanotti", value: "₦1,320,000", icon: "https://logo.clearbit.com/giuseppezanotti.com" },
+    { name: "Balenciaga", value: "₦1,100,000", icon: "https://logo.clearbit.com/balenciaga.com" },
+  ];
+
+  const topProductsData = [
+    { name: "Luxury Handbag", value: "₦890,000" },
+    { name: "Designer Sneakers", value: "₦670,000" },
+    { name: "Premium Watch", value: "₦540,000" },
+    { name: "Silk Scarf", value: "₦320,000" },
+    { name: "Leather Jacket", value: "₦280,000" },
+  ];
+
+  const topCustomersData = [
+    { name: "John Doe", value: "₦1,200,000" },
+    { name: "Jane Smith", value: "₦980,000" },
+    { name: "Mike Johnson", value: "₦750,000" },
+    { name: "Sarah Wilson", value: "₦650,000" },
+    { name: "David Brown", value: "₦540,000" },
+  ];
+
+  const topAffiliatesData = [
+    { name: "Fashion Influencer A", value: "₦450,000" },
+    { name: "Style Blogger B", value: "₦380,000" },
+    { name: "Trendsetter C", value: "₦290,000" },
+    { name: "Fashion Expert D", value: "₦230,000" },
+    { name: "Style Guru E", value: "₦180,000" },
+  ];
+
+  const visitorsData = [
+    { name: "Organic Search", value: "12,450" },
+    { name: "Direct Traffic", value: "8,670" },
+    { name: "Social Media", value: "5,890" },
+    { name: "Email Campaign", value: "3,220" },
+    { name: "Referrals", value: "2,150" },
   ];
 
   // Progress bar data
@@ -173,7 +217,7 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       {/* Page Title */}
       <h1 className="text-[22px] font-bold text-[#111111]">
         Dashboard Overview
@@ -194,93 +238,53 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Left Section - Placeholder for future graph */}
+      {/* TopItemsCard Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <TopItemsCard
+          title="Top Brands"
+          items={topBrandsData}
+        />
+        <TopItemsCard
+          title="Top Products"
+          items={topProductsData}
+        />
+        <TopItemsCard
+          title="Top Customers"
+          items={topCustomersData}
+        />
+      </div>
+
+      {/* Pie Chart and Additional Cards Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        {/* Pie Chart Card (2/5 basis) */}
         <div className="lg:col-span-2 bg-white rounded-lg border border-[#E5E7EB] p-6">
           <div className="flex items-center justify-center h-[300px] text-gray-500">
             <div className="text-center">
               <BsGraphUp className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-              <p className="text-lg font-medium">Analytics Graph</p>
+              <p className="text-lg font-medium">Pie Chart Analytics</p>
               <p className="text-sm">Coming Soon</p>
             </div>
           </div>
         </div>
 
-        {/* Right Section - Revenue */}
-        <div className="bg-white rounded-lg border border-[#E5E7EB]">
-          <div className="px-[18px] py-[14px] border-b border-[#EAEBF0] flex justify-between items-center">
-            <h3 className="text-base font-bold text-[#111827]">Revenue</h3>
-            <div className="relative">
-              <button
-                onClick={() =>
-                  setShowRevenueDateDropdown(!showRevenueDateDropdown)
-                }
-                className="flex items-center gap-2 text-xs text-[#6D7280] hover:text-[#374151] transition-colors"
-              >
-                <span>{revenueDateFilter}</span>
-                <FiChevronDown className="w-3 h-3" />
-              </button>
-              {showRevenueDateDropdown && (
-                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[120px] z-20">
-                  {dateFilterOptions.map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setRevenueDateFilter(option);
-                        setShowRevenueDateDropdown(false);
-                      }}
-                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-100 transition-colors"
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="p-6 space-y-6">
-            {/* Revenue Details */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-[22px] font-bold text-[#111827]">
-                  $76,345
-                </span>
-                <div className="bg-[#0CAF60] px-1 py-0.5 rounded-full flex items-center gap-1">
-                  <FiTrendingUp className="w-2 h-2 text-white" />
-                  <span className="text-[8px] text-white font-medium">
-                    12.00%
-                  </span>
-                </div>
-              </div>
-              <p className="text-[10px] text-[#718096]">
-                Compared to last month
-              </p>
-            </div>
-
-            {/* Progress Bars */}
-            <div className="space-y-4">
-              {progressData.map((item, index) => (
-                <ProgressBar
-                  key={index}
-                  title={item.title}
-                  value={item.value}
-                  percentage={item.percentage}
-                  color={item.color}
-                />
-              ))}
-            </div>
-          </div>
+        {/* Additional TopItemsCards */}
+        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-5">
+          <TopItemsCard
+            title="Top Affiliates"
+            items={topAffiliatesData}
+          />
+          <TopItemsCard
+            title="Visitors"
+            items={visitorsData}
+          />
         </div>
       </div>
 
-      {/* Click outside to close dropdown */}
-      {showRevenueDateDropdown && (
-        <div
-          className="fixed inset-0 z-10"
-          onClick={() => setShowRevenueDateDropdown(false)}
-        />
-      )}
+      {/* Orders Table Section */}
+      <div className="bg-white rounded-lg border border-[#E5E7EB] p-6">
+        <Orders hideTitle={true} isRecent={true} />
+      </div>
+
     </div>
   );
 };

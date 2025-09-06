@@ -100,6 +100,18 @@ const Select = ({
       cursor: "pointer",
       color: "#000",
     }),
+    multiValue: (base, state) => ({
+      ...base,
+      display: state.selectProps.isMulti ? "none" : "flex", // Hide selected values inside select for isMulti
+    }),
+    multiValueLabel: (base, state) => ({
+      ...base,
+      display: state.selectProps.isMulti ? "none" : "block",
+    }),
+    multiValueRemove: (base, state) => ({
+      ...base,
+      display: state.selectProps.isMulti ? "none" : "block",
+    }),
   };
   const DropdownIndicator = (props) => {
     return (
@@ -169,6 +181,43 @@ const Select = ({
           value={selectValue}
           {...rest}
         ></ReactSelect>
+      )}
+      {/* Selected options display for isMulti */}
+      {rest.isMulti && Array.isArray(value) && value.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {value.map((selectedOption, index) => (
+            <div
+              key={selectedOption.value || index}
+              className="inline-flex items-center gap-1 px-2 py-1 bg-[#F3F4F6] text-[#374151] text-xs rounded-md border"
+            >
+              <span>{selectedOption.label}</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const newValue = value.filter((_, i) => i !== index);
+                  onChange(newValue, { name, value: newValue });
+                }}
+                className="ml-1 text-[#6B7280] hover:text-[#374151] focus:outline-none"
+              >
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
       )}
       <div className="h-[13px]">
         {errorObject && <FormErrorMessage type={errorObject} />}

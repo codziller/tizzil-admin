@@ -27,6 +27,8 @@ import HomeStore from "../store";
 import ViewBrand from "pages/Dashboard/Brands/features/ViewBrand";
 import EarningPieCard from "./EarningPieCard";
 import BrandDashboard from "components/Dashboard/BrandDashboard/BrandDashboard";
+import { getUserInfoFromStorage } from "utils/storage";
+import AdminDashboard from "components/Dashboard/AdminDashboard/AdminDashboard";
 
 export const dateFilters = [
   {
@@ -85,44 +87,6 @@ const HomePage = () => {
     loading: statLoading,
   } = HomeStore;
 
-  // useEffect(() => {
-  //   getWarehouses({ data: { page: 1 } });
-  //   getProductsCount({ data: { page: 1 } });
-  //   userIsGeneralAdmin && getUsers({ data: { page: 1 } });
-  // }, []);
-  // useEffect(() => {
-  //   if (warehouse) {
-  //     setSelectedWarehouse(warehouse);
-  //   }
-  // }, [warehouse]);
-
-  // useEffect(() => {
-  //   const endDate = moment(dateFilter.end_date)
-  //     .add(1, "day")
-  //     .format("YYYY-MM-DD");
-  //   if (userIsBrandStaff || brand_id) {
-  //     getBrandHomePageStats({
-  //       data: {
-  //         endDate,
-  //         id: brand_id || warehouse_id,
-  //         startDate: moment(dateFilter.start_date).format("YYYY-MM-DD"),
-  //       },
-  //     });
-  //     return;
-  //   }
-
-  //   getAdminHomePageStats({
-  //     data: {
-  //       endDate,
-  //       startDate: moment(dateFilter.start_date).format("YYYY-MM-DD"),
-  //       warehouseId:
-  //         selectedWarehouse?.value === "all"
-  //           ? ""
-  //           : selectedWarehouse?.id || warehouse_id,
-  //     },
-  //   });
-  // }, [userIsBrandStaff, dateFilter, warehouse_id, brand_id, selectedWarehouse]);
-
   const searchQuery = searchInput?.trim();
 
   useEffect(() => {
@@ -131,12 +95,15 @@ const HomePage = () => {
     }
   }, [searchInput]);
 
-  const homepageStats =
-    userIsBrandStaff || brand_id ? brandHomePageStats : adminHomePageStats;
+  const userData = getUserInfoFromStorage();
+  const user =
+    userData?.user || JSON.parse(localStorage.getItem("user") || "{}");
+  const isAdmin = user?.userRole?.name === "ADMIN";
+
   return (
     <>
       <div className="w-full h-full md:pr-4">
-        <BrandDashboard />
+        {isAdmin ? <AdminDashboard /> : <BrandDashboard />}
       </div>
     </>
   );

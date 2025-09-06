@@ -108,7 +108,7 @@ const ContextMenu = ({ isOpen, onClose, options, position }) => {
 };
 
 // Table Title Header Component
-const TableTitleHeader = ({ title, itemCount, menuOptions = [] }) => {
+const TableTitleHeader = ({ title, itemCount, menuOptions = [], titleTabs = [], activeTab, onTabChange }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
@@ -122,8 +122,63 @@ const TableTitleHeader = ({ title, itemCount, menuOptions = [] }) => {
     setShowMenu(true);
   };
 
+  // If titleTabs are provided, render tabbed version
+  if (titleTabs && titleTabs.length > 0) {
+    return (
+      <div className="flex items-center gap-0 px-0 py-0 border-b border-[#D2D5DA] bg-transparent">
+        {titleTabs.map((tab, index) => (
+          <button
+            key={index}
+            onClick={() => onTabChange?.(tab, index)}
+            className={`px-5 py-2 flex items-center gap-2 border-b-2 transition-colors ${
+              activeTab === index
+                ? 'text-[#111827] border-[#690007]'
+                : 'text-[#999999] border-transparent hover:text-[#666666]'
+            }`}
+            type="button"
+          >
+            <span className="text-base font-normal">{tab.title}</span>
+            <div className={`px-1.5 py-0.5 border rounded-sm ${
+              activeTab === index
+                ? 'border-[#690007]'
+                : 'border-[#999999]'
+            }`}>
+              <span className={`text-base ${
+                activeTab === index
+                  ? 'text-[#690007]'
+                  : 'text-[#999999]'
+              }`}>{tab.itemCount}</span>
+            </div>
+          </button>
+        ))}
+        
+        {/* menuOptions section for tabbed version */}
+        {menuOptions.length > 0 && (
+          <div className="ml-auto px-4 py-2">
+            <button
+              onClick={handleMenuIconClick}
+              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              type="button"
+            >
+              <TableMoreIcon className="w-4 h-4 text-gray-600" />
+            </button>
+          </div>
+        )}
+
+        <ContextMenu
+          isOpen={showMenu}
+          onClose={() => setShowMenu(false)}
+          options={menuOptions}
+          position={menuPosition}
+        />
+      </div>
+    );
+  }
+
+  // Regular single title version
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-[#D2D5DA] bg-transparent">
+      {/* Title section */}
       <div className="flex items-center gap-2">
         <span className="text-base font-normal text-[#111827]">{title}</span>
         {itemCount !== undefined && (
@@ -133,6 +188,7 @@ const TableTitleHeader = ({ title, itemCount, menuOptions = [] }) => {
         )}
       </div>
 
+      {/* menuOptions section */}
       {menuOptions.length > 0 && (
         <button
           onClick={handleMenuIconClick}
@@ -208,6 +264,10 @@ export default function Table({
   // Props for title header functionality
   itemCount,
   menuOptions = [],
+  // Props for tabbed title sections
+  titleTabs = [],
+  activeTab = 0,
+  onTabChange,
   ...rest
 }) {
   const [showRangeModal, setShowRangeModal] = useState(false);
@@ -229,11 +289,14 @@ export default function Table({
         )}
       >
         {/* Top row with title and menu for all tables */}
-        {title && (
+        {(title || titleTabs.length > 0) && (
           <TableTitleHeader
             title={title}
             itemCount={itemCount}
             menuOptions={menuOptions}
+            titleTabs={titleTabs}
+            activeTab={activeTab}
+            onTabChange={onTabChange}
           />
         )}
 
@@ -381,6 +444,15 @@ Table.propTypes = {
       onClick: PropTypes.func,
     })
   ),
+  // Props for tabbed title sections
+  titleTabs: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      itemCount: PropTypes.number.isRequired,
+    })
+  ),
+  activeTab: PropTypes.number,
+  onTabChange: PropTypes.func,
 };
 
 // PropTypes for helper components
@@ -395,7 +467,10 @@ ContextMenu.propTypes = {
 };
 
 TableTitleHeader.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   itemCount: PropTypes.number,
   menuOptions: PropTypes.array,
+  titleTabs: PropTypes.array,
+  activeTab: PropTypes.number,
+  onTabChange: PropTypes.func,
 };

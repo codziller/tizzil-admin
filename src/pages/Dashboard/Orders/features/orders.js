@@ -14,7 +14,7 @@ import OrdersStore from "../store";
 import OrderDetailsModal from "./OrderDetailsModal";
 import SearchBar from "components/General/Searchbar/SearchBar";
 
-const Orders = ({ isRecent = false }) => {
+const Orders = ({ isRecent = false, hideTitle = false }) => {
   const navigate = useNavigate();
   const { warehouse_id } = useParams();
   const { getOrders, loading, ordersCount, orders } = OrdersStore;
@@ -273,24 +273,26 @@ const Orders = ({ isRecent = false }) => {
     <div className="w-full h-full">
       <div className="flex flex-col gap-5">
         {/* Title Section */}
-        <div className="flex items-center justify-between w-full gap-4">
-          <h1 className="text-[22px] font-bold text-[#111111]">Orders</h1>
+        {!hideTitle && (
+          <div className="flex items-center justify-between w-full gap-4">
+            <h1 className="text-[22px] font-bold text-[#111111]">Orders</h1>
 
-          <div className="flex items-center justify-between gap-4">
-            <SearchBar
-              placeholder={"Search orders"}
-              onChange={setSearchInput}
-              value={searchInput}
-              className="flex !w-[250px]"
-            />
-            <DateFilter
-              selectedOption={selectedDateFilter}
-              onOptionChange={setSelectedDateFilter}
-              placeholder="Filter by date"
-              className="w-auto"
-            />
+            <div className="flex items-center justify-between gap-4">
+              <SearchBar
+                placeholder={"Search orders"}
+                onChange={setSearchInput}
+                value={searchInput}
+                className="flex !w-[250px]"
+              />
+              <DateFilter
+                selectedOption={selectedDateFilter}
+                onOptionChange={setSelectedDateFilter}
+                placeholder="Filter by date"
+                className="w-auto"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Enhanced Table */}
         <div className="mt-6">
@@ -323,6 +325,7 @@ const Orders = ({ isRecent = false }) => {
 
 Orders.propTypes = {
   isRecent: PropTypes.bool,
+  hideTitle: PropTypes.bool,
 };
 
 export default observer(Orders);

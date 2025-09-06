@@ -473,7 +473,7 @@ const ProductCategoriesPage = ({
 
                 <DividerIcon />
 
-                {/* Add Product Button */}
+                {/* Add Collection Button */}
                 <div
                   className="flex items-center gap-2 cursor-pointer"
                   onClick={() => setShowNewProductModal(true)}

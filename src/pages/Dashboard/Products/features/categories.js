@@ -121,7 +121,7 @@ const ProductCard = ({
           <h3 className="text-[#690007] text-[14px] font-semibold uppercase truncate">
             {product.name}
           </h3>
-
+{/* product images */}
           {isCategory && (
             <div className="flex ml-2">
               {[1, 2, 3, 4].map((_, index) => (

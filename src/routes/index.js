@@ -8,6 +8,7 @@ import ProvidersList from "pages/Dashboard/WareHouses/features/ProvidersList";
 import CreateProvider from "pages/Dashboard/WareHouses/features/CreateProvider";
 import Successful from "pages/Dashboard/WareHouses/features/Successful";
 import SignIn from "pages/OnBoarding/SignIn/features";
+import SignInAdmin from "pages/OnBoarding/SignIn/features/AdminLogin";
 import SignInPage from "pages/OnBoarding/SignIn";
 import SignUp from "pages/OnBoarding/SignUp/features";
 import SignUpPage from "pages/OnBoarding/SignUp";
@@ -87,6 +88,8 @@ import Activity from "pages/Dashboard/GiftCards/features/activity";
 import GiftCardDesigns from "pages/Dashboard/GiftCards/features/giftCardDesigns";
 import Wallet from "pages/Dashboard/Wallet";
 import WalletPage from "pages/Dashboard/Wallet/features";
+import DiscoverUsers from "pages/Dashboard/Users/features/DiscoverUsers";
+import AdminUsers from "pages/Dashboard/Users/features/AdminUsers";
 
 const Router = () => {
   return (
@@ -301,7 +304,7 @@ const Router = () => {
         </Route>
         {/* end staff */}
 
-        {/* users */}
+        {/* customers */}
         <Route
           path="/dashboard/customers"
           element={
@@ -313,6 +316,32 @@ const Router = () => {
           <Route path="" element={<UsersPage />} />
           <Route path="add/" element={<AddUser />} />
           <Route path="edit/:user_id" element={<AddUser />} />
+        </Route>
+        {/* end customers */}
+
+        {/* customers */}
+        <Route
+          path="/dashboard/users"
+          element={
+            <ProtectedRoute path="">
+              <Users />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="" element={<AdminUsers />} />
+        </Route>
+        {/* end customers */}
+
+        {/* users */}
+        <Route
+          path="/dashboard/discover-users"
+          element={
+            <ProtectedRoute path="">
+              <Users />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="" element={<DiscoverUsers />} />
         </Route>
         {/* end users */}
 
@@ -585,6 +614,7 @@ const Router = () => {
           }
         >
           <Route path="" element={<SignIn />} />
+          <Route path="admin" element={<SignInAdmin />} />
         </Route>
 
         <Route

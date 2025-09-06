@@ -4,7 +4,6 @@ import ImageSelection from "components/General/Input/ImageSelection";
 import Select from "components/General/Input/Select";
 import Input from "components/General/Input/Input";
 import { Button } from "components/General/Button";
-import classNames from "classnames";
 
 const AddCollectionModal = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState("Basics");

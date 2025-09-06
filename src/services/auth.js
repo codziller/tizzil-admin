@@ -14,7 +14,7 @@ const getMeQuery = gql`
   }
 `;
 
-const loginQuery = gql`
+const adminLoginUserQuery = gql`
   mutation adminLoginUser($email: String!, $password: String!) {
     adminLoginUser(email: $email, password: $password) {
       user {
@@ -137,9 +137,9 @@ const authSignupQuery = gql`
   }
 `;
 
-const authLoginUserQuery = gql`
-  mutation authLoginUser($email: String!, $password: String!) {
-    authLoginUser(email: $email, password: $password) {
+const brandAdminLoginUserQuery = gql`
+  mutation brandAdminLoginUser($email: String!, $password: String!) {
+    brandAdminLoginUser(email: $email, password: $password) {
       access_token
       brand {
         id
@@ -187,8 +187,8 @@ const apis = {
       jwt,
     }),
 
-  login: (variables) =>
-    graphQlInstance(loginQuery, {
+  adminLoginUser: (variables) =>
+    graphQlInstance(adminLoginUserQuery, {
       variables,
     }),
 
@@ -214,8 +214,8 @@ const apis = {
       variables,
     }),
 
-  authLoginUser: (variables) =>
-    graphQlInstance(authLoginUserQuery, {
+  brandAdminLoginUser: (variables) =>
+    graphQlInstance(brandAdminLoginUserQuery, {
       variables,
     }),
 

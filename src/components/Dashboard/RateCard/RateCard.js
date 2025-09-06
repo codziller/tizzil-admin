@@ -56,26 +56,38 @@ const RateCard = ({
       className={`rounded-lg px-[18px] py-[10px] ${getCardStyles()} ${className}`}
     >
       {/* Top Section */}
-      <div className={`flex w-full justify-between items-center mb-[30px]`}>
-        {/* Icon and Title */}
-        <div className="flex items-center gap-3">
-          {Icon && (
-            <Icon
-              className={`w-5 h-5 ${
-                cardStyle === "admin" ? "text-gray-600" : ""
-              }`}
-            />
-          )}
-          {title && (
-            <h3
-              className={`text-sm ${
-                cardStyle === "dark" ? "text-white" : "text-[#888888]"
-              }`}
-            >
-              {title}
-            </h3>
-          )}
-        </div>
+      <div className={`flex w-full ${cardStyle === "admin" ? "justify-between mb-[6px]" : "justify-between items-center mb-[30px]"}`}>
+        {/* Title and Icon - reversed for admin */}
+        {cardStyle === "admin" ? (
+          <>
+            {/* Title on left for admin */}
+            {title && (
+              <span className="text-sm text-[#888888]">
+                {title}
+              </span>
+            )}
+            {/* Icon on right for admin */}
+            {Icon && (
+              <Icon className="w-5 h-5 text-gray-600" />
+            )}
+          </>
+        ) : (
+          /* Default layout for non-admin */
+          <div className="flex items-center gap-3">
+            {Icon && (
+              <Icon className="w-5 h-5" />
+            )}
+            {title && (
+              <span
+                className={`text-sm ${
+                  cardStyle === "dark" ? "text-white" : "text-[#888888]"
+                }`}
+              >
+                {title}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Date Filter (only for non-admin cards) */}
         {hasDateFilter && cardStyle !== "admin" && (
@@ -148,22 +160,27 @@ const RateCard = ({
                   >
                     {item.value}
                   </span>
-                  {/* Rate indicator for admin cards */}
-                  {cardStyle === "admin" &&
-                    item.rate &&
-                    renderRateIndicator(item.rate, item.type)}
                 </div>
 
-                {/* Label */}
-                <span
-                  className={`text-sm mt-3 ${
-                    cardStyle === "dark"
-                      ? "text-white opacity-80"
-                      : "text-[#888888]"
-                  }`}
-                >
-                  {item.label}
-                </span>
+                {/* Rate indicator for admin cards - 4px below value */}
+                {cardStyle === "admin" && item.rate && (
+                  <div className="mt-1">
+                    {renderRateIndicator(item.rate, item.type)}
+                  </div>
+                )}
+
+                {/* Label - hidden for admin cards */}
+                {cardStyle !== "admin" && (
+                  <span
+                    className={`text-sm mt-3 ${
+                      cardStyle === "dark"
+                        ? "text-white opacity-80"
+                        : "text-[#888888]"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                )}
 
                 {/* Rate indicator for non-admin cards */}
                 {cardStyle !== "admin" && item.rate && (
