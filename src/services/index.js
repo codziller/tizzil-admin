@@ -5,7 +5,7 @@ import { errorToast } from "components/General/Toast/Toast";
 
 export async function graphQlInstance(doc, { method, variables, jwt }) {
   const token = getToken() || jwt;
-
+  console.log("token in service: ", token);
   const mainInstance = async () => {
     const baseUrl = String(process.env.REACT_APP_BASE_URL);
     const graphQLClient = new GraphQLClient(baseUrl, {

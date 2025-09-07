@@ -167,6 +167,37 @@ class ProductsStore {
     }
   };
 
+  getProductsWithInventory = async ({
+    brandIds,
+    categoryIds,
+    inStockOnly,
+    pageNumber,
+    searchQuery,
+    sortBy,
+  }) => {
+    this.loading = true;
+    try {
+      let res = await apis.getProductsWithInventory({
+        brandIds,
+        categoryIds,
+        inStockOnly,
+        pageNumber,
+        searchQuery,
+        sortBy,
+      });
+      res = res?.productsWithInventory;
+      this.products =
+        res?.results?.sort((a, b) =>
+          moment(b.createdAt).diff(moment(a.createdAt))
+        ) || [];
+      this.productsCount = res?.total;
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.loading = false;
+    }
+  };
+
   getAllVariants = async ({ page = 1 }) => {
     this.variantsLoading = true;
     try {
@@ -334,6 +365,36 @@ class ProductsStore {
       successToast("Operation Successful!", "Product created Successfully.");
       onSuccess?.(response?.createProduct);
       // await this.getProducts({ data: { page: 1 } });
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.createProductLoading = false;
+    }
+  };
+
+  createProductWithInventory = async ({
+    brandIds,
+    productData,
+    onSuccess,
+    filters = {},
+    pageNumber = 1,
+  }) => {
+    this.createProductLoading = true;
+    try {
+      const response = await apis.createProductWithInventory({
+        brandIds,
+        productData,
+      });
+      successToast("Operation Successful!", "Product created Successfully.");
+
+      // Refresh products list with current filters
+      await this.getProductsWithInventory({
+        brandIds,
+        pageNumber: pageNumber.toString(),
+        ...filters,
+      });
+
+      onSuccess?.(response?.createProductWithInventory);
     } catch (error) {
       this.error = error;
     } finally {

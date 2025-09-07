@@ -73,6 +73,30 @@ const Toast = () => {
                           {message.props.children}
                         </p>
                       ) : null}
+                      
+                      {/* Action Buttons */}
+                      {message.props.actions && t.type === "success" && (
+                        <div className="flex gap-2 mt-2">
+                          {message.props.actions.map((action, index) => (
+                            <button
+                              key={index}
+                              onClick={() => {
+                                action.onClick();
+                                if (action.dismissOnClick !== false) {
+                                  toast.dismiss(t.id);
+                                }
+                              }}
+                              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                                action.variant === "outline"
+                                  ? "border border-[#690007] text-[#690007] hover:bg-[#690007] hover:text-white"
+                                  : "bg-[#690007] text-white hover:bg-[#590006]"
+                              }`}
+                            >
+                              {action.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -108,13 +132,14 @@ export const warningToast = (title, message) => {
   });
 };
 
-export const successToast = (title, message, duration) => {
+export const successToast = (title, message, duration, actions) => {
   toast.success(message, {
     ...defaultConfig,
     duration: duration || DEFAULT_TOAST_DURATION,
     ariaProps: {
       role: "success",
       title,
+      actions,
     },
   });
 };

@@ -13,7 +13,8 @@
       "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin/**)",
       "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin/**)",
       "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin/**)",
-      "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin\\node_modules\\.bin/**)"
+      "Read(/C:\\Users\\HP\\Documents\\Tizzil\\tizzil-brand-admin\\node_modules\\.bin/**)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

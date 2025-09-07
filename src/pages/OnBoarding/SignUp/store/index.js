@@ -6,7 +6,9 @@ class AuthSignUpStore {
   constructor() {
     makeObservable(this, {
       loading: observable,
+      signupData: observable,
       setLoading: action,
+      setSignupData: action,
       signup: action,
       sendVerificationMail: action,
       authBrandRegistration: action,
@@ -14,9 +16,14 @@ class AuthSignUpStore {
   }
 
   loading = false;
+  signupData = null;
 
   setLoading = (loading) => {
     this.loading = loading;
+  };
+
+  setSignupData = (data) => {
+    this.signupData = data;
   };
 
   sendVerificationMail = async (data, callback) => {

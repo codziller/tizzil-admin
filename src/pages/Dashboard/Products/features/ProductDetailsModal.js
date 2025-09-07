@@ -1,16 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "components/General/Modal/Modal/Modal";
-
 import { Button } from "components/General/Button";
+import { observer } from "mobx-react-lite";
+import ProductsStore from "../store";
 import classNames from "classnames";
 
-const ProductDetailsModal = ({ isOpen, onClose, product }) => {
+const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
+  const { getProduct, product: fetchedProduct, getProductLoading } = ProductsStore;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  if (!product) return null;
+  // Use fetched product if available, otherwise use passed product
+  const productData = fetchedProduct || product;
 
-  const images = product.imageUrls || [];
+  useEffect(() => {
+    if (isOpen && productId && !product) {
+      // Fetch product details by ID if productId is provided and no product is passed
+      getProduct({ data: { id: productId } });
+    }
+  }, [isOpen, productId, product]);
+
+  // Show loading state while fetching product
+  if (isOpen && getProductLoading) {
+    return (
+      <Modal
+        active={isOpen}
+        toggler={onClose}
+        isSideModal={true}
+        title="Loading..."
+        size="xl"
+      >
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#690007]"></div>
+            <p className="text-gray-600">Loading product details...</p>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
+  if (!productData) return null;
+
+  const images = productData.imageUrls || [];
   const reviewCount = 3; // Sample review count
 
   return (
@@ -18,30 +50,43 @@ const ProductDetailsModal = ({ isOpen, onClose, product }) => {
       active={isOpen}
       toggler={onClose}
       isSideModal={true}
-      title="Preview"
+      title="Product Details"
       size="xl"
     >
       <div className="w-full h-full flex flex-col">
         <div className="border-b border-gray-200">
           {/* Product Status */}
-          <div className="mb-2">
+          <div className="mb-2 flex items-center gap-3">
             <span
               className={classNames("text-xs px-2 py-1 rounded", {
-                "bg-green-100 text-[#22C55E]": product.status === "Active",
-                "bg-gray-100 text-gray-600": product.status !== "Active",
+                "bg-green-100 text-[#22C55E]": productData.isActive,
+                "bg-gray-100 text-gray-600": !productData.isActive,
               })}
             >
-              {product.status || "Active"}
+              {productData.isActive ? "Active" : "Inactive"}
             </span>
+            {productData.ribbon && (
+              <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-600">
+                {productData.ribbon.replace('_', ' ')}
+              </span>
+            )}
+            {!productData.isPublic && (
+              <span className="text-xs px-2 py-1 rounded bg-orange-100 text-orange-600">
+                Private
+              </span>
+            )}
           </div>
 
           {/* Product Info */}
           <h3 className="text-[22px] text-[#111111] font-bold mb-2">
-            {product.name}
+            {productData.name}
           </h3>
           <div className="flex items-center gap-5 mb-4">
             <span className="text-[14px] text-[#444444]">
-              Item {product.code}
+              SKU: {productData.baseSku || 'N/A'}
+            </span>
+            <span className="text-[14px] text-[#444444]">
+              Stock: {productData.currentStock || 0}
             </span>
             <div className="flex items-center gap-2">
               <div className="flex text-[#690007]">{"★".repeat(5)}</div>
@@ -51,9 +96,16 @@ const ProductDetailsModal = ({ isOpen, onClose, product }) => {
             </div>
           </div>
 
-          <p className="text-[17px] text-[#111827] font-bold mb-5">
-            {product.salePrice}
-          </p>
+          <div className="flex items-center gap-4 mb-5">
+            <p className="text-[17px] text-[#111827] font-bold">
+              ₦{productData.basePrice?.toLocaleString() || '0'}
+            </p>
+            {productData.baseCostPrice && (
+              <p className="text-[14px] text-[#6B7280]">
+                Cost: ₦{productData.baseCostPrice.toLocaleString()}
+              </p>
+            )}
+          </div>
 
           {/* Order Notification */}
           <div className="flex items-center justify-between p-4 border-t border-b border-[#690007] mb-5">
@@ -88,62 +140,173 @@ const ProductDetailsModal = ({ isOpen, onClose, product }) => {
           <div className="flex gap-4 mb-6">
             <div className="flex-1">
               <img
-                src={images[activeImageIndex] || images[0]}
-                alt={product.name}
+                src={images[activeImageIndex] || images[0] || '/placeholder-image.png'}
+                alt={productData.name}
                 className="w-full h-[350px] object-cover rounded-lg"
               />
             </div>
-            <div className="flex flex-col gap-3">
-              {images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`${product.name} ${index + 1}`}
-                  className={classNames(
-                    "w-[60px] h-[60px] object-cover rounded-lg cursor-pointer",
-                    {
-                      "border-3 border-[#690007]": activeImageIndex === index,
-                      "border border-gray-200": activeImageIndex !== index,
-                    }
-                  )}
-                  onClick={() => setActiveImageIndex(index)}
-                />
-              ))}
-            </div>
+            {images.length > 1 && (
+              <div className="flex flex-col gap-3">
+                {images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`${productData.name} ${index + 1}`}
+                    className={classNames(
+                      "w-[60px] h-[60px] object-cover rounded-lg cursor-pointer",
+                      {
+                        "border-3 border-[#690007]": activeImageIndex === index,
+                        "border border-gray-200": activeImageIndex !== index,
+                      }
+                    )}
+                    onClick={() => setActiveImageIndex(index)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Delivery Info */}
-          <div className="border-t border-b border-[#E5E7EB] py-5 mb-5">
-            <div className="flex items-center gap-5 mb-5">
-              <span className="text-[14px] text-[#111827] font-bold">
-                Delivery:
-              </span>
-              <span className="text-[12px] text-[#22C55E] bg-green-100 px-2 py-1 rounded">
-                Confident
-              </span>
+          {/* Weight Info */}
+          {productData.weight && (
+            <div className="border-t border-b border-[#E5E7EB] py-5 mb-5">
+              <div className="flex items-center gap-5 mb-2">
+                <span className="text-[14px] text-[#111827] font-bold">
+                  Weight:
+                </span>
+                <span className="text-[14px] text-[#4B5563]">
+                  {productData.weight} {productData.weightType || 'grams'}
+                </span>
+              </div>
+              {productData.lowInQuantityValue && (
+                <p className="text-[12px] text-orange-600">
+                  Low stock alert at: {productData.lowInQuantityValue} units
+                </p>
+              )}
             </div>
-            <p className="text-[14px] text-[#4B5563]">Between 1 to 2 days</p>
-          </div>
+          )}
 
           {/* Product Details */}
-          <div className="mb-5">
-            <h4 className="text-[14px] text-[#111827] font-bold mb-4">
-              Product details:
-            </h4>
-            <p className="text-[14px] text-[#4B5563]">
-              {product.productDescription}
-            </p>
-          </div>
+          {productData.description && (
+            <div className="mb-5">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                Description:
+              </h4>
+              <p className="text-[14px] text-[#4B5563]">
+                {productData.description}
+              </p>
+            </div>
+          )}
 
-          {/* Features */}
-          <div className="mb-8">
-            <h4 className="text-[14px] text-[#111827] font-bold mb-4">
-              Features:
-            </h4>
-            <p className="text-[14px] text-[#4B5563]">
-              {product.productfeatures}
-            </p>
-          </div>
+          {/* How to Use */}
+          {productData.howToUse && (
+            <div className="mb-5">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                How to Use:
+              </h4>
+              <p className="text-[14px] text-[#4B5563]">
+                {productData.howToUse}
+              </p>
+            </div>
+          )}
+
+          {/* Ingredients */}
+          {productData.productIngredients && (
+            <div className="mb-5">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                Ingredients:
+              </h4>
+              <p className="text-[14px] text-[#4B5563]">
+                {productData.productIngredients}
+              </p>
+            </div>
+          )}
+
+          {/* Categories */}
+          {productData.categories && productData.categories.length > 0 && (
+            <div className="mb-5">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                Categories:
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {productData.categories.map((category) => (
+                  <span
+                    key={category.id}
+                    className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700"
+                  >
+                    {category.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tags */}
+          {productData.tags && productData.tags.length > 0 && (
+            <div className="mb-5">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                Tags:
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {productData.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Variants */}
+          {productData.productVariants && productData.productVariants.length > 0 && (
+            <div className="mb-5">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                Variants:
+              </h4>
+              <div className="space-y-2">
+                {productData.productVariants.map((variant) => (
+                  <div
+                    key={variant.id}
+                    className="flex items-center justify-between p-2 border border-gray-200 rounded"
+                  >
+                    <span className="text-sm">{variant.name}</span>
+                    <div className="flex gap-2 text-xs text-gray-600">
+                      <span>₦{variant.price?.toLocaleString()}</span>
+                      <span>Stock: {variant.stockQuantity}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Options */}
+          {productData.productOptions && productData.productOptions.length > 0 && (
+            <div className="mb-8">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                Options:
+              </h4>
+              <div className="space-y-2">
+                {productData.productOptions.map((option) => (
+                  <div key={option.id} className="p-2 border border-gray-200 rounded">
+                    <span className="text-sm font-medium">{option.name}:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {option.values?.map((value, index) => (
+                        <span
+                          key={index}
+                          className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700"
+                        >
+                          {value}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer Buttons */}
@@ -191,4 +354,4 @@ const ProductDetailsModal = ({ isOpen, onClose, product }) => {
   );
 };
 
-export default ProductDetailsModal;
+export default observer(ProductDetailsModal);

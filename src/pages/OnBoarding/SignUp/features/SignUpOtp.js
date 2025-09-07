@@ -7,7 +7,7 @@ import AuthStore from "../store";
 import useLogin from "hooks/useLogin";
 
 const SignUpOtp = ({ goBackToSignup, isActive }) => {
-  const { loading, signup } = AuthStore;
+  const { loading, signup, signupData: storeSignupData } = AuthStore;
   const { logUserIn } = useLogin();
   const [otp, setOtp] = useState("");
   const [countdown, setCountdown] = useState(null);
@@ -15,21 +15,29 @@ const SignUpOtp = ({ goBackToSignup, isActive }) => {
   const [signupData, setSignupData] = useState(null);
 
   useEffect(() => {
-    // Get signup form data from localStorage with retry mechanism
+    // Get signup form data from store first, then localStorage as fallback
     const loadSignupData = () => {
+      // First, try to get data from store
+      if (storeSignupData) {
+        console.log("Using signup data from store:", storeSignupData);
+        setSignupData(storeSignupData);
+        return true;
+      }
+
+      // Fallback to localStorage
       const storedData = localStorage.getItem("signupFormData");
-      console.log("Retrieved stored data:", storedData);
+      console.log("Retrieved stored data from localStorage:", storedData);
       if (storedData) {
         try {
           const parsedData = JSON.parse(storedData);
-          console.log("Parsed signup data:", parsedData);
+          console.log("Parsed signup data from localStorage:", parsedData);
           setSignupData(parsedData);
           return true;
         } catch (error) {
           console.error("Error parsing stored signup data:", error);
         }
       } else {
-        console.log("No stored signup data found");
+        console.log("No stored signup data found in localStorage");
       }
       return false;
     };
@@ -44,7 +52,7 @@ const SignUpOtp = ({ goBackToSignup, isActive }) => {
 
       return () => clearTimeout(retryTimer);
     }
-  }, []);
+  }, [storeSignupData]);
 
   // Reset countdown whenever the screen becomes active (entered from signup)
   useEffect(() => {
@@ -96,14 +104,21 @@ const SignUpOtp = ({ goBackToSignup, isActive }) => {
       console.log(
         "SignupData validation failed - signupData is null/undefined"
       );
-      // Try to reload data from localStorage as a fallback
+      // Try to reload data from store first, then localStorage as fallback
+      if (storeSignupData) {
+        console.log("Reloading from store:", storeSignupData);
+        setSignupData(storeSignupData);
+        console.log("Successfully reloaded signup data from store, please try again");
+        return;
+      }
+      
       const storedData = localStorage.getItem("signupFormData");
       console.log("Attempting to reload from localStorage:", storedData);
       if (storedData) {
         try {
           const parsedData = JSON.parse(storedData);
           setSignupData(parsedData);
-          console.log("Successfully reloaded signup data, please try again");
+          console.log("Successfully reloaded signup data from localStorage, please try again");
           return;
         } catch (error) {
           console.error("Failed to reload signup data:", error);

@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
-const TOKEN = "beautyhut-admin-token";
-const USER_DATA = "beautyhut-admin-user-data";
-const LAST_CURRENT_BUSINESS = "beautyhut-admin-lcb";
+const TOKEN = "tizzil-admin-token";
+const USER_DATA = "tizzil-admin-user-data";
+const LAST_CURRENT_BUSINESS = "tizzil-admin-lcb";
 export const ACCOUNT_CREATED = "ADMIN_ACCOUNT_CREATED";
-export const BUSINESS_CUSTOMER_REFS = "beautyhut-admin-cr";
+export const BUSINESS_CUSTOMER_REFS = "tizzil-admin-cr";
 
 export const saveToken = (token) => {
   try {

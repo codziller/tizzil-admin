@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Input from "components/General/Input/Input";
 import Select from "components/General/Input/Select";
+import CountryListDropdown from "components/General/Input/CountryListDropdown";
+import { getStates } from "country-state-picker";
+import { City } from "country-state-city";
 import { observer } from "mobx-react-lite";
+import { isEmpty, lowerCase } from "lodash";
 
 const AccountSetupOne = ({
   formData,
@@ -13,11 +17,14 @@ const AccountSetupOne = ({
   nextStep,
   hideTitle = false,
 }) => {
+  const [allowManualCity, setAllowManualCity] = useState(false);
   const schema = yup.object({
     brandName: yup.string().required("Please enter your brand name"),
     addressLine1: yup.string().required("Please enter your address"),
     country: yup.string().required("Please select your country"),
+    state: yup.string().required("Please select your state"),
     city: yup.string().required("Please enter your city"),
+    postalCode: yup.string().required("Please enter your postal code"),
     productCategory: yup.string().required("Please select a product category"),
   });
 
@@ -25,7 +32,9 @@ const AccountSetupOne = ({
     brandName: formData?.brandName || "",
     addressLine1: formData?.addressLine1 || "",
     country: formData?.country || "",
+    state: formData?.state || "",
     city: formData?.city || "",
+    postalCode: formData?.postalCode || "",
     productCategory: formData?.productCategory || "",
   };
 
@@ -51,7 +60,9 @@ const AccountSetupOne = ({
     brandName: watch("brandName"),
     addressLine1: watch("addressLine1"),
     country: watch("country"),
+    state: watch("state"),
     city: watch("city"),
+    postalCode: watch("postalCode"),
     productCategory: watch("productCategory"),
   };
 
@@ -61,22 +72,52 @@ const AccountSetupOne = ({
     }
   };
 
-  // Sample options - these should ideally come from API or constants
-  const countryOptions = [
-    { label: "United States", value: "US" },
-    { label: "United Kingdom", value: "UK" },
-    { label: "Canada", value: "CA" },
-    { label: "Nigeria", value: "NG" },
-    // Add more countries as needed
-  ];
+  // Dynamic states based on selected country
+  const states = useMemo(() => {
+    const selectedCountry = lowerCase(form?.country);
+    let statesList = getStates(selectedCountry);
+    if (!isEmpty(statesList)) {
+      statesList = statesList.map((item) => {
+        const itemName =
+          selectedCountry === "ng" ? item?.replace(" State", "") : item;
+        return { label: itemName, value: itemName };
+      });
+    } else {
+      statesList = [];
+    }
+    return statesList;
+  }, [form.country]);
 
-  const cityOptions = [
-    { label: "New York", value: "new-york" },
-    { label: "London", value: "london" },
-    { label: "Toronto", value: "toronto" },
-    { label: "Lagos", value: "lagos" },
-    // Add more cities as needed
-  ];
+  const stateValue = useMemo(
+    () => states?.find((item) => item.value === form.state),
+    [form.state, states]
+  );
+
+  // Dynamic cities based on selected country and state
+  const cities = useMemo(() => {
+    if (!form.country || !form.state) return [];
+    
+    try {
+      // Get the state code for the API call
+      const stateCode = form.state;
+      const cityList = City.getCitiesOfState(form.country, stateCode);
+      
+      if (!isEmpty(cityList)) {
+        return cityList.map((city) => ({
+          label: city.name,
+          value: city.name,
+        }));
+      }
+    } catch (error) {
+      console.log("Error getting cities:", error);
+    }
+    return [];
+  }, [form.country, form.state]);
+
+  const cityValue = useMemo(
+    () => cities?.find((item) => item.value === form.city),
+    [form.city, cities]
+  );
 
   const categoryOptions = [
     { label: "Fashion & Apparel", value: "fashion-apparel" },
@@ -114,26 +155,94 @@ const AccountSetupOne = ({
           required
         />
 
-        <Select
+        <CountryListDropdown
           label="Country"
-          value={form?.country}
-          onChange={(selected) => handleChange("country", selected?.value)}
           placeholder="Select your country"
-          options={countryOptions}
+          onClick={(val) => {
+            handleChange("country", val);
+            // Reset state and city when country changes
+            handleChange("state", "");
+            handleChange("city", "");
+            setAllowManualCity(false);
+          }}
+          value={form.country}
           formError={errors.country}
           required
           fullWidth
         />
 
         <Select
-          label="City"
-          value={form?.city}
-          onChange={(selected) => handleChange("city", selected?.value)}
-          placeholder="Select your city"
-          options={cityOptions}
-          formError={errors.city}
+          label="State"
+          placeholder="Select your state"
+          options={states}
+          onChange={(val) => {
+            handleChange("state", val?.value);
+            // Reset city when state changes
+            handleChange("city", "");
+            setAllowManualCity(false);
+          }}
+          value={stateValue}
+          formError={errors.state}
           required
           fullWidth
+          isDisabled={!form.country || states.length === 0}
+        />
+
+        {!allowManualCity ? (
+          <div className="space-y-2">
+            <Select
+              label="City"
+              placeholder="Select your city"
+              options={cities}
+              onChange={(val) => handleChange("city", val?.value)}
+              value={cityValue}
+              formError={errors.city}
+              required
+              fullWidth
+              isDisabled={!form.state || cities.length === 0}
+            />
+            {cities.length === 0 && form.state && (
+              <button
+                type="button"
+                onClick={() => setAllowManualCity(true)}
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Can't find your city? Enter manually
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Input
+              label="City"
+              value={form?.city}
+              onChangeFunc={(val) => handleChange("city", val)}
+              placeholder="Enter your city"
+              type="text"
+              formError={errors.city}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setAllowManualCity(false);
+                handleChange("city", "");
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Select from list instead
+            </button>
+          </div>
+        )}
+
+        <Input
+          label="Postal Code"
+          value={form?.postalCode}
+          onChangeFunc={(val) => handleChange("postalCode", val)}
+          placeholder="Enter your postal code"
+          type="text"
+          formError={errors.postalCode}
+          required
         />
 
         <Select

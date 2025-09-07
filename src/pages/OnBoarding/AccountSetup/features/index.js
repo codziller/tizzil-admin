@@ -10,7 +10,7 @@ import AccountSetupFive from "./AccountSetupFive";
 import SetupSuccessModal from "components/General/Modal/SetupSuccessModal";
 import AuthStore from "../../SignUp/store";
 import useLogin from "hooks/useLogin";
-import { saveUserInfoToStorage } from "utils/storage";
+import cleanPayload from "utils/cleanPayload";
 
 const AccountSetupContainer = () => {
   const navigate = useNavigate();
@@ -36,34 +36,46 @@ const AccountSetupContainer = () => {
       setIsLoading(true);
 
       // Prepare brand registration data according to BrandRegistrationCreateInput
-      const brandRegistrationData = {
+      const brandRegistrationData = cleanPayload({
         addressLine1: formData.addressLine1 || formData.address || "",
         addressLine2: formData.addressLine2 || "",
-        brandDescription: formData.brandDescription || formData.description || "",
+        brandDescription:
+          formData.brandDescription || formData.description || "",
         brandName: formData.brandName || "",
-        brandShortText: formData.brandShortText || formData.shortDescription || "",
-        businessRegistrationNumber: formData.businessRegistrationNumber || formData.registrationNumber || "",
+        brandShortText:
+          formData.brandShortText || formData.shortDescription || "",
+        businessRegistrationNumber:
+          formData.businessRegistrationNumber ||
+          formData.registrationNumber ||
+          "",
         city: formData.city || "",
         country: formData.country || "",
-        estimatedMonthlyOrders: formData.estimatedMonthlyOrders ? parseFloat(formData.estimatedMonthlyOrders) : null,
+        estimatedMonthlyOrders: formData.estimatedMonthlyOrders
+          ? parseFloat(formData.estimatedMonthlyOrders)
+          : null,
         postalCode: formData.postalCode || formData.zipCode || "",
         productImportMethod: formData.productImportMethod || null,
         shopifyAccessToken: formData.shopifyAccessToken || "",
         shopifyStoreUrl: formData.shopifyStoreUrl || "",
         state: formData.state || "",
-        yearsInBusiness: formData.yearsInBusiness ? parseFloat(formData.yearsInBusiness) : null,
-      };
+        yearsInBusiness: formData.yearsInBusiness
+          ? parseFloat(formData.yearsInBusiness)
+          : null,
+      });
 
       // Call the brand registration API
-      const success = await AuthStore.authBrandRegistration(brandRegistrationData, (result) => {
-        if (result) {
-          setShowSuccessModal(true);
-          toast.success("Brand setup completed successfully!");
-        } else {
-          toast.error("Failed to submit brand registration");
+      const success = await AuthStore.authBrandRegistration(
+        brandRegistrationData,
+        (result) => {
+          if (result) {
+            setShowSuccessModal(true);
+            toast.success("Brand setup completed successfully!");
+          } else {
+            toast.error("Failed to submit brand registration");
+          }
+          setIsLoading(false);
         }
-        setIsLoading(false);
-      });
+      );
 
       // Demo mode - simulate successful brand registration and update user data
       // setTimeout(() => {

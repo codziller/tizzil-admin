@@ -18,7 +18,38 @@ const Modal = ({
   isSideModal,
   title,
   closeOnClickOutside,
+  isSubmodal = false,
+  submodalDirection = "right",
+  zIndex = 99999,
 }) => {
+  const getSubmodalClasses = () => {
+    if (!isSubmodal) return {};
+    
+    const directions = {
+      right: {
+        active: "opacity-100 translate-x-0 pointer-events-auto",
+        inactive: "translate-x-full opacity-0 pointer-events-none"
+      },
+      left: {
+        active: "opacity-100 translate-x-0 pointer-events-auto", 
+        inactive: "-translate-x-full opacity-0 pointer-events-none"
+      },
+      up: {
+        active: "opacity-100 translate-y-0 pointer-events-auto",
+        inactive: "-translate-y-full opacity-0 pointer-events-none"
+      },
+      down: {
+        active: "opacity-100 translate-y-0 pointer-events-auto",
+        inactive: "translate-y-full opacity-0 pointer-events-none"
+      }
+    };
+
+    return {
+      [directions[submodalDirection].active]: active,
+      [directions[submodalDirection].inactive]: !active
+    };
+  };
+
   const modalClassNames = {
     "w-full md:max-w-[86%] md:max-h-[89%] md:w-[86%] md:h-[89%]":
       size === "2xl",
@@ -27,31 +58,41 @@ const Modal = ({
     "w-full md:max-w-md": size === "md",
     "w-full md:max-w-sm": size === "sm",
     "w-full md:w-fit": !size,
+    
+    // Regular modal animations (only if not submodal)
     "opacity-100 translate-y-0 bottom-0 pointer-events-auto":
-      active && !isSideModal,
+      active && !isSideModal && !isSubmodal,
     "md:translate-y-1/4 translate-y-[1000px] opacity-0 pointer-events-none bottom-0":
-      !active && !isSideModal,
+      !active && !isSideModal && !isSubmodal,
 
     "opacity-100 translate-x-0 bottom-0 pointer-events-auto":
-      active && isSideModal,
+      active && isSideModal && !isSubmodal,
     "md:translate-x-1/4 translate-x-[1000px] opacity-0 pointer-events-none bottom-0":
-      !active && isSideModal,
+      !active && isSideModal && !isSubmodal,
+    
+    // Submodal animations
+    ...getSubmodalClasses(),
+    
     "p-[24px]": !noPadding,
     [className]: className,
   };
 
   useEffect(() => {
-    if (active) {
-      hideSideNav();
-    } else {
-      showSideNav();
+    // Only manage sidenav for main modals, not submodals
+    if (!isSubmodal) {
+      if (active) {
+        hideSideNav();
+      } else {
+        showSideNav();
+      }
     }
-  }, [active]);
+  }, [active, isSubmodal]);
 
   return (
     <div
+      style={{ zIndex }}
       className={clsx(
-        `h-screen overflow-hidden w-full fixed !m-0 flex items-start backdrop z-[99999] bottom-0 md:top-0 left-0`,
+        `h-screen overflow-hidden w-full fixed !m-0 flex items-start backdrop bottom-0 md:top-0 left-0`,
         containerClassName,
         {
           "transition-all duration-100 ease-in-out opacity-100 pointer-events-auto":
@@ -62,13 +103,14 @@ const Modal = ({
             !active,
         },
         {
-          "py-8 justify-center": !isSideModal,
+          "py-8 justify-center": !isSideModal && !isSubmodal,
         },
         {
-          "py-8 md:py-0 justify-end": isSideModal,
+          "py-8 md:py-0 justify-end": (isSideModal && !isSubmodal) || isSubmodal,
         }
       )}
     >
+      {/* Modal Body */}
       <div
         style={{ maxHeight }}
         className={clsx(
@@ -83,6 +125,8 @@ const Modal = ({
           modalClassName
         )}
       >
+
+        {/* Title section */}
         {isSideModal && (
           <div className="flex w-full justify-between items-center mb-3">
             {title && (
@@ -138,6 +182,9 @@ Modal.propTypes = {
   modalClassName: PropTypes.string,
   isSideModal: PropTypes.bool,
   closeOnClickOutside: PropTypes.bool,
+  isSubmodal: PropTypes.bool,
+  submodalDirection: PropTypes.oneOf(['right', 'left', 'up', 'down']),
+  zIndex: PropTypes.number,
 };
 
 export default Modal;

@@ -256,6 +256,406 @@ productOptions {
   }
 `;
 
+const getProductsWithInventoryQuery = ({
+  brandIds,
+  categoryIds,
+  inStockOnly,
+  pageNumber,
+  searchQuery,
+  sortBy,
+}) => gql`
+  {
+    __typename
+    productsWithInventory(
+      ${brandIds ? `brandIds: ${JSON.stringify(brandIds)}` : ""}
+      ${categoryIds ? `categoryIds: ${JSON.stringify(categoryIds)}` : ""}
+      ${inStockOnly !== undefined ? `inStockOnly: ${inStockOnly}` : ""}
+      pageNumber: "${pageNumber}"
+      ${searchQuery ? `searchQuery: "${searchQuery}"` : ""}
+      ${sortBy ? `sortBy: ${sortBy}` : ""}
+    ) {
+      total
+      results {
+        averageRating
+        baseCostPrice
+        basePrice
+        baseSku
+        brand {
+          id
+          brandName
+        }
+        brandId
+        categories {
+          id
+          name
+        }
+        createdAt
+        currentStock
+        description
+        enablePreOrder
+        exchangeRateSaleCurrency
+        howToUse
+        id
+        imageUrls
+        inventory {
+          id
+        }
+        isActive
+        isLowStock
+        isOutOfStock
+        isPublic
+        lowInQuantityValue
+        metaDescription
+        metaTitle
+        name
+        preOrderLimit
+        preOrderMessage
+        productIngredients
+        productOptions {
+          id
+          name
+          type
+          displayOrder
+          values {
+            id
+            value
+            displayValue
+            colorHex
+            displayOrder
+          }
+        }
+        productVariants {
+          id
+          name
+          sku
+          barcode
+          salePrice
+          costPrice
+          initialStock
+          isDefault
+          weight
+          description
+          imageUrls
+          optionValues {
+            optionName
+            optionValue
+          }
+        }
+        ribbon
+        tags
+        updatedAt
+        weight
+        weightType
+      }
+    }
+  }
+`;
+
+const createProductWithInventoryQuery = ({ brandId, productData }) => gql`
+  mutation {
+    createProductWithInventory(
+      brandId: "${brandId}"
+      productData: {
+        name: "${productData.name}"
+        baseCostPrice: ${productData.baseCostPrice}
+        basePrice: ${productData.basePrice}
+        ${productData.baseSku ? `baseSku: "${productData.baseSku}"` : ""}
+        ${
+          productData.categoryIds
+            ? `categoryIds: ${JSON.stringify(productData.categoryIds)}`
+            : ""
+        }
+        ${
+          productData.description
+            ? `description: "${productData.description}"`
+            : ""
+        }
+        ${
+          productData.exchangeRateSaleCurrency
+            ? `exchangeRateSaleCurrency: ${productData.exchangeRateSaleCurrency}`
+            : ""
+        }
+        ${productData.howToUse ? `howToUse: "${productData.howToUse}"` : ""}
+        ${
+          productData.imageUrls
+            ? `imageUrls: ${JSON.stringify(productData.imageUrls)}`
+            : ""
+        }
+        ${
+          productData.initialStock
+            ? `initialStock: ${productData.initialStock}`
+            : ""
+        }
+        ${
+          productData.isPrivate !== undefined
+            ? `isPrivate: ${productData.isPrivate}`
+            : ""
+        }
+        ${
+          productData.lowInQuantityValue
+            ? `lowInQuantityValue: "${productData.lowInQuantityValue}"`
+            : ""
+        }
+        ${
+          productData.metaDescription
+            ? `metaDescription: "${productData.metaDescription}"`
+            : ""
+        }
+        ${productData.metaTitle ? `metaTitle: "${productData.metaTitle}"` : ""}
+        ${
+          productData.options
+            ? `options: ${JSON.stringify(productData.options)}`
+            : ""
+        }
+        ${
+          productData.productIngredients
+            ? `productIngredients: "${productData.productIngredients}"`
+            : ""
+        }
+        ${productData.ribbon ? `ribbon: ${productData.ribbon}` : ""}
+        ${productData.tags ? `tags: ${JSON.stringify(productData.tags)}` : ""}
+        ${
+          productData.variants
+            ? `variants: ${JSON.stringify(productData.variants)}`
+            : ""
+        }
+        ${productData.weight ? `weight: ${productData.weight}` : ""}
+        ${productData.weightType ? `weightType: ${productData.weightType}` : ""}
+      }
+    ) {
+      averageRating
+      baseCostPrice
+      basePrice
+      baseSku
+      brand {
+        id
+        brandName
+      }
+      brandId
+      categories {
+        id
+        name
+      }
+      createdAt
+      currentStock
+      description
+      enablePreOrder
+      exchangeRateSaleCurrency
+      howToUse
+      id
+      imageUrls
+      isActive
+      isLowStock
+      isOutOfStock
+      isPublic
+      lowInQuantityValue
+      metaDescription
+      metaTitle
+      name
+      preOrderLimit
+      preOrderMessage
+      productIngredients
+      productOptions {
+        id
+        name
+        type
+        displayOrder
+        values {
+          id
+          value
+          displayValue
+          colorHex
+          displayOrder
+        }
+      }
+      productVariants {
+        id
+        name
+        sku
+        barcode
+        salePrice
+        costPrice
+        initialStock
+        isDefault
+        weight
+        description
+        imageUrls
+        optionValues {
+          optionName
+          optionValue
+        }
+      }
+      ribbon
+      tags
+      updatedAt
+      weight
+      weightType
+    }
+  }
+`;
+
+const updateProductQuery = ({ updateData }) => gql`
+  mutation {
+    updateProduct(
+      updateData: {
+        id: "${updateData.id}"
+        ${updateData.name ? `name: "${updateData.name}"` : ""}
+        ${
+          updateData.baseCostPrice
+            ? `baseCostPrice: ${updateData.baseCostPrice}`
+            : ""
+        }
+        ${updateData.basePrice ? `basePrice: ${updateData.basePrice}` : ""}
+        ${updateData.baseSku ? `baseSku: "${updateData.baseSku}"` : ""}
+        ${
+          updateData.categoryIds
+            ? `categoryIds: ${JSON.stringify(updateData.categoryIds)}`
+            : ""
+        }
+        ${
+          updateData.description
+            ? `description: "${updateData.description}"`
+            : ""
+        }
+        ${
+          updateData.enablePreOrder !== undefined
+            ? `enablePreOrder: ${updateData.enablePreOrder}`
+            : ""
+        }
+        ${
+          updateData.exchangeRateSaleCurrency
+            ? `exchangeRateSaleCurrency: ${updateData.exchangeRateSaleCurrency}`
+            : ""
+        }
+        ${updateData.howToUse ? `howToUse: "${updateData.howToUse}"` : ""}
+        ${
+          updateData.imageUrls
+            ? `imageUrls: ${JSON.stringify(updateData.imageUrls)}`
+            : ""
+        }
+        ${
+          updateData.isActive !== undefined
+            ? `isActive: ${updateData.isActive}`
+            : ""
+        }
+        ${
+          updateData.isPublic !== undefined
+            ? `isPublic: ${updateData.isPublic}`
+            : ""
+        }
+        ${
+          updateData.lowInQuantityValue
+            ? `lowInQuantityValue: "${updateData.lowInQuantityValue}"`
+            : ""
+        }
+        ${
+          updateData.metaDescription
+            ? `metaDescription: "${updateData.metaDescription}"`
+            : ""
+        }
+        ${updateData.metaTitle ? `metaTitle: "${updateData.metaTitle}"` : ""}
+        ${
+          updateData.options
+            ? `options: ${JSON.stringify(updateData.options)}`
+            : ""
+        }
+        ${
+          updateData.preOrderLimit
+            ? `preOrderLimit: ${updateData.preOrderLimit}`
+            : ""
+        }
+        ${
+          updateData.preOrderMessage
+            ? `preOrderMessage: "${updateData.preOrderMessage}"`
+            : ""
+        }
+        ${
+          updateData.productIngredients
+            ? `productIngredients: "${updateData.productIngredients}"`
+            : ""
+        }
+        ${updateData.ribbon ? `ribbon: ${updateData.ribbon}` : ""}
+        ${updateData.tags ? `tags: ${JSON.stringify(updateData.tags)}` : ""}
+        ${
+          updateData.variants
+            ? `variants: ${JSON.stringify(updateData.variants)}`
+            : ""
+        }
+        ${updateData.weight ? `weight: ${updateData.weight}` : ""}
+        ${updateData.weightType ? `weightType: ${updateData.weightType}` : ""}
+      }
+    ) {
+      averageRating
+      baseCostPrice
+      basePrice
+      baseSku
+      brand {
+        id
+        brandName
+      }
+      brandId
+      categories {
+        id
+        name
+      }
+      createdAt
+      currentStock
+      description
+      enablePreOrder
+      exchangeRateSaleCurrency
+      howToUse
+      id
+      imageUrls
+      isActive
+      isLowStock
+      isOutOfStock
+      isPublic
+      lowInQuantityValue
+      metaDescription
+      metaTitle
+      name
+      preOrderLimit
+      preOrderMessage
+      productIngredients
+      productOptions {
+        id
+        name
+        type
+        displayOrder
+        values {
+          id
+          value
+          displayValue
+          colorHex
+          displayOrder
+        }
+      }
+      productVariants {
+        id
+        name
+        sku
+        barcode
+        salePrice
+        costPrice
+        initialStock
+        isDefault
+        weight
+        description
+        imageUrls
+        optionValues {
+          optionName
+          optionValue
+        }
+      }
+      ribbon
+      tags
+      updatedAt
+      weight
+      weightType
+    }
+  }
+`;
+
 const getVariantsQuery = ({ page }) => gql`
   {
     __typename
@@ -974,6 +1374,38 @@ const apis = {
   getProducts: ({ page }) =>
     graphQlInstance(getProductsQuery({ page }), {
       method: "GET",
+    }),
+
+  getProductsWithInventory: ({
+    brandIds,
+    categoryIds,
+    inStockOnly,
+    pageNumber,
+    searchQuery,
+    sortBy,
+  }) =>
+    graphQlInstance(
+      getProductsWithInventoryQuery({
+        brandIds,
+        categoryIds,
+        inStockOnly,
+        pageNumber,
+        searchQuery,
+        sortBy,
+      }),
+      {
+        method: "GET",
+      }
+    ),
+
+  createProductWithInventory: ({ brandId, productData }) =>
+    graphQlInstance(createProductWithInventoryQuery({ brandId, productData }), {
+      method: "POST",
+    }),
+
+  updateProduct: ({ updateData }) =>
+    graphQlInstance(updateProductQuery({ updateData }), {
+      method: "POST",
     }),
   getVariants: ({ page }) =>
     graphQlInstance(getVariantsQuery({ page }), {

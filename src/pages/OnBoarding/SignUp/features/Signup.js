@@ -11,7 +11,7 @@ import { observer } from "mobx-react-lite";
 import AuthStore from "../store";
 
 const Signup = ({ goToLogin, goToSignUpOtp }) => {
-  const { loading, signup, sendVerificationMail } = AuthStore;
+  const { loading, signup, sendVerificationMail, setSignupData } = AuthStore;
   const [country, setCountry] = useState("NG");
 
   const schema = yup.object({
@@ -68,8 +68,9 @@ const Signup = ({ goToLogin, goToSignUpOtp }) => {
       // First, send verification email
       await sendVerificationMail({ email: form.email }, (success) => {
         if (success) {
-          // Store form data for later use in OTP verification
-          console.log("Storing signup data to localStorage:", form);
+          // Store form data in both store and localStorage
+          console.log("Storing signup data to store and localStorage:", form);
+          setSignupData(form);
           localStorage.setItem("signupFormData", JSON.stringify(form));
 
           // Verify the data was stored

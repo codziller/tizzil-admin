@@ -4,7 +4,7 @@ import { Button } from "components/General/Button";
 import classNames from "classnames";
 import { sampleProducts } from "utils/sampleData";
 import SearchBar from "components/General/Searchbar/SearchBar";
-import { ProductCard } from "./categories";
+import ProductCard from "components/General/ProductCard";
 
 const AddProductToCategoryModal = ({ isOpen, onClose, product }) => {
   const [searchInput, setSearchInput] = useState("");
