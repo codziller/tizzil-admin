@@ -125,12 +125,12 @@ const AccountSetupContainer = () => {
   };
 
   const handleExploreFeed = () => {
-    // AuthStore.logout();
+    //  navigate("/");
     handleLogout();
   };
 
   const handleBackToHome = () => {
-    // AuthStore.logout();
+    //  navigate("/");
     handleLogout();
   };
 
