@@ -76,8 +76,9 @@ const AddProductModal = ({
   });
 
   const userInfo = getUserInfoFromStorage();
+  console.log("userInfo: ", userInfo);
   const brandId = userInfo?.brand?.id;
-
+  console.log("brandId: ", brandId);
   const tabs = ["Basics", "Media & deets", "Fulfillment"];
 
   useEffect(() => {
@@ -703,7 +704,6 @@ const AddProductModal = ({
 
               <Input
                 placeholder="Exchange Rate Sale Currency"
-                type="number"
                 value={productData.exchangeRateSaleCurrency}
                 onChangeFunc={(val) =>
                   handleInputChange(

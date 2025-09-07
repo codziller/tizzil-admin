@@ -32,17 +32,12 @@ const OptionModal = ({
     toggler: onClose,
     footer: (
       <div className="flex gap-3">
-        <Button
-          text="CANCEL"
-          onClick={onClose}
-          outline
-        />
+        <Button text="CLOSE" onClick={onClose} isOutline />
         <Button
           text="ADD OPTION"
           onClick={saveCurrentOption}
           disabled={
-            !currentOption.name ||
-            currentOption.values.some((v) => !v.value)
+            !currentOption.name || currentOption.values.some((v) => !v.value)
           }
         />
       </div>
@@ -100,9 +95,7 @@ const OptionModal = ({
 
         {/* Current Option Form */}
         <div className="space-y-4">
-          <h4 className="text-sm font-medium text-gray-900">
-            Add New Option
-          </h4>
+          <h4 className="text-sm font-medium text-gray-900">Add New Option</h4>
 
           <div className="flex gap-3">
             <Input
@@ -114,7 +107,6 @@ const OptionModal = ({
                   name: val,
                 }))
               }
-              className="flex-1"
             />
             <Select
               placeholder="Type"
@@ -183,7 +175,6 @@ const OptionModal = ({
                               onChangeFunc={(val) =>
                                 updateOptionValue(index, "value", val)
                               }
-                              className="flex-1"
                             />
 
                             {currentOption.type === "COLOR" && (
@@ -198,11 +189,7 @@ const OptionModal = ({
                                 <HexColorPicker
                                   color={value.colorHex || "#ffffff"}
                                   onChange={(color) =>
-                                    updateOptionValue(
-                                      index,
-                                      "colorHex",
-                                      color
-                                    )
+                                    updateOptionValue(index, "colorHex", color)
                                   }
                                   style={{
                                     width: "150px",
@@ -214,9 +201,7 @@ const OptionModal = ({
 
                             {currentOption.values.length > 1 && (
                               <button
-                                onClick={() =>
-                                  removeOptionValue(index)
-                                }
+                                onClick={() => removeOptionValue(index)}
                                 className="text-red-500 hover:text-red-700"
                               >
                                 <MdDelete />

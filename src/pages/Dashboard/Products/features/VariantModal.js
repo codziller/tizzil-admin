@@ -29,11 +29,7 @@ const VariantModal = ({
     toggler: onClose,
     footer: (
       <div className="flex gap-3">
-        <Button
-          text="CANCEL"
-          onClick={onClose}
-          outline
-        />
+        <Button text="CLOSE" onClick={onClose} isOutline />
         <Button
           text="ADD VARIANT"
           onClick={saveCurrentVariant}
@@ -63,9 +59,7 @@ const VariantModal = ({
                     <FaTrash size={12} />
                   </button>
                   <div className="flex items-center justify-between pr-8">
-                    <span className="font-medium">
-                      {variant.name}
-                    </span>
+                    <span className="font-medium">{variant.name}</span>
                     <div className="flex gap-2">
                       <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
                         Stock: {variant.initialStock}
@@ -79,17 +73,14 @@ const VariantModal = ({
                   </div>
                   {variant.optionValues.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {variant.optionValues.map(
-                        (optionValue, ovIndex) => (
-                          <span
-                            key={ovIndex}
-                            className="text-xs px-2 py-1 bg-white rounded border"
-                          >
-                            {optionValue.optionName}:{" "}
-                            {optionValue.optionValue}
-                          </span>
-                        )
-                      )}
+                      {variant.optionValues.map((optionValue, ovIndex) => (
+                        <span
+                          key={ovIndex}
+                          className="text-xs px-2 py-1 bg-white rounded border"
+                        >
+                          {optionValue.optionName}: {optionValue.optionValue}
+                        </span>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -134,7 +125,6 @@ const VariantModal = ({
                   sku: val,
                 }))
               }
-              className="flex-1"
             />
             <Input
               placeholder="Initial Stock"
@@ -143,10 +133,9 @@ const VariantModal = ({
               onChangeFunc={(val) =>
                 setCurrentVariant((prev) => ({
                   ...prev,
-                  initialStock: parseInt(val) || 0,
+                  initialStock: parseInt(val) || "",
                 }))
               }
-              className="flex-1"
             />
           </div>
 
@@ -165,49 +154,35 @@ const VariantModal = ({
             </div>
 
             <div className="space-y-2">
-              {currentVariant.optionValues.map(
-                (optionValue, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 p-2 bg-gray-50 rounded border"
-                  >
-                    <Input
-                      placeholder="Option Name"
-                      value={optionValue.optionName}
-                      onChangeFunc={(val) =>
-                        updateVariantOptionValue(
-                          index,
-                          "optionName",
-                          val
-                        )
-                      }
-                      className="flex-1"
-                    />
-                    <Input
-                      placeholder="Option Value"
-                      value={optionValue.optionValue}
-                      onChangeFunc={(val) =>
-                        updateVariantOptionValue(
-                          index,
-                          "optionValue",
-                          val
-                        )
-                      }
-                      className="flex-1"
-                    />
-                    {currentVariant.optionValues.length > 1 && (
-                      <button
-                        onClick={() =>
-                          removeOptionValueFromVariant(index)
-                        }
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <MdDelete />
-                      </button>
-                    )}
-                  </div>
-                )
-              )}
+              {currentVariant.optionValues.map((optionValue, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 p-2 bg-gray-50 rounded border"
+                >
+                  <Input
+                    placeholder="Option Name"
+                    value={optionValue.optionName}
+                    onChangeFunc={(val) =>
+                      updateVariantOptionValue(index, "optionName", val)
+                    }
+                  />
+                  <Input
+                    placeholder="Option Value"
+                    value={optionValue.optionValue}
+                    onChangeFunc={(val) =>
+                      updateVariantOptionValue(index, "optionValue", val)
+                    }
+                  />
+                  {currentVariant.optionValues.length > 1 && (
+                    <button
+                      onClick={() => removeOptionValueFromVariant(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <MdDelete />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>

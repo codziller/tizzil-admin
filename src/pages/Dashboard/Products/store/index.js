@@ -373,7 +373,7 @@ class ProductsStore {
   };
 
   createProductWithInventory = async ({
-    brandIds,
+    brandId,
     productData,
     onSuccess,
     filters = {},
@@ -382,14 +382,14 @@ class ProductsStore {
     this.createProductLoading = true;
     try {
       const response = await apis.createProductWithInventory({
-        brandIds,
+        brandId,
         productData,
       });
       successToast("Operation Successful!", "Product created Successfully.");
 
       // Refresh products list with current filters
       await this.getProductsWithInventory({
-        brandIds,
+        brandIds: [brandId],
         pageNumber: pageNumber.toString(),
         ...filters,
       });
