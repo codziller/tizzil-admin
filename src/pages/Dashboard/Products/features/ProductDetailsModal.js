@@ -271,10 +271,15 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
                     key={variant.id}
                     className="flex items-center justify-between p-2 border border-gray-200 rounded"
                   >
-                    <span className="text-sm">{variant.name}</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{variant.variantName}</span>
+                      <span className="text-xs text-gray-500">{variant.sku}</span>
+                    </div>
                     <div className="flex gap-2 text-xs text-gray-600">
-                      <span>₦{variant.price?.toLocaleString()}</span>
-                      <span>Stock: {variant.stockQuantity}</span>
+                      <span>₦{variant.salePrice?.toLocaleString()}</span>
+                      <span>Stock: {variant.currentStock}</span>
+                      {variant.isLowStock && <span className="text-orange-600">Low Stock</span>}
+                      {variant.isOutOfStock && <span className="text-red-600">Out of Stock</span>}
                     </div>
                   </div>
                 ))}
@@ -291,17 +296,103 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
               <div className="space-y-2">
                 {productData.productOptions.map((option) => (
                   <div key={option.id} className="p-2 border border-gray-200 rounded">
-                    <span className="text-sm font-medium">{option.name}:</span>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {option.values?.map((value, index) => (
-                        <span
-                          key={index}
-                          className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700"
-                        >
-                          {value}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-medium">{option.optionName}:</span>
+                      <span className="text-xs text-gray-500">({option.optionType})</span>
+                      {option.isRequired && (
+                        <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-600">
+                          Required
                         </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {option.optionValues?.map((optionValue) => (
+                        <div
+                          key={optionValue.id}
+                          className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-gray-100 text-gray-700"
+                        >
+                          {optionValue.colorHex && (
+                            <div
+                              className="w-3 h-3 rounded-full border"
+                              style={{ backgroundColor: optionValue.colorHex }}
+                            />
+                          )}
+                          {optionValue.imageUrl && (
+                            <img
+                              src={optionValue.imageUrl}
+                              alt={optionValue.value}
+                              className="w-3 h-3 rounded"
+                            />
+                          )}
+                          <span>
+                            {optionValue.displayValue || optionValue.value}
+                          </span>
+                          {optionValue.measurement && (
+                            <span className="text-gray-500">
+                              ({optionValue.measurement} {optionValue.measurementUnit})
+                            </span>
+                          )}
+                        </div>
                       ))}
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Variant Options Details */}
+          {productData.productVariants && productData.productVariants.some(v => v.variantOptions && v.variantOptions.length > 0) && (
+            <div className="mb-8">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                Variant Option Combinations:
+              </h4>
+              <div className="space-y-3">
+                {productData.productVariants
+                  .filter(v => v.variantOptions && v.variantOptions.length > 0)
+                  .map((variant) => (
+                  <div key={variant.id} className="p-3 border border-gray-200 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">{variant.variantName}</span>
+                      <div className="flex gap-2 text-xs">
+                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
+                          ₦{variant.salePrice?.toLocaleString()}
+                        </span>
+                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                          Stock: {variant.currentStock}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {variant.variantOptions.map((variantOption) => (
+                        <div key={variantOption.id} className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-gray-50 border">
+                          <span className="font-medium">{variantOption.productOption?.optionName}:</span>
+                          <div className="flex items-center gap-1">
+                            {variantOption.productOptionValue?.colorHex && (
+                              <div
+                                className="w-3 h-3 rounded-full border"
+                                style={{ backgroundColor: variantOption.productOptionValue.colorHex }}
+                              />
+                            )}
+                            <span>
+                              {variantOption.productOptionValue?.displayValue || variantOption.productOptionValue?.value}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {variant.inventory && (
+                      <div className="mt-2 text-xs text-gray-600">
+                        <div className="flex flex-wrap gap-3">
+                          <span>Available: {variant.inventory.quantityAvailable}</span>
+                          <span>On Hand: {variant.inventory.quantityOnHand}</span>
+                          <span>Allocated: {variant.inventory.quantityAllocated}</span>
+                          {variant.inventory.quantityInTransit > 0 && (
+                            <span>In Transit: {variant.inventory.quantityInTransit}</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

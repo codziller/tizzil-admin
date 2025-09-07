@@ -325,3 +325,10 @@ enum WEIGHT_TYPE {
 grams
 milliliters
 }
+
+
+
+
+<!-- New testings -->
+
+1. Update src\pages\OnBoarding\AccountSetup\features\index.js so that on succesul authBrandRegistration, call getMe from src\pages\OnBoarding\SignUp\store\index.js to get the user details, and update the brandUser object in the local storage USER_DATA object already saved from login with the response from 

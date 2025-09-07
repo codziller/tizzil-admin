@@ -31,22 +31,110 @@ preOrderMessage
 productDescription
 productIngredients
 productOptions {
-  choiceDisplay
-  choices{
-    description
-    imageUrls
-    variantCostPrice
-    variantName
-    variantQuantity
-    variantSalePrice
-    videoUrls
-    visibility
-    weight
-    color
-    main
-  }
-  name
+  createdAt
+  displayOrder
   id
+  isRequired
+  optionName
+  optionType
+  optionValues {
+    colorHex
+    createdAt
+    displayOrder
+    displayValue
+    id
+    imageUrl
+    isActive
+    measurement
+    measurementUnit
+    productOption {
+      id
+      optionName
+    }
+    productOptionId
+    updatedAt
+    value
+  }
+  productId
+  updatedAt
+}
+productVariants {
+  barcode
+  compareAtPrice
+  costPrice
+  createdAt
+  currentStock
+  description
+  id
+  imageUrls
+  inventory {
+    brand {
+      id
+      brandName
+    }
+    brandId
+    createdAt
+    id
+    isLowStock
+    isOutOfStock
+    lastCountedAt
+    lastRestockedAt
+    lastStockoutAt
+    maxStockLevel
+    product {
+      id
+      name
+    }
+    productId
+    productVariant {
+      id
+      variantName
+    }
+    productVariantId
+    quantityAllocated
+    quantityAvailable
+    quantityInTransit
+    quantityOnHand
+    reorderPoint
+    reorderQuantity
+    updatedAt
+  }
+  isActive
+  isDefault
+  isLowStock
+  isOutOfStock
+  productId
+  salePrice
+  sku
+  updatedAt
+  variantName
+  variantOptions {
+    createdAt
+    id
+    productOption {
+      id
+      optionName
+      optionType
+    }
+    productOptionId
+    productOptionValue {
+      id
+      value
+      displayValue
+      colorHex
+    }
+    productOptionValueId
+    productVariant {
+      id
+      variantName
+    }
+    productVariantId
+    updatedAt
+  }
+  videoUrls
+  visibility
+  weight
+  weightType
 }
 productSubscriptions {
   name
@@ -312,34 +400,110 @@ const getProductsWithInventoryQuery = ({
         preOrderMessage
         productIngredients
         productOptions {
-          id
-          name
-          type
+          createdAt
           displayOrder
-          values {
-            id
-            value
-            displayValue
+          id
+          isRequired
+          optionName
+          optionType
+          optionValues {
             colorHex
+            createdAt
             displayOrder
+            displayValue
+            id
+            imageUrl
+            isActive
+            measurement
+            measurementUnit
+            productOption {
+              id
+              optionName
+            }
+            productOptionId
+            updatedAt
+            value
           }
+          productId
+          updatedAt
         }
         productVariants {
-          id
-          name
-          sku
           barcode
-          salePrice
+          compareAtPrice
           costPrice
-          initialStock
-          isDefault
-          weight
+          createdAt
+          currentStock
           description
+          id
           imageUrls
-          optionValues {
-            optionName
-            optionValue
+          inventory {
+            brand {
+              id
+              brandName
+            }
+            brandId
+            createdAt
+            id
+            isLowStock
+            isOutOfStock
+            lastCountedAt
+            lastRestockedAt
+            lastStockoutAt
+            maxStockLevel
+            product {
+              id
+              name
+            }
+            productId
+            productVariant {
+              id
+              variantName
+            }
+            productVariantId
+            quantityAllocated
+            quantityAvailable
+            quantityInTransit
+            quantityOnHand
+            reorderPoint
+            reorderQuantity
+            updatedAt
           }
+          isActive
+          isDefault
+          isLowStock
+          isOutOfStock
+          productId
+          salePrice
+          sku
+          updatedAt
+          variantName
+          variantOptions {
+            createdAt
+            id
+            productOption {
+              id
+              optionName
+              optionType
+            }
+            productOptionId
+            productOptionValue {
+              id
+              value
+              displayValue
+              colorHex
+            }
+            productOptionValueId
+            productVariant {
+              id
+              variantName
+            }
+            productVariantId
+            updatedAt
+          }
+          videoUrls
+          visibility
+          weight
+          weightType
         }
         ribbon
         tags
@@ -456,34 +620,110 @@ const createProductWithInventoryQuery = ({ brandId, productData }) => gql`
       preOrderMessage
       productIngredients
       productOptions {
-        id
-        name
-        type
+        createdAt
         displayOrder
-        values {
-          id
-          value
-          displayValue
+        id
+        isRequired
+        optionName
+        optionType
+        optionValues {
           colorHex
+          createdAt
           displayOrder
+          displayValue
+          id
+          imageUrl
+          isActive
+          measurement
+          measurementUnit
+          productOption {
+            id
+            optionName
+          }
+          productOptionId
+          updatedAt
+          value
         }
+        productId
+        updatedAt
       }
       productVariants {
-        id
-        name
-        sku
         barcode
-        salePrice
+        compareAtPrice
         costPrice
-        initialStock
-        isDefault
-        weight
+        createdAt
+        currentStock
         description
+        id
         imageUrls
-        optionValues {
-          optionName
-          optionValue
+        inventory {
+          brand {
+            id
+            brandName
+          }
+          brandId
+          createdAt
+          id
+          isLowStock
+          isOutOfStock
+          lastCountedAt
+          lastRestockedAt
+          lastStockoutAt
+          maxStockLevel
+          product {
+            id
+            name
+          }
+          productId
+          productVariant {
+            id
+            variantName
+          }
+          productVariantId
+          quantityAllocated
+          quantityAvailable
+          quantityInTransit
+          quantityOnHand
+          reorderPoint
+          reorderQuantity
+          updatedAt
         }
+        isActive
+        isDefault
+        isLowStock
+        isOutOfStock
+        productId
+        salePrice
+        sku
+        updatedAt
+        variantName
+        variantOptions {
+          createdAt
+          id
+          productOption {
+            id
+            optionName
+            optionType
+          }
+          productOptionId
+          productOptionValue {
+            id
+            value
+            displayValue
+            colorHex
+          }
+          productOptionValueId
+          productVariant {
+            id
+            variantName
+          }
+          productVariantId
+          updatedAt
+        }
+        videoUrls
+        visibility
+        weight
+        weightType
       }
       ribbon
       tags
@@ -618,34 +858,110 @@ const updateProductQuery = ({ updateData }) => gql`
       preOrderMessage
       productIngredients
       productOptions {
-        id
-        name
-        type
+        createdAt
         displayOrder
-        values {
-          id
-          value
-          displayValue
+        id
+        isRequired
+        optionName
+        optionType
+        optionValues {
           colorHex
+          createdAt
           displayOrder
+          displayValue
+          id
+          imageUrl
+          isActive
+          measurement
+          measurementUnit
+          productOption {
+            id
+            optionName
+          }
+          productOptionId
+          updatedAt
+          value
         }
+        productId
+        updatedAt
       }
       productVariants {
-        id
-        name
-        sku
         barcode
-        salePrice
+        compareAtPrice
         costPrice
-        initialStock
-        isDefault
-        weight
+        createdAt
+        currentStock
         description
+        id
         imageUrls
-        optionValues {
-          optionName
-          optionValue
+        inventory {
+          brand {
+            id
+            brandName
+          }
+          brandId
+          createdAt
+          id
+          isLowStock
+          isOutOfStock
+          lastCountedAt
+          lastRestockedAt
+          lastStockoutAt
+          maxStockLevel
+          product {
+            id
+            name
+          }
+          productId
+          productVariant {
+            id
+            variantName
+          }
+          productVariantId
+          quantityAllocated
+          quantityAvailable
+          quantityInTransit
+          quantityOnHand
+          reorderPoint
+          reorderQuantity
+          updatedAt
         }
+        isActive
+        isDefault
+        isLowStock
+        isOutOfStock
+        productId
+        salePrice
+        sku
+        updatedAt
+        variantName
+        variantOptions {
+          createdAt
+          id
+          productOption {
+            id
+            optionName
+            optionType
+          }
+          productOptionId
+          productOptionValue {
+            id
+            value
+            displayValue
+            colorHex
+          }
+          productOptionValueId
+          productVariant {
+            id
+            variantName
+          }
+          productVariantId
+          updatedAt
+        }
+        videoUrls
+        visibility
+        weight
+        weightType
       }
       ribbon
       tags

@@ -11,6 +11,9 @@ import CategoriesStore from "../../Categories/store";
 import { getUserInfoFromStorage } from "utils/storage";
 import { successToast } from "components/General/Toast/Toast";
 import classNames from "classnames";
+import { HexColorPicker } from "react-colorful";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { MdAdd, MdDelete, MdDragIndicator } from "react-icons/md";
 
 const AddProductModal = ({ isOpen, onClose, productId = null, filters = {}, pageNumber = 1 }) => {
   const { createProductWithInventory, createProductLoading, getProduct, product, getProductLoading } = ProductsStore;
@@ -19,6 +22,23 @@ const AddProductModal = ({ isOpen, onClose, productId = null, filters = {}, page
   const [activeTab, setActiveTab] = useState("Basics");
   const [showVariantModal, setShowVariantModal] = useState(false);
   const [showOptionModal, setShowOptionModal] = useState(false);
+  
+  // Comprehensive state for options management
+  const [options, setOptions] = useState([]);
+  const [currentOption, setCurrentOption] = useState({
+    name: "",
+    type: "TEXT",
+    values: [{ value: "", displayValue: "", colorHex: "" }]
+  });
+  
+  // Comprehensive state for variants management
+  const [variants, setVariants] = useState([]);
+  const [currentVariant, setCurrentVariant] = useState({
+    name: "",
+    sku: "",
+    initialStock: 0,
+    optionValues: [{ optionName: "", optionValue: "" }]
+  });
   const [productData, setProductData] = useState({
     name: "",
     description: "",
@@ -78,8 +98,44 @@ const AddProductModal = ({ isOpen, onClose, productId = null, filters = {}, page
         howToUse: product.howToUse || "",
         productIngredients: product.productIngredients || "",
         tags: product.tags || [],
-        options: product.productOptions || [],
-        variants: product.productVariants || [],
+        options: product.productOptions ? product.productOptions.map(option => ({
+          id: option.id,
+          name: option.optionName,
+          type: option.optionType,
+          displayOrder: option.displayOrder,
+          isRequired: option.isRequired,
+          values: option.optionValues ? option.optionValues.map(value => ({
+            id: value.id,
+            value: value.value,
+            displayValue: value.displayValue,
+            colorHex: value.colorHex,
+            imageUrl: value.imageUrl,
+            measurement: value.measurement,
+            measurementUnit: value.measurementUnit,
+            displayOrder: value.displayOrder,
+            isActive: value.isActive
+          })) : []
+        })) : [],
+        variants: product.productVariants ? product.productVariants.map(variant => ({
+          id: variant.id,
+          name: variant.variantName,
+          sku: variant.sku,
+          barcode: variant.barcode,
+          salePrice: variant.salePrice,
+          costPrice: variant.costPrice,
+          currentStock: variant.currentStock,
+          weight: variant.weight,
+          weightType: variant.weightType,
+          description: variant.description,
+          imageUrls: variant.imageUrls,
+          videoUrls: variant.videoUrls,
+          isDefault: variant.isDefault,
+          isActive: variant.isActive,
+          visibility: variant.visibility,
+          compareAtPrice: variant.compareAtPrice,
+          inventory: variant.inventory,
+          variantOptions: variant.variantOptions
+        })) : [],
         ribbon: product.ribbon || null,
         exchangeRateSaleCurrency: product.exchangeRateSaleCurrency || null,
         lowInQuantityValue: product.lowInQuantityValue || ""
@@ -96,6 +152,101 @@ const AddProductModal = ({ isOpen, onClose, productId = null, filters = {}, page
     if (currentIndex < tabs.length - 1) {
       setActiveTab(tabs[currentIndex + 1]);
     }
+  };
+
+  // Options management functions
+  const addOptionValue = () => {
+    setCurrentOption(prev => ({
+      ...prev,
+      values: [...prev.values, { value: "", displayValue: "", colorHex: "" }]
+    }));
+  };
+
+  const removeOptionValue = (index) => {
+    setCurrentOption(prev => ({
+      ...prev,
+      values: prev.values.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateOptionValue = (index, field, value) => {
+    setCurrentOption(prev => ({
+      ...prev,
+      values: prev.values.map((item, i) => i === index ? { ...item, [field]: value } : item)
+    }));
+  };
+
+  const onOptionDragEnd = (result) => {
+    if (!result.destination) return;
+    
+    const newValues = Array.from(currentOption.values);
+    const [reorderedValue] = newValues.splice(result.source.index, 1);
+    newValues.splice(result.destination.index, 0, reorderedValue);
+    
+    setCurrentOption(prev => ({ ...prev, values: newValues }));
+  };
+
+  const saveCurrentOption = () => {
+    if (!currentOption.name || currentOption.values.length === 0) return;
+    
+    const optionWithDisplayOrder = {
+      ...currentOption,
+      displayOrder: options.length + 1,
+      values: currentOption.values.map((value, index) => ({
+        ...value,
+        displayOrder: index + 1
+      }))
+    };
+    
+    setOptions(prev => [...prev, optionWithDisplayOrder]);
+    setCurrentOption({
+      name: "",
+      type: "TEXT", 
+      values: [{ value: "", displayValue: "", colorHex: "" }]
+    });
+  };
+
+  // Variants management functions
+  const addOptionValueToVariant = () => {
+    setCurrentVariant(prev => ({
+      ...prev,
+      optionValues: [...prev.optionValues, { optionName: "", optionValue: "" }]
+    }));
+  };
+
+  const removeOptionValueFromVariant = (index) => {
+    setCurrentVariant(prev => ({
+      ...prev,
+      optionValues: prev.optionValues.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateVariantOptionValue = (index, field, value) => {
+    setCurrentVariant(prev => ({
+      ...prev,
+      optionValues: prev.optionValues.map((item, i) => i === index ? { ...item, [field]: value } : item)
+    }));
+  };
+
+  const saveCurrentVariant = () => {
+    if (!currentVariant.name) return;
+    
+    setVariants(prev => [...prev, currentVariant]);
+    setCurrentVariant({
+      name: "",
+      sku: "",
+      initialStock: 0,
+      optionValues: [{ optionName: "", optionValue: "" }]
+    });
+  };
+
+  const addNewVariant = () => {
+    setCurrentVariant({
+      name: "",
+      sku: "",
+      initialStock: 0,
+      optionValues: [{ optionName: "", optionValue: "" }]
+    });
   };
 
   const handleSubmit = async () => {
@@ -194,6 +345,313 @@ const AddProductModal = ({ isOpen, onClose, productId = null, filters = {}, page
       isSideModal={true}
       title="NEW PRODUCT"
       size="xl"
+      footer={
+        <div className="flex justify-end gap-3">
+          {activeTab === "Media & deets" && !showVariantModal && !showOptionModal && (
+            <>
+              <Button
+                text="CREATE VARIANT"
+                onClick={() => setShowVariantModal(true)}
+                outline
+                size="sm"
+              />
+              <Button
+                text="CREATE OPTION"
+                onClick={() => setShowOptionModal(true)}
+                outline
+                size="sm"
+              />
+            </>
+          )}
+          <Button
+            text={activeTab === "Fulfillment" ? "CREATE PRODUCT" : "CONTINUE"}
+            onClick={activeTab === "Fulfillment" ? handleSubmit : handleNext}
+            loading={createProductLoading}
+          />
+        </div>
+      }
+      submodal={
+        showOptionModal
+          ? {
+              active: true,
+              title: "OPTIONS",
+              size: "xl",
+              toggler: () => setShowOptionModal(false),
+              footer: (
+                <div className="flex gap-3">
+                  <Button
+                    text="CANCEL"
+                    onClick={() => setShowOptionModal(false)}
+                    outline
+                  />
+                  <Button
+                    text="ADD OPTION"
+                    onClick={() => {
+                      saveCurrentOption();
+                    }}
+                    disabled={!currentOption.name || currentOption.values.some(v => !v.value)}
+                  />
+                </div>
+              ),
+              children: (
+                <div className="flex flex-col gap-6">
+                  {/* Created Options Preview */}
+                  {options.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Created Options ({options.length})</h4>
+                      <div className="space-y-2">
+                        {options.map((option, index) => (
+                          <div key={index} className="p-3 bg-gray-50 rounded-lg border">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">{option.name}</span>
+                              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">{option.type}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {option.values.map((value, vIndex) => (
+                                <div key={vIndex} className="flex items-center gap-1 text-xs px-2 py-1 bg-white rounded border">
+                                  {value.colorHex && (
+                                    <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: value.colorHex }} />
+                                  )}
+                                  {value.displayValue || value.value}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Current Option Form */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-medium text-gray-900">Add New Option</h4>
+                    
+                    <div className="flex gap-3">
+                      <Input
+                        placeholder="Option Name (e.g., Color, Size)"
+                        value={currentOption.name}
+                        onChangeFunc={(e) => setCurrentOption(prev => ({ ...prev, name: e.target.value }))}
+                        className="flex-1"
+                      />
+                      <Select
+                        placeholder="Type"
+                        value={{ label: currentOption.type, value: currentOption.type }}
+                        onChange={(selected) => setCurrentOption(prev => ({ ...prev, type: selected.value }))}
+                        options={[
+                          { label: "TEXT", value: "TEXT" },
+                          { label: "COLOR", value: "COLOR" }
+                        ]}
+                        className="w-32"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-sm font-medium text-gray-700">Option Values</label>
+                        <Button
+                          text="Add Value"
+                          onClick={addOptionValue}
+                          size="sm"
+                          outline
+                          icon={<MdAdd />}
+                        />
+                      </div>
+
+                      <DragDropContext onDragEnd={onOptionDragEnd}>
+                        <Droppable droppableId="option-values">
+                          {(provided) => (
+                            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+                              {currentOption.values.map((value, index) => (
+                                <Draggable key={`value-${index}`} draggableId={`value-${index}`} index={index}>
+                                  {(provided) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      className="flex items-center gap-2 p-2 bg-gray-50 rounded border"
+                                    >
+                                      <div {...provided.dragHandleProps} className="text-gray-400 cursor-move">
+                                        <MdDragIndicator />
+                                      </div>
+                                      
+                                      <Input
+                                        placeholder="Value"
+                                        value={value.value}
+                                        onChangeFunc={(e) => updateOptionValue(index, "value", e.target.value)}
+                                        className="flex-1"
+                                      />
+                                      
+                                      {currentOption.type === "COLOR" && (
+                                        <div className="flex items-center gap-2">
+                                          <div 
+                                            className="w-8 h-8 rounded border cursor-pointer"
+                                            style={{ backgroundColor: value.colorHex || "#ffffff" }}
+                                            onClick={() => {
+                                              // Toggle color picker (implement with state if needed)
+                                            }}
+                                          />
+                                          <HexColorPicker
+                                            color={value.colorHex || "#ffffff"}
+                                            onChange={(color) => updateOptionValue(index, "colorHex", color)}
+                                            style={{ width: "150px", height: "100px" }}
+                                          />
+                                        </div>
+                                      )}
+                                      
+                                      {currentOption.values.length > 1 && (
+                                        <button
+                                          onClick={() => removeOptionValue(index)}
+                                          className="text-red-500 hover:text-red-700"
+                                        >
+                                          <MdDelete />
+                                        </button>
+                                      )}
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+          : showVariantModal
+          ? {
+              active: true,
+              title: "VARIANTS",
+              size: "xl",
+              toggler: () => setShowVariantModal(false),
+              footer: (
+                <div className="flex gap-3">
+                  <Button
+                    text="CANCEL"
+                    onClick={() => setShowVariantModal(false)}
+                    outline
+                  />
+                  <Button
+                    text="ADD VARIANT"
+                    onClick={() => {
+                      saveCurrentVariant();
+                    }}
+                    disabled={!currentVariant.name}
+                  />
+                </div>
+              ),
+              children: (
+                <div className="flex flex-col gap-6">
+                  {/* Created Variants Preview */}
+                  {variants.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Created Variants ({variants.length})</h4>
+                      <div className="space-y-2">
+                        {variants.map((variant, index) => (
+                          <div key={index} className="p-3 bg-gray-50 rounded-lg border">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">{variant.name}</span>
+                              <div className="flex gap-2">
+                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">Stock: {variant.initialStock}</span>
+                                {variant.sku && <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">{variant.sku}</span>}
+                              </div>
+                            </div>
+                            {variant.optionValues.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {variant.optionValues.map((optionValue, ovIndex) => (
+                                  <span key={ovIndex} className="text-xs px-2 py-1 bg-white rounded border">
+                                    {optionValue.optionName}: {optionValue.optionValue}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Current Variant Form */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium text-gray-900">Add New Variant</h4>
+                      <Button
+                        text="Add Variant Section"
+                        onClick={addNewVariant}
+                        size="sm"
+                        outline
+                      />
+                    </div>
+                    
+                    <Input
+                      placeholder="Variant Name"
+                      value={currentVariant.name}
+                      onChangeFunc={(e) => setCurrentVariant(prev => ({ ...prev, name: e.target.value }))}
+                      fullWidth
+                    />
+                    
+                    <div className="flex gap-3">
+                      <Input
+                        placeholder="SKU (optional)"
+                        value={currentVariant.sku}
+                        onChangeFunc={(e) => setCurrentVariant(prev => ({ ...prev, sku: e.target.value }))}
+                        className="flex-1"
+                      />
+                      <Input
+                        placeholder="Initial Stock"
+                        type="number"
+                        value={currentVariant.initialStock}
+                        onChangeFunc={(e) => setCurrentVariant(prev => ({ ...prev, initialStock: parseInt(e.target.value) || 0 }))}
+                        className="flex-1"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-sm font-medium text-gray-700">Option Values</label>
+                        <Button
+                          text="Add Option Value"
+                          onClick={addOptionValueToVariant}
+                          size="sm"
+                          outline
+                          icon={<MdAdd />}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        {currentVariant.optionValues.map((optionValue, index) => (
+                          <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded border">
+                            <Input
+                              placeholder="Option Name"
+                              value={optionValue.optionName}
+                              onChangeFunc={(e) => updateVariantOptionValue(index, "optionName", e.target.value)}
+                              className="flex-1"
+                            />
+                            <Input
+                              placeholder="Option Value"
+                              value={optionValue.optionValue}
+                              onChangeFunc={(e) => updateVariantOptionValue(index, "optionValue", e.target.value)}
+                              className="flex-1"
+                            />
+                            {currentVariant.optionValues.length > 1 && (
+                              <button
+                                onClick={() => removeOptionValueFromVariant(index)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <MdDelete />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+          : null
+      }
     >
       <div className="w-full h-full flex flex-col">
         <div className="border-b border-gray-200">
@@ -463,156 +921,73 @@ const AddProductModal = ({ isOpen, onClose, productId = null, filters = {}, page
           )}
         </div>
 
-        <div className="w-full flex justify-end gap-3">
-          {activeTab === "Media & deets" && (
-            <>
-              <Button
-                text="CREATE VARIANT"
-                onClick={() => setShowVariantModal(true)}
-                outline
-                size="sm"
-              />
-              <Button
-                text="CREATE OPTION"
-                onClick={() => setShowOptionModal(true)}
-                outline
-                size="sm"
-              />
-            </>
-          )}
-          <Button
-            text={activeTab === "Fulfillment" ? "CREATE PRODUCT" : "CONTINUE"}
-            onClick={activeTab === "Fulfillment" ? handleSubmit : handleNext}
-            loading={createProductLoading}
-          />
-        </div>
+        {/* Preview Cards for Created Options and Variants */}
+        {activeTab === "Media & deets" && (options.length > 0 || variants.length > 0) && (
+          <div className="mt-6 space-y-4">
+            {/* Options Preview Cards */}
+            {options.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Product Options ({options.length})</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {options.map((option, index) => (
+                    <div key={index} className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="font-medium text-blue-900">{option.name}</h5>
+                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">{option.type}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {option.values.map((value, vIndex) => (
+                          <div key={vIndex} className="flex items-center gap-2 text-sm px-2 py-1 bg-white rounded-md border border-blue-200">
+                            {value.colorHex && (
+                              <div className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: value.colorHex }} />
+                            )}
+                            <span className="text-gray-700">{value.displayValue || value.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Variants Preview Cards */}
+            {variants.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Product Variants ({variants.length})</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {variants.map((variant, index) => (
+                    <div key={index} className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="font-medium text-green-900">{variant.name}</h5>
+                        <div className="flex gap-2">
+                          <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                            Stock: {variant.initialStock}
+                          </span>
+                          {variant.sku && (
+                            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded-full">
+                              {variant.sku}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {variant.optionValues.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {variant.optionValues.map((optionValue, ovIndex) => (
+                            <span key={ovIndex} className="text-sm px-2 py-1 bg-white rounded-md border border-green-200 text-gray-700">
+                              <span className="font-medium">{optionValue.optionName}:</span> {optionValue.optionValue}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-
-      {/* Variant Creation Submodal */}
-      <Modal
-        active={showVariantModal}
-        toggler={() => setShowVariantModal(false)}
-        isSideModal={true}
-        isSubmodal={true}
-        submodalDirection="right"
-        zIndex={100000}
-        title="CREATE VARIANT"
-        size="lg"
-      >
-        <div className="flex flex-col gap-4 h-full">
-          <Input
-            placeholder="Variant Name"
-            value=""
-            onChangeFunc={() => {}}
-            fullWidth
-          />
-          
-          <Input
-            placeholder="Price"
-            type="number"
-            value=""
-            onChangeFunc={() => {}}
-            fullWidth
-          />
-          
-          <Input
-            placeholder="Cost Price"
-            type="number"
-            value=""
-            onChangeFunc={() => {}}
-            fullWidth
-          />
-          
-          <Input
-            placeholder="SKU"
-            value=""
-            onChangeFunc={() => {}}
-            fullWidth
-          />
-          
-          <Input
-            placeholder="Stock Quantity"
-            type="number"
-            value=""
-            onChangeFunc={() => {}}
-            fullWidth
-          />
-          
-          <div className="flex gap-2 mt-auto">
-            <Button
-              text="CANCEL"
-              onClick={() => setShowVariantModal(false)}
-              outline
-            />
-            <Button
-              text="CREATE VARIANT"
-              onClick={() => {
-                // TODO: Implement variant creation logic
-                setShowVariantModal(false);
-              }}
-            />
-          </div>
-        </div>
-      </Modal>
-
-      {/* Option Creation Submodal */}
-      <Modal
-        active={showOptionModal}
-        toggler={() => setShowOptionModal(false)}
-        isSideModal={true}
-        isSubmodal={true}
-        submodalDirection="right"
-        zIndex={100000}
-        title="CREATE OPTION"
-        size="lg"
-      >
-        <div className="flex flex-col gap-4 h-full">
-          <Input
-            placeholder="Option Name (e.g., Color, Size)"
-            value=""
-            onChangeFunc={() => {}}
-            fullWidth
-          />
-          
-          <div className="mb-4">
-            <label className="text-[14px] text-[#555555] block mb-2">
-              Option Values (comma separated)
-            </label>
-            <Input
-              placeholder="e.g., Red, Blue, Green or S, M, L, XL"
-              value=""
-              onChangeFunc={() => {}}
-              fullWidth
-            />
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="affectsPrice"
-              className="w-4 h-4 text-[#690007] border-gray-300 rounded focus:ring-[#690007]"
-            />
-            <label htmlFor="affectsPrice" className="text-sm text-gray-700">
-              This option affects pricing
-            </label>
-          </div>
-          
-          <div className="flex gap-2 mt-auto">
-            <Button
-              text="CANCEL"
-              onClick={() => setShowOptionModal(false)}
-              outline
-            />
-            <Button
-              text="CREATE OPTION"
-              onClick={() => {
-                // TODO: Implement option creation logic
-                setShowOptionModal(false);
-              }}
-            />
-          </div>
-        </div>
-      </Modal>
     </Modal>
   );
 };
