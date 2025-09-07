@@ -119,14 +119,19 @@ const AccountSetupContainer = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = isAdmin ? "/auth/login/admin" : "/auth/login";
+  };
+
   const handleExploreFeed = () => {
     // AuthStore.logout();
-    navigate("/");
+    handleLogout();
   };
 
   const handleBackToHome = () => {
     // AuthStore.logout();
-    navigate("/");
+    handleLogout();
   };
 
   const renderStepIndicator = (stepNumber, isCompleted = false) => (
