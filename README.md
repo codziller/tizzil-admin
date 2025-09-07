@@ -332,3 +332,6 @@ milliliters
 <!-- New testings -->
 
 1. Update src\pages\OnBoarding\AccountSetup\features\index.js so that on succesul authBrandRegistration, call getMe from src\pages\OnBoarding\SignUp\store\index.js to get the user details, and update the brandUser object in the local storage USER_DATA object already saved from login with the response from 
+
+
+2. Update src\pages\Dashboard\Products\features\AddCollectionModal.js, src\pages\Dashboard\Products\features\AddProductToCategoryModal.js,  src\pages\Dashboard\Products\features\DuplicateProductModal.js, and src\pages\Dashboard\Products\features\ProductDetailsModal.js ti use the new modal struture, ie. passing the bottom buttons inside footer prop.

@@ -29,12 +29,18 @@ const Modal = ({
 
   const getModalWidth = (modalSize) => {
     switch (modalSize) {
-      case "2xl": return "w-full md:max-w-[86%] md:w-[86%]";
-      case "xl": return "w-full md:max-w-[500px] md:w-[500px]";
-      case "lg": return "w-full md:max-w-[400px] md:w-[400px]";
-      case "md": return "w-full md:max-w-[300px] md:w-[300px]";
-      case "sm": return "w-full md:max-w-[250px] md:w-[250px]";
-      default: return "w-full md:w-fit";
+      case "2xl":
+        return "w-full md:max-w-[86%] md:w-[86%]";
+      case "xl":
+        return "w-full md:max-w-[500px] md:w-[500px]";
+      case "lg":
+        return "w-full md:max-w-[400px] md:w-[400px]";
+      case "md":
+        return "w-full md:max-w-[300px] md:w-[300px]";
+      case "sm":
+        return "w-full md:max-w-[250px] md:w-[250px]";
+      default:
+        return "w-full md:w-fit";
     }
   };
 
@@ -50,20 +56,22 @@ const Modal = ({
       return {
         ...baseClasses,
         "opacity-100 translate-x-0 bottom-0 pointer-events-auto": active,
-        "md:translate-x-1/4 translate-x-[1000px] opacity-0 pointer-events-none bottom-0": !active,
+        "md:translate-x-1/4 translate-x-[1000px] opacity-0 pointer-events-none bottom-0":
+          !active,
       };
     } else {
       return {
         ...baseClasses,
         "opacity-100 translate-y-0 bottom-0 pointer-events-auto": active,
-        "md:translate-y-1/4 translate-y-[1000px] opacity-0 pointer-events-none bottom-0": !active,
+        "md:translate-y-1/4 translate-y-[1000px] opacity-0 pointer-events-none bottom-0":
+          !active,
       };
     }
   };
 
   const getSubmodalClasses = () => {
     if (!submodal) return {};
-    
+
     const baseClasses = {
       [getModalWidth(submodal.size || "xl")]: true, // Use submodal size or default to xl
       "p-[24px]": !submodal.noPadding,
@@ -99,7 +107,7 @@ const Modal = ({
     <div
       style={{ zIndex }}
       className={clsx(
-        `h-screen overflow-hidden w-full fixed !m-0 flex items-start backdrop bottom-0 md:top-0 left-0`,
+        `h-screen w-full fixed !m-0 flex items-start backdrop bottom-0 md:top-0 left-0 !overflow-hidden`,
         containerClassName,
         {
           "transition-all duration-100 ease-in-out opacity-100 pointer-events-auto":
@@ -123,7 +131,7 @@ const Modal = ({
         {/* Submodal - positioned to the LEFT */}
         {submodal && (
           <div
-            style={{ maxHeight, marginRight: '12px' }}
+            style={{ maxHeight, marginRight: "12px" }}
             className={clsx(
               `!absolute md:!relative modal-content-area flex flex-col justify-start bg-white rounded-bl-none rounded-br-none transition-all z-[99999] duration-300 ease-in-out`,
               { "md:min-h-[100vh] overflow-hidden": true },
@@ -131,9 +139,11 @@ const Modal = ({
             )}
           >
             {/* Fixed Submodal Header */}
-            <div className="flex w-full justify-between items-center p-6 border-b border-gray-200 bg-white sticky top-0 z-10">
+            <div className="flex w-full justify-between items-center border-b border-gray-200 bg-white sticky top-0 z-10">
               {submodal.title && (
-                <span className="text-[14px] #000000 font-600">{submodal.title}</span>
+                <span className="text-[14px] #000000 font-600">
+                  {submodal.title}
+                </span>
               )}
               {submodal.hasToggler !== false && submodal.toggler && (
                 <div
@@ -148,13 +158,13 @@ const Modal = ({
             </div>
 
             {/* Scrollable Submodal Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto py-6">
               {submodal.children}
             </div>
 
             {/* Fixed Submodal Footer */}
             {submodal.footer && (
-              <div className="border-t border-gray-200 p-6 bg-white sticky bottom-0 z-10">
+              <div className="border-t border-gray-200 bg-white sticky bottom-0 z-10 py-6">
                 {submodal.footer}
               </div>
             )}
@@ -177,7 +187,7 @@ const Modal = ({
         >
           {/* Fixed Main Modal Header */}
           {isSideModal && (
-            <div className="flex w-full justify-between items-center p-6 border-b border-gray-200 bg-white sticky top-0 z-10">
+            <div className="flex w-full justify-between items-center border-b border-gray-200 bg-white sticky top-0 z-10">
               {title && (
                 <span className="text-[14px] #000000 font-600">{title}</span>
               )}
@@ -193,13 +203,11 @@ const Modal = ({
           )}
 
           {/* Scrollable Main Modal Content */}
-          <div className="flex-1 overflow-y-auto p-6">
-            {children}
-          </div>
+          <div className="flex-1 overflow-y-auto py-6">{children}</div>
 
           {/* Fixed Main Modal Footer */}
           {footer && (
-            <div className="border-t border-gray-200 p-6 bg-white sticky bottom-0 z-10">
+            <div className="border-t border-gray-200 bg-white sticky bottom-0 z-10 py-6">
               {footer}
             </div>
           )}

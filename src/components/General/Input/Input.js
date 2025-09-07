@@ -123,7 +123,7 @@ const Input = ({
         ref={domNode}
       >
         <div
-          className={`relative h-11 w-full flex space-x-1 items-center justify-between font-normal outline-none capitalize tracking-wider focus:outline-none transition-all duration-300 ease-in-out whitespace-nowrap text-base leading-relaxed border border-solid text-left 
+          className={`input-box relative h-11 w-full flex space-x-1 items-center justify-between font-normal outline-none capitalize tracking-wider focus:outline-none transition-all duration-300 ease-in-out whitespace-nowrap text-base leading-relaxed border border-solid text-left 
         ${
           isError
             ? "!border-red bg-white"
@@ -168,15 +168,8 @@ const Input = ({
             </span>
           )}
           {type === "number" ? (
-            <div
-              className={classNames(
-                "w-full h-full flex justify-start items-center",
-                {
-                  "pl-3": currency,
-                }
-              )}
-            >
-              {currency && <span>{currency}</span>}
+            <>
+              {currency && <span className="pl-3">{currency}</span>}
               <NumberFormat
                 ref={inputRef}
                 value={value}
@@ -186,7 +179,13 @@ const Input = ({
                 thousandSeparator
                 prefix={prefix}
                 className={classNames(
-                  `p-3 ease-in-out h-full w-full z-[5] focus:outline-none focus:border-none rounded bg-transparent placeholder:text-grey`,
+                  `p-3 ease-in-out h-full w-full z-10 focus:outline-none focus:border-none rounded bg-transparent placeholder:text-grey ${
+                    !value
+                      ? ""
+                      : value?.length > 0 || value > 0
+                      ? "text-black"
+                      : "placeholder:text-grey"
+                  }`,
                   { "px-12 text-center": isCounter, "pl-6": leftIcon },
                   inputClassName
                 )}
@@ -195,9 +194,12 @@ const Input = ({
                   onChangeFunc(number.value, { name, value: number.value })
                 }
                 onBlur={() => onBlur || handleBlur(true)}
+                style={{
+                  paddingLeft: prefix && prefixRef?.current?.offsetWidth + 15,
+                }}
                 {...rest}
               />
-            </div>
+            </>
           ) : (
             <input
               ref={inputRef}
