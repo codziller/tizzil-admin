@@ -121,7 +121,7 @@ const AccountSetupContainer = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = isAdmin ? "/auth/login/admin" : "/auth/login";
+    window.location.href = "/auth/login";
   };
 
   const handleExploreFeed = () => {
