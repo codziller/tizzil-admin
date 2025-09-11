@@ -336,48 +336,10 @@ milliliters
 
 2. Update src\pages\Dashboard\Products\features\AddCollectionModal.js, src\pages\Dashboard\Products\features\AddProductToCategoryModal.js,  src\pages\Dashboard\Products\features\DuplicateProductModal.js, and src\pages\Dashboard\Products\features\ProductDetailsModal.js ti use the new modal struture, ie. passing the bottom buttons inside footer prop.
 
+
 3. Got the error below from the server when I try to create a product in src\pages\Dashboard\Products\features\AddProductModal.js
 
 
-{
-  "errors": [
-    {
-      "message": "Enum \"CURRENCY\" cannot represent non-enum value: 9000.",
-      "locations": [
-        {
-          "line": 12,
-          "column": 35
-        }
-      ],
-      "extensions": {
-        "code": "GRAPHQL_VALIDATION_FAILED",
-        "exception": {
-          "stacktrace": [
-            "GraphQLError: Enum \"CURRENCY\" cannot represent non-enum value: 9000.",
-            "    at GraphQLEnumType.parseLiteral (/app/node_modules/graphql/type/definition.js:1158:13)",
-            "    at isValidValueNode (/app/node_modules/graphql/validation/rules/ValuesOfCorrectTypeRule.js:177:30)",
-            "    at Object.IntValue (/app/node_modules/graphql/validation/rules/ValuesOfCorrectTypeRule.js:139:25)",
-            "    at Object.enter (/app/node_modules/graphql/language/visitor.js:298:32)",
-            "    at Object.enter (/app/node_modules/graphql/utilities/TypeInfo.js:391:27)",
-            "    at visit (/app/node_modules/graphql/language/visitor.js:194:21)",
-            "    at validate (/app/node_modules/graphql/validation/validate.js:91:24)",
-            "    at validate (/app/node_modules/apollo-server-core/src/requestPipeline.ts:477:27)",
-            "    at processGraphQLRequest (/app/node_modules/apollo-server-core/src/requestPipeline.ts:267:32)",
-            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ]
-        }
-      }
-    }
-  ]
-}
+<!-- New tasks -->
 
-
-Note CURRENCY enum below
-
-enum CURRENCY {
-EUR
-GBP
-NGN
-USD
-}
-so make Exchange Rate Sale Currency input a select with the CURRENCY enum as option
+1. Create AddCollectionModal

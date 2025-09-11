@@ -9,7 +9,8 @@ import { observer } from "mobx-react-lite";
 import ProductsStore from "../store";
 import CategoriesStore from "../../Categories/store";
 import { getUserInfoFromStorage } from "utils/storage";
-import { successToast } from "components/General/Toast/Toast";
+import { successToast, errorToast } from "components/General/Toast/Toast";
+import { uploadImagesToCloud } from "utils/uploadImagesToCloud";
 import classNames from "classnames";
 import { FaTrash } from "react-icons/fa";
 import OptionModal from "./OptionModal";
@@ -34,6 +35,11 @@ const AddProductModal = ({
   const [activeTab, setActiveTab] = useState("Basics");
   const [showVariantModal, setShowVariantModal] = useState(false);
   const [showOptionModal, setShowOptionModal] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  
+  // Store actual file objects for uploading later
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState([]);
 
   // Comprehensive state for options management
   const [options, setOptions] = useState([]);
@@ -88,6 +94,15 @@ const AddProductModal = ({
         // Load product for editing
         getProduct({ data: { id: productId } });
       }
+    } else {
+      // Clean up when modal is closed
+      imagePreviewUrls.forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+      setImageFiles([]);
+      setImagePreviewUrls([]);
     }
   }, [isOpen, productId]);
 
@@ -162,8 +177,59 @@ const AddProductModal = ({
     }
   }, [product, productId]);
 
+  // Cleanup effect for when component unmounts
+  useEffect(() => {
+    return () => {
+      // Clean up any remaining object URLs
+      imagePreviewUrls.forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, []);
+
   const handleInputChange = (field, value) => {
     setProductData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageDrop = (files) => {
+    if (!files || files.length === 0) return;
+
+    // Create preview URLs for the new files
+    const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
+    
+    // Store the actual files for uploading later
+    setImageFiles((prev) => [...prev, ...files]);
+    setImagePreviewUrls((prev) => [...prev, ...newPreviewUrls]);
+  };
+
+  // Get combined list of all images for display
+  const getAllImages = () => {
+    return [...(productData.imageUrls || []), ...imagePreviewUrls];
+  };
+
+  const handleImageRemove = (index) => {
+    const allImages = getAllImages();
+    const existingUrlsCount = productData.imageUrls?.length || 0;
+
+    if (index < existingUrlsCount) {
+      // Removing an existing URL
+      const newUrls = productData.imageUrls.filter((_, i) => i !== index);
+      handleInputChange("imageUrls", newUrls);
+    } else {
+      // Removing a preview URL (new file)
+      const previewIndex = index - existingUrlsCount;
+      
+      // Revoke the object URL to free memory
+      if (imagePreviewUrls[previewIndex]) {
+        URL.revokeObjectURL(imagePreviewUrls[previewIndex]);
+      }
+      
+      // Remove from both arrays
+      setImageFiles((prev) => prev.filter((_, i) => i !== previewIndex));
+      setImagePreviewUrls((prev) => prev.filter((_, i) => i !== previewIndex));
+    }
   };
 
   const handleNext = () => {
@@ -283,14 +349,47 @@ const AddProductModal = ({
   const handleSubmit = async () => {
     if (!brandId) return;
 
+    setIsUploadingImages(true);
+    
     try {
+      let finalImageUrls = [...(productData.imageUrls || [])];
+
+      // Upload new image files if any
+      if (imageFiles.length > 0) {
+        const uploadedUrls = await uploadImagesToCloud(imageFiles);
+        if (uploadedUrls && uploadedUrls.length > 0) {
+          finalImageUrls = [...finalImageUrls, ...uploadedUrls];
+          successToast("Images uploaded successfully", `${uploadedUrls.length} new image(s) uploaded to cloud`);
+        } else {
+          errorToast("Upload failed", "Some images failed to upload");
+          setIsUploadingImages(false);
+          return;
+        }
+      }
+
+      // Include options, variants, and uploaded images in productData before submission
+      const submissionData = {
+        ...productData,
+        imageUrls: finalImageUrls,
+        options: options,
+        variants: variants,
+      };
+
       await createProductWithInventory({
         brandId,
-        productData,
+        productData: submissionData,
         filters,
         pageNumber,
         onSuccess: (createdProduct) => {
           onClose();
+          
+          // Clean up object URLs
+          imagePreviewUrls.forEach(url => {
+            if (url.startsWith('blob:')) {
+              URL.revokeObjectURL(url);
+            }
+          });
+
           // Reset form
           setProductData({
             name: "",
@@ -315,6 +414,10 @@ const AddProductModal = ({
             exchangeRateSaleCurrency: null,
             lowInQuantityValue: "",
           });
+          setOptions([]);
+          setVariants([]);
+          setImageFiles([]);
+          setImagePreviewUrls([]);
           setActiveTab("Basics");
 
           // Show success toast with actions
@@ -343,6 +446,9 @@ const AddProductModal = ({
       });
     } catch (error) {
       console.error("Error creating product:", error);
+      errorToast("Error", "Failed to create product. Please try again.");
+    } finally {
+      setIsUploadingImages(false);
     }
   };
 
@@ -397,9 +503,15 @@ const AddProductModal = ({
               </>
             )}
           <Button
-            text={activeTab === "Fulfillment" ? "CREATE PRODUCT" : "CONTINUE"}
+            text={
+              activeTab === "Fulfillment" 
+                ? isUploadingImages 
+                  ? "UPLOADING IMAGES..." 
+                  : "CREATE PRODUCT" 
+                : "CONTINUE"
+            }
             onClick={activeTab === "Fulfillment" ? handleSubmit : handleNext}
-            loading={createProductLoading}
+            loading={createProductLoading || isUploadingImages}
           />
         </div>
       }
@@ -532,23 +644,13 @@ const AddProductModal = ({
           {activeTab === "Media & deets" && (
             <div className="flex flex-col justify-start gap-y-6">
               <ImagePicker
-                label="Please upload at least 2, max 6"
-                handleDrop={(files) => {
-                  const urls = files.map((file) => URL.createObjectURL(file));
-                  handleInputChange("imageUrls", [
-                    ...productData.imageUrls,
-                    ...urls,
-                  ]);
-                }}
-                images={productData.imageUrls}
-                setImages={(imgs) => handleInputChange("imageUrls", imgs)}
-                removeImage={(index) => {
-                  const newUrls = productData.imageUrls.filter(
-                    (_, i) => i !== index
-                  );
-                  handleInputChange("imageUrls", newUrls);
-                }}
+                label={isUploadingImages ? "Uploading images..." : `Please upload at least 2, max 6 (${getAllImages().length} selected)`}
+                handleDrop={handleImageDrop}
+                images={getAllImages()}
+                setImages={() => {}} // Not used in this new approach
+                removeImage={handleImageRemove}
                 multiple
+                disabled={isUploadingImages}
               />
 
               <Input

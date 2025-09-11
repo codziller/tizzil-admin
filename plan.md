@@ -6,9 +6,85 @@
 
 <!-- Pending Tasks start -->
 
+1. Update src\pages\Dashboard\Products\features\AddProductModal.js so that the uploadImagesToCloud is not called when image is selected, but at the point of submision just before calling createProductWithInventory in handleSubmit.
+
 <!-- Pending Tasks end -->
 
 ## 📋 Completed Features/Fixes
+
+### Cloudinary Image Upload Integration - 🎉 Major Success!
+
+**Summary:** Successfully updated the image upload system to use Cloudinary with API key and secret authentication, and integrated it into the AddProductModal for seamless image uploads during product creation.
+
+**Features Completed:**
+
+1. ✅ **uploadImagesToCloud.js Modernization** - Updated Cloudinary upload utility to use signed uploads:
+
+   - **Authentication Method**: Migrated from upload preset to API key + secret authentication
+   - **Signed Uploads**: Implemented signature generation using CryptoJS for secure uploads
+   - **Error Handling**: Enhanced error handling with detailed error messages
+   - **Folder Organization**: Added automatic folder organization (tizzil_products)
+   - **Quality Optimization**: Maintained image quality optimization settings
+   - **Multiple Upload Support**: Both single and multiple file upload methods updated
+
+2. ✅ **AddProductModal Image Upload Integration** - Complete integration of Cloudinary uploads:
+   - **Real-time Upload**: Images now upload to Cloudinary immediately when dropped
+   - **Loading States**: Added upload progress indicators and disabled states
+   - **Success Feedback**: Toast notifications for successful uploads
+   - **Error Handling**: Comprehensive error handling with user feedback
+   - **URL Management**: Cloudinary URLs are automatically added to imageUrls array
+   - **Form Integration**: Uploaded URLs are included in createProductWithInventory payload
+
+**Technical Implementation:**
+
+- **Dependencies**: Added crypto-js package for signature generation
+- **Environment Variables**: Uses REACT_APP_CLOUDINARY_API_KEY and REACT_APP_CLOUDINARY_SECRET from .env
+- **Authentication**: Signed upload method with timestamp-based signatures
+- **Upload Parameters**:
+  - timestamp, folder, api_key, signature
+  - Quality optimization for non-compressed uploads
+  - Organized uploads in "tizzil_products" folder
+- **Error Handling**: Improved error messages from Cloudinary API responses
+- **State Management**: Added isUploadingImages state for UI feedback
+
+**Code Changes:**
+
+```javascript
+// Before: Preset-based upload
+formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+// After: Signed upload
+const signature = generateSignature(uploadParams);
+formData.append("api_key", CLOUDINARY_API_KEY);
+formData.append("signature", signature);
+formData.append("timestamp", timestamp);
+```
+
+**AddProductModal Integration:**
+
+```javascript
+// Before: Local object URLs
+const urls = files.map((file) => URL.createObjectURL(file));
+
+// After: Cloudinary upload
+const uploadedUrls = await uploadImagesToCloud(files);
+handleInputChange("imageUrls", [...productData.imageUrls, ...uploadedUrls]);
+```
+
+**Files Updated:**
+
+- `src/utils/uploadImagesToCloud.js` - Updated to signed upload method
+- `src/pages/Dashboard/Products/features/AddProductModal.js` - Integrated real image uploads
+- `.env` - Uses existing REACT_APP_CLOUDINARY_API_KEY and REACT_APP_CLOUDINARY_SECRET
+
+**Result:**
+
+- ✅ Secure Cloudinary uploads using API key and secret
+- ✅ Real-time image uploads during product creation
+- ✅ Proper error handling and user feedback
+- ✅ Organized cloud storage with folder structure
+- ✅ Seamless integration with existing product creation workflow
+- ✅ No breaking changes to existing functionality
 
 ### AddProductModal Component Extraction & UI Enhancement - 🎉 Major Success!
 
@@ -17,13 +93,15 @@
 **Features Completed:**
 
 1. ✅ **Component Extraction** - Created separate modal components for better code organization:
+
    - **OptionModal.js**: Extracted option creation functionality with drag-and-drop, color picker, and form validation
    - **VariantModal.js**: Extracted variant creation functionality with option values and stock management
    - **Clean Imports**: Updated AddProductModal.js to import and use the extracted components
 
 2. ✅ **Enhanced Preview Cards** - Added delete functionality to main modal preview cards:
+
    - **Options Preview Cards**: Added trash icons (FaTrash) at top-right corner with hover effects
-   - **Variants Preview Cards**: Added trash icons (FaTrash) at top-right corner with hover effects  
+   - **Variants Preview Cards**: Added trash icons (FaTrash) at top-right corner with hover effects
    - **Smart Layout**: Added relative positioning and proper spacing (pr-6) to accommodate trash icons
    - **User Feedback**: Added hover states and tooltips for better user experience
 
@@ -35,12 +113,14 @@
 
 **Technical Implementation:**
 
-- **File Structure**: 
+- **File Structure**:
+
   - `src/pages/Dashboard/Products/features/OptionModal.js` - Complete option management modal
-  - `src/pages/Dashboard/Products/features/VariantModal.js` - Complete variant management modal  
+  - `src/pages/Dashboard/Products/features/VariantModal.js` - Complete variant management modal
   - Updated `src/pages/Dashboard/Products/features/AddProductModal.js` - Streamlined main component
 
 - **Component Features**:
+
   - **OptionModal**: Drag-and-drop reordering, HexColorPicker integration, form validation, delete functionality
   - **VariantModal**: Dynamic option values, stock management, SKU handling, delete functionality
   - **Both Modals**: Trash icon delete functionality in preview sections, proper error handling
@@ -57,7 +137,7 @@
 // Before: Inline modal configuration
 submodal={showOptionModal ? { /* large inline object */ } : null}
 
-// After: Clean component integration  
+// After: Clean component integration
 submodal={showOptionModal ? OptionModal({
   isOpen: showOptionModal,
   onClose: () => setShowOptionModal(false),
@@ -75,11 +155,13 @@ submodal={showOptionModal ? OptionModal({
 ```
 
 **Files Updated:**
+
 - `src/pages/Dashboard/Products/features/OptionModal.js` - New component file
-- `src/pages/Dashboard/Products/features/VariantModal.js` - New component file  
+- `src/pages/Dashboard/Products/features/VariantModal.js` - New component file
 - `src/pages/Dashboard/Products/features/AddProductModal.js` - Updated to use extracted components and trash icons
 
 **Result:**
+
 - ✅ Clean separation of modal functionality into reusable components
 - ✅ Enhanced user experience with delete functionality in preview cards
 - ✅ Improved code maintainability and organization
