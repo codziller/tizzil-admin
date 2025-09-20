@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { ReactComponent as EditTiny } from "assets/icons/edit-tiny.svg";
 import { ReactComponent as EyeTiny } from "assets/icons/eye-tiny.svg";
 import useWindowDimensions from "hooks/useWindowDimensions";
+import Checkbox from "components/General/Checkbox";
 
 const ProductCard = ({
   product,
@@ -13,6 +14,10 @@ const ProductCard = ({
   onAddCategoryClick,
   onViewItemsClick,
   onClick,
+  menuOptions = [], // New prop for dynamic menu options
+  isSelect = false, // New prop for selectable mode
+  selected = false, // New prop for selected state
+  onSelectionChange, // New prop for selection change callback
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const { isMobile } = useWindowDimensions();
@@ -23,9 +28,15 @@ const ProductCard = ({
   };
 
   const handleCardClick = () => {
-    onClick?.(product);
+    if (isSelect) {
+      // In select mode, clicking the card toggles selection
+      onSelectionChange?.(!selected);
+    } else {
+      // Normal mode, call onClick
+      onClick?.(product);
+    }
   };
-
+  const cardImage = product?.imageUrls?.[0] || product?.imageUrl || "";
   return (
     <div
       className="relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
@@ -35,59 +46,91 @@ const ProductCard = ({
         <div
           className="w-full h-[220px] bg-[#EFF0EB] bg-cover bg-center"
           style={{
-            backgroundImage: product.imageUrls?.[0]
-              ? `url(${product.imageUrls[0]})`
-              : "none",
+            backgroundImage: cardImage ? `url(${cardImage})` : "none",
           }}
         >
-          {product.imageUrls?.[0] && (
+          {cardImage && (
             <img
-              src={product.imageUrls[0]}
+              src={cardImage}
               alt={product.name}
               className="w-full h-full object-cover"
             />
           )}
         </div>
 
-        {hasMenu && (
+        {(hasMenu || isSelect) && (
           <div className="absolute top-2 right-2">
+            {/* menu box or checkbox */}
             <div
               className="w-8 h-8 bg-white rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
-              onClick={handleMenuClick}
+              onClick={isSelect ? (e) => {
+                e.stopPropagation();
+                onSelectionChange?.(!selected);
+              } : handleMenuClick}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M8 4a1 1 0 100-2 1 1 0 000 2zM8 9a1 1 0 100-2 1 1 0 000 2zM9 13a1 1 0 11-2 0 1 1 0 012 0z"
-                  fill="#111111"
+              {isSelect ? (
+                <Checkbox
+                  checked={selected}
+                  onChange={onSelectionChange}
+                  size="sm"
                 />
-              </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M8 4a1 1 0 100-2 1 1 0 000 2zM8 9a1 1 0 100-2 1 1 0 000 2zM9 13a1 1 0 11-2 0 1 1 0 012 0z"
+                    fill="#111111"
+                  />
+                </svg>
+              )}
             </div>
 
-            {showMenu && (
+            {showMenu && !isSelect && (
               <div
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
                 className="absolute top-10 right-0 w-[200px] bg-white shadow-lg rounded-md border z-10"
               >
-                {isCategory && (
-                  <>
-                    <div
-                      className="px-3 py-2 hover:bg-[#F8FAFC] cursor-pointer flex items-center"
-                      onClick={() => onAddCategoryClick?.(product)}
-                    >
-                      <EditTiny className="mr-2" />
-                      <span className="text-sm">Add to category</span>
-                    </div>
-                    <div
-                      className="px-3 py-2 hover:bg-[#F8FAFC] cursor-pointer flex items-center"
-                      onClick={() => onViewItemsClick?.(product)}
-                    >
-                      <EyeTiny className="mr-2" />
-                      <span className="text-sm">View my items</span>
-                    </div>
-                  </>
-                )}
+                {/* Dynamic menu options */}
+                {menuOptions.length > 0
+                  ? menuOptions.map((option, index) => (
+                      <div
+                        key={index}
+                        className="px-3 py-2 hover:bg-[#F8FAFC] cursor-pointer flex items-center"
+                        onClick={() => {
+                          setShowMenu(false);
+                          option.onClick?.(product);
+                        }}
+                      >
+                        {option.icon && <option.icon className="mr-2" />}
+                        <span className="text-sm">{option.label}</span>
+                      </div>
+                    ))
+                  : /* Fallback for category-specific menu */
+                    isCategory && (
+                      <>
+                        <div
+                          className="px-3 py-2 hover:bg-[#F8FAFC] cursor-pointer flex items-center"
+                          onClick={() => {
+                            setShowMenu(false);
+                            onAddCategoryClick?.(product);
+                          }}
+                        >
+                          <EditTiny className="mr-2" />
+                          <span className="text-sm">Add to category</span>
+                        </div>
+                        <div
+                          className="px-3 py-2 hover:bg-[#F8FAFC] cursor-pointer flex items-center"
+                          onClick={() => {
+                            setShowMenu(false);
+                            onViewItemsClick?.(product);
+                          }}
+                        >
+                          <EditTiny className="mr-2" />
+                          <span className="text-sm">Edit category</span>
+                        </div>
+                      </>
+                    )}
               </div>
             )}
           </div>
@@ -186,6 +229,16 @@ ProductCard.propTypes = {
   onAddCategoryClick: PropTypes.func,
   onViewItemsClick: PropTypes.func,
   onClick: PropTypes.func,
+  menuOptions: PropTypes.arrayOf(
+    PropTypes.shape({
+      icon: PropTypes.elementType,
+      label: PropTypes.string.isRequired,
+      onClick: PropTypes.func.isRequired,
+    })
+  ),
+  isSelect: PropTypes.bool,
+  selected: PropTypes.bool,
+  onSelectionChange: PropTypes.func,
 };
 
 export default ProductCard;

@@ -7,7 +7,7 @@ import { ReactComponent as Calender } from "assets/icons/calender.svg";
 import { ReactComponent as Chevron } from "assets/icons/chevron-right.svg";
 import { ReactComponent as ChevronUpDown } from "assets/icons/chevron-up-down.svg";
 import { ReactComponent as TableMoreIcon } from "assets/icons/table-more-icon.svg";
-import { ReactComponent as MoreIcon } from "assets/icons/more-table-icon.svg";
+import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import { TableWrapper, PaginationWrapper } from "./table.style";
 import SearchBar from "../Searchbar/SearchBar";
 import DateRangeModal from "../Modal/DateRangeModal/DateRangeModal";
@@ -108,7 +108,14 @@ const ContextMenu = ({ isOpen, onClose, options, position }) => {
 };
 
 // Table Title Header Component
-const TableTitleHeader = ({ title, itemCount, menuOptions = [], titleTabs = [], activeTab, onTabChange }) => {
+const TableTitleHeader = ({
+  title,
+  itemCount,
+  menuOptions = [],
+  titleTabs = [],
+  activeTab,
+  onTabChange,
+}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
@@ -132,26 +139,28 @@ const TableTitleHeader = ({ title, itemCount, menuOptions = [], titleTabs = [], 
             onClick={() => onTabChange?.(tab, index)}
             className={`px-5 py-2 flex items-center gap-2 border-b-2 transition-colors ${
               activeTab === index
-                ? 'text-[#111827] border-[#690007]'
-                : 'text-[#999999] border-transparent hover:text-[#666666]'
+                ? "text-[#111827] border-[#690007]"
+                : "text-[#999999] border-transparent hover:text-[#666666]"
             }`}
             type="button"
           >
             <span className="text-base font-normal">{tab.title}</span>
-            <div className={`px-1.5 py-0.5 border rounded-sm ${
-              activeTab === index
-                ? 'border-[#690007]'
-                : 'border-[#999999]'
-            }`}>
-              <span className={`text-base ${
-                activeTab === index
-                  ? 'text-[#690007]'
-                  : 'text-[#999999]'
-              }`}>{tab.itemCount}</span>
+            <div
+              className={`px-1.5 py-0.5 border rounded-sm ${
+                activeTab === index ? "border-[#690007]" : "border-[#999999]"
+              }`}
+            >
+              <span
+                className={`text-base ${
+                  activeTab === index ? "text-[#690007]" : "text-[#999999]"
+                }`}
+              >
+                {tab.itemCount}
+              </span>
             </div>
           </button>
         ))}
-        
+
         {/* menuOptions section for tabbed version */}
         {menuOptions.length > 0 && (
           <div className="ml-auto px-4 py-2">
@@ -350,7 +359,11 @@ export default function Table({
             data={data}
             theme="default"
             progressPending={isLoading}
-            progressComponent={<h1 className="p-8">Loading...</h1>}
+            progressComponent={
+              <div className="p-8">
+                <CircleLoader />
+              </div>
+            }
             {...rest}
           />
           {extraChild}
@@ -365,7 +378,11 @@ export default function Table({
                 data={data}
                 theme="default"
                 progressPending={isLoading}
-                progressComponent={<h1 className="p-8">Loading...</h1>}
+                progressComponent={
+                  <div className="p-8">
+                    <CircleLoader />
+                  </div>
+                }
                 {...rest}
               />
             </div>

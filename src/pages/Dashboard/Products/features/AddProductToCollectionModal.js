@@ -11,21 +11,21 @@ import { getUserInfoFromStorage } from "utils/storage";
 import { successToast, errorToast } from "components/General/Toast/Toast";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 
-const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
+const AddProductToCollectionModal = ({ isOpen, onClose, collection }) => {
   const [searchInput, setSearchInput] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [initialCategoryProducts, setInitialCategoryProducts] = useState([]);
-  const [initialCategoryProductObjects, setInitialCategoryProductObjects] = useState([]);
+  const [initialCollectionProducts, setInitialCollectionProducts] = useState([]);
+  const [initialCollectionProductObjects, setInitialCollectionProductObjects] = useState([]);
   const [showViewAllModal, setShowViewAllModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Get dependencies from stores
   const { getProductsWithInventory, products, loading } = ProductsStore;
   const {
-    addProductsToCategory,
-    removeProductsFromCategory,
-    addProductsToCategoryLoading,
-    removeProductsFromCategoryLoading,
+    addMultipleProductsToCollection,
+    removeMultipleProductsFromCollection,
+    addMultipleProductsToCollectionLoading,
+    removeMultipleProductsFromCollectionLoading,
   } = CategoriesStore;
 
   // Get user info
@@ -34,11 +34,11 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
 
   // Load products when modal opens
   useEffect(() => {
-    if (isOpen && category && brandId) {
+    if (isOpen && collection && brandId) {
       loadProducts();
-      loadCategoryProducts();
+      loadCollectionProducts();
     }
-  }, [isOpen, category, brandId]);
+  }, [isOpen, collection, brandId]);
 
   const loadProducts = async () => {
     if (!brandId) return;
@@ -52,26 +52,26 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
     await getProductsWithInventory(params);
   };
 
-  const loadCategoryProducts = async () => {
-    if (!brandId || !category?.id) return;
+  const loadCollectionProducts = async () => {
+    if (!brandId || !collection?.id) return;
 
     setIsLoading(true);
     try {
       const params = {
         brandIds: [brandId],
-        categoryIds: [category.id],
+        collectionIds: [collection.id],
         pageNumber: "1",
       };
 
       // Use isSearch=true to get products without overwriting the main store
-      const categoryProducts = await getProductsWithInventory(params, true);
-      // Products in this category are the ones we should pre-select
-      const categoryProductIds = (categoryProducts || []).map(p => p.id);
-      setInitialCategoryProducts(categoryProductIds);
-      setInitialCategoryProductObjects(categoryProducts || []);
-      setSelectedProducts(categoryProductIds);
+      const collectionProducts = await getProductsWithInventory(params, true);
+      // Products in this collection are the ones we should pre-select
+      const collectionProductIds = (collectionProducts || []).map(p => p.id);
+      setInitialCollectionProducts(collectionProductIds);
+      setInitialCollectionProductObjects(collectionProducts || []);
+      setSelectedProducts(collectionProductIds);
     } catch (error) {
-      console.error("Error loading category products:", error);
+      console.error("Error loading collection products:", error);
     } finally {
       setIsLoading(false);
     }
@@ -100,26 +100,24 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
   };
 
   const handleSaveSelection = async () => {
-    if (!category?.id || !brandId) return;
+    if (!collection?.id || !brandId) return;
 
     try {
       const currentSelected = new Set(selectedProducts);
-      const initialSelected = new Set(initialCategoryProducts);
+      const initialSelected = new Set(initialCollectionProducts);
 
       // Products to add (selected now but weren't initially)
       const toAdd = [...new Set(selectedProducts.filter(id => !initialSelected.has(id)))];
 
       // Products to remove (were initially selected but not selected now)
-      const toRemove = [...new Set(initialCategoryProducts.filter(id => !currentSelected.has(id)))];
+      const toRemove = [...new Set(initialCollectionProducts.filter(id => !currentSelected.has(id)))];
 
       // Add products if any
       if (toAdd.length > 0) {
-        await addProductsToCategory({
+        await addMultipleProductsToCollection({
           data: {
-            input: {
-              categoryId: category.id,
-              productIds: toAdd,
-            },
+            collectionId: collection.id,
+            productIds: toAdd,
           },
           noAlert: true,
         });
@@ -127,9 +125,9 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
 
       // Remove products if any
       if (toRemove.length > 0) {
-        await removeProductsFromCategory({
+        await removeMultipleProductsFromCollection({
           data: {
-            categoryId: category.id,
+            collectionId: collection.id,
             productIds: toRemove,
           },
           noAlert: true,
@@ -139,16 +137,16 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
       if (toAdd.length > 0 || toRemove.length > 0) {
         successToast(
           "Products Updated Successfully",
-          `${toAdd.length} products added, ${toRemove.length} products removed from ${category.name}.`
+          `${toAdd.length} products added, ${toRemove.length} products removed from ${collection.name}.`
         );
       } else {
-        successToast("No Changes", "No changes were made to the category.");
+        successToast("No Changes", "No changes were made to the collection.");
       }
 
       onClose();
     } catch (error) {
       console.error("Error saving selection:", error);
-      errorToast("Error", "Failed to update category products. Please try again.");
+      errorToast("Error", "Failed to update collection products. Please try again.");
     }
   };
 
@@ -164,7 +162,7 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
         active={isOpen}
         toggler={onClose}
         isSideModal={true}
-        title={`ADD PRODUCTS TO ${category?.name?.toUpperCase()}`}
+        title={`ADD PRODUCTS TO ${collection?.name?.toUpperCase()}`}
         size="xl"
         footer={
           <div className="flex justify-end gap-3">
@@ -172,7 +170,7 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
             <Button
               text="SAVE SELECTION"
               onClick={handleSaveSelection}
-              isLoading={addProductsToCategoryLoading || removeProductsFromCategoryLoading}
+              isLoading={addMultipleProductsToCollectionLoading || removeMultipleProductsFromCollectionLoading}
             />
           </div>
         }
@@ -180,7 +178,7 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
           showViewAllModal
             ? {
                 active: showViewAllModal,
-                title: `ALL PRODUCTS IN ${category?.name?.toUpperCase()}`,
+                title: `ALL PRODUCTS IN ${collection?.name?.toUpperCase()}`,
                 toggler: () => setShowViewAllModal(false),
                 size: "xl",
                 footer: (
@@ -196,7 +194,7 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
                         "grid-cols-1 sm:grid-cols-2"
                       )}
                     >
-                      {initialCategoryProductObjects.map((product) => {
+                      {initialCollectionProductObjects.map((product) => {
                         if (!product) return null;
 
                         return (
@@ -220,7 +218,7 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
           {/* Product count and view all */}
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">
-              {initialCategoryProducts.length} products in this category
+              {initialCollectionProducts.length} products in this collection
             </span>
             <button
               onClick={() => setShowViewAllModal(true)}
@@ -267,4 +265,4 @@ const AddProductToCategoryModal = ({ isOpen, onClose, category }) => {
   );
 };
 
-export default observer(AddProductToCategoryModal);
+export default observer(AddProductToCollectionModal);

@@ -26,6 +26,9 @@ import Amount from "components/General/Numbers/Amount";
 import Tabs from "components/General/Tabs";
 import UsersStore from "../store";
 import { Button } from "components/General/Button";
+import { getUserInfoFromStorage } from "utils/storage";
+import CustomerFilterModal from "../../FilterModals/CustomerFilterModal";
+import CustomerDetailsModal from "./CustomerDetailsModal";
 
 export const dateFilters = [
   {
@@ -47,104 +50,65 @@ export const dateFilters = [
     end_date: dateConstants?.today,
   },
 ];
-// Demo user data
-const sampleUsers = [
-  {
-    id: 1,
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@email.com",
-    phoneNumber: "+1234567890",
-    createdAt: new Date("2024-01-15"),
-    status: "Active",
-  },
-  {
-    id: 2,
-    firstName: "Jane",
-    lastName: "Smith",
-    email: "jane.smith@email.com",
-    phoneNumber: "+0987654321",
-    createdAt: new Date("2024-02-10"),
-    status: "Inactive",
-  },
-  {
-    id: 3,
-    firstName: "Michael",
-    lastName: "Johnson",
-    email: "michael.johnson@email.com",
-    phoneNumber: "+1122334455",
-    createdAt: new Date("2024-03-05"),
-    status: "Active",
-  },
-  {
-    id: 4,
-    firstName: "Sarah",
-    lastName: "Williams",
-    email: "sarah.williams@email.com",
-    phoneNumber: "+5566778899",
-    createdAt: new Date("2024-02-28"),
-    status: "Suspended",
-  },
-  {
-    id: 5,
-    firstName: "David",
-    lastName: "Brown",
-    email: "david.brown@email.com",
-    phoneNumber: "+9988776655",
-    createdAt: new Date("2024-01-22"),
-    status: "Active",
-  },
-];
-
-const USER_STATUS_OPTIONS = [
-  { label: "Active", value: "Active" },
-  { label: "Inactive", value: "Inactive" },
-  { label: "Suspended", value: "Suspended" },
-];
 
 const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
   const navigate = useNavigate();
   const { warehouse_id } = useParams();
   const {
-    searchUsers,
-    searchResult,
-    searchResultCount,
-    searchUserLoading,
-    getUsers,
-    users,
-    loading,
-    usersCount,
-    getArchivedUsers,
-    loadingArchived,
-    usersArchived,
-    usersArchivedCount,
+    getMyBrandCustomers,
+    brandCustomers,
+    getMyBrandCustomersLoading,
   } = UsersStore;
 
-  const TABS = [
-    { name: "users", label: `Users (${usersCount || "-"})` },
-    {
-      name: "archived",
-      label: `Archived users (${usersArchivedCount || "-"})`,
-    },
-  ];
   const { width, isMobile } = useWindowDimensions();
   const [currentTxnDetails, setCurrentTxnDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentPageArchived, setCurrentPageArchived] = useState(1);
-  const [currentPageSearch, setCurrentPageSearch] = useState(1);
   const [searchInput, setSearchInput] = useState("");
-  const [activeTab, setActiveTab] = useState(TABS[0]?.name);
+  const [activeTab, setActiveTab] = useState(0);
   const [searchExpanded, setSearchExpanded] = useState(false);
-  const searchQuery = searchInput?.trim();
-  const isSearchMode = searchQuery?.length > 1;
-  const isArchive = activeTab === TABS[1]?.name;
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [appliedFiltersCount, setAppliedFiltersCount] = useState(0);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [showCustomerDetailsModal, setShowCustomerDetailsModal] = useState(false);
+  const [filters, setFilters] = useState({
+    customerType: "",
+    dateFrom: "",
+    dateTo: "",
+    minTotalSpent: "",
+    maxTotalSpent: "",
+    minOrderCount: "",
+    sortDirection: "",
+    sortOrder: "",
+  });
 
-  const handleSearch = async () => {
-    if (!searchQuery) {
-      return;
-    }
-    const payload = { page: currentPage, searchQuery };
-    await searchUsers({ data: payload });
+  const searchQuery = searchInput?.trim();
+  const userInfo = getUserInfoFromStorage();
+  const brandId = userInfo?.brand?.id;
+
+  const loadCustomers = () => {
+    if (!brandId) return;
+
+    const params = {
+      brandId,
+      pageNumber: currentPage,
+      pageSize: 50,
+      searchQuery: searchQuery || undefined,
+      customerType: filters.customerType || undefined,
+      dateFrom: filters.dateFrom || undefined,
+      dateTo: filters.dateTo || undefined,
+      minTotalSpent: filters.minTotalSpent ? parseFloat(filters.minTotalSpent) : undefined,
+      maxTotalSpent: filters.maxTotalSpent ? parseFloat(filters.maxTotalSpent) : undefined,
+      minOrderCount: filters.minOrderCount ? parseFloat(filters.minOrderCount) : undefined,
+      sortDirection: filters.sortDirection || undefined,
+      sortOrder: filters.sortOrder || undefined,
+      includeOrderStats: true,
+    };
+
+    getMyBrandCustomers({ data: params });
+  };
+
+  const handleTabChange = (tab, index) => {
+    setActiveTab(index);
   };
 
   const handleSearchToggle = () => {
@@ -154,126 +118,159 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
     }
   };
 
-  const handleGetData = () => {
-    isArchive
-      ? getArchivedUsers({ data: { page: currentPageArchived } })
-      : getUsers({ data: { page: currentPage } });
+  const handleFilterApply = (newFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+
+    // Count applied filters
+    const filterCount = Object.values(newFilters).filter(value =>
+      value !== "" && value !== null && value !== undefined
+    ).length;
+    setAppliedFiltersCount(filterCount);
   };
 
   useEffect(() => {
-    // isSearchMode ? handleSearch() : handleGetData();
-  }, [currentPage, currentPageSearch, currentPageArchived, isArchive]);
+    loadCustomers();
+  }, [brandId, currentPage, searchQuery, filters]);
 
   useEffect(() => {
     if (searchQuery?.length > 1 || !searchQuery) {
-      // handleSearch();
+      setCurrentPage(1);
     }
   }, [searchInput]);
 
-  const handleEdit = (row) => {
+  const handleCustomerClick = (customer) => {
     if (isModal) {
-      handleUserSelect(row);
+      handleUserSelect(customer);
       return;
     }
-
-    // navigate(`/dashboard/users/edit`);
+    setSelectedCustomer(customer);
+    setShowCustomerDetailsModal(true);
   };
-  const columns = [
+
+  const guestCustomerColumns = [
     {
-      name: "Users",
+      name: "Guest Customer",
       minWidth: "25%",
-      selector: (user) => {
-        const userId = user.id.toString().padStart(6, "0").slice(-6);
-        return (
-          <div className="flex flex-col">
-            <span className="text-[15px] text-[#111827] font-medium">
-              {user.firstName} {user.lastName}
-            </span>
-            <span className="text-[14px] text-[#6D7280] mt-1">#{userId}</span>
-          </div>
-        );
-      },
-      sortable: true,
-    },
-    {
-      name: "Email",
-      minWidth: "20%",
-      selector: (user) => (
-        <span className="text-[14px] text-[#666666]">{user.email}</span>
+      selector: (customer) => (
+        <div className="flex flex-col">
+          <span className="text-[15px] text-[#111827] font-medium">
+            {customer.guestFirstName || 'N/A'} {customer.guestLastName || ''}
+          </span>
+          <span className="text-[14px] text-[#6D7280] mt-1">{customer.guestEmail}</span>
+        </div>
       ),
       sortable: true,
     },
     {
       name: "Phone Number",
       minWidth: "15%",
-      selector: (user) => (
-        <span className="text-[14px] text-[#666666]">{user.phoneNumber}</span>
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666]">{customer.guestPhoneNumber || 'N/A'}</span>
       ),
       sortable: true,
     },
     {
-      name: "Date Created",
+      name: "Total Orders",
+      minWidth: "12%",
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666]">{customer.totalOrders}</span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Total Spent",
       minWidth: "15%",
-      selector: (user) => (
-        <span className="text-[14px] text-[#666666]">
-          {moment(user.createdAt).format("DD/MM/YYYY")}
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666] font-medium">
+          ₦{customer.totalSpent?.toLocaleString() || '0'}
         </span>
       ),
       sortable: true,
     },
     {
-      name: "Status",
+      name: "First Order",
       minWidth: "15%",
-      selector: (user) => (
-        <div onClick={(e) => e.stopPropagation()}>
-          <TableDropdown
-            className={classNames({
-              "text-green": user.status === "Active",
-              "text-yellow": user.status === "Inactive",
-              "text-red-deep": user.status === "Suspended",
-            })}
-            options={USER_STATUS_OPTIONS}
-            content={user.status}
-            handleClick={(option) => handleUserStatusChange(user, option)}
-            isLoading={false}
-            isDisabled
-          />
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666]">
+          {moment(customer.firstOrderDate).format("DD/MM/YYYY")}
+        </span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Last Order",
+      minWidth: "15%",
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666]">
+          {moment(customer.lastOrderDate).format("DD/MM/YYYY")}
+        </span>
+      ),
+      sortable: true,
+    },
+  ];
+
+  const registeredCustomerColumns = [
+    {
+      name: "Registered Customer",
+      minWidth: "25%",
+      selector: (customer) => (
+        <div className="flex flex-col">
+          <span className="text-[15px] text-[#111827] font-medium">
+            {customer.firstName} {customer.lastName}
+          </span>
+          <span className="text-[14px] text-[#6D7280] mt-1">{customer.email}</span>
         </div>
       ),
       sortable: true,
     },
     {
-      name: "Action",
-      minWidth: "10%",
-      selector: (user) => (
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDeleteUser(user);
-          }}
-          className="flex items-center cursor-pointer text-[14px] text-[#666666] hover:text-red-600 transition-colors"
-        >
-          <TrashIcon className="mr-[7px]" />
-          Delete
-        </div>
+      name: "Phone Number",
+      minWidth: "15%",
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666]">{customer.phoneNumber || 'N/A'}</span>
       ),
-      sortable: false,
+      sortable: true,
+    },
+    {
+      name: "Total Orders",
+      minWidth: "12%",
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666]">{customer.totalOrders}</span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Total Spent",
+      minWidth: "15%",
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666] font-medium">
+          ₦{customer.totalSpent?.toLocaleString() || '0'}
+        </span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Joined Date",
+      minWidth: "15%",
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666]">
+          {moment(customer.createdAt).format("DD/MM/YYYY")}
+        </span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Last Order",
+      minWidth: "15%",
+      selector: (customer) => (
+        <span className="text-[14px] text-[#666666]">
+          {moment(customer.lastOrderDate).format("DD/MM/YYYY")}
+        </span>
+      ),
+      sortable: true,
     },
   ];
-
-  const handleDeleteUser = (user) => {
-    console.log("Delete user:", user.id);
-    setCurrentTxnDetails({ ...user, modalType: "delete" });
-  };
-
-  const handleUserStatusChange = (user, newStatus) => {
-    console.log("User status change:", user.id, newStatus);
-    // Implement status change logic
-  };
-
-  const handleRowClick = (user) => {
-    handleEdit(user);
-  };
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -282,29 +279,39 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
     });
   };
 
-  const displayedUsers = useMemo(() => {
-    const baseUsers = users.length > 0 ? users : sampleUsers;
-    return isSearchMode ? searchResult : isArchive ? usersArchived : baseUsers;
-  }, [searchResult, users, usersArchived, isSearchMode, isArchive]);
+  const getGuestCustomersCount = () => {
+    return brandCustomers.totalGuestCustomers || 0;
+  };
 
-  const displayedUsersCount = useMemo(() => {
-    const baseCount = usersCount > 0 ? usersCount : sampleUsers.length;
-    return isSearchMode
-      ? searchResultCount
-      : isArchive
-      ? usersArchivedCount
-      : baseCount;
-  }, [searchResult, users, isSearchMode, usersArchivedCount]);
+  const getRegisteredCustomersCount = () => {
+    return brandCustomers.totalRegisteredCustomers || 0;
+  };
 
-  const isLoading = useMemo(() => {
-    return isSearchMode
-      ? searchUserLoading
-      : isArchive
-      ? isEmpty(usersArchived) && loadingArchived
-      : isEmpty(users) && loading;
-  }, [searchUserLoading, loadingArchived, loading]);
+  const getDisplayedCustomers = () => {
+    if (activeTab === 0) {
+      return brandCustomers.registeredCustomers || [];
+    } else {
+      return brandCustomers.guestCustomers || [];
+    }
+  };
 
-  useEffect(() => scrollToTop(), [displayedUsers]);
+  const getDisplayedColumns = () => {
+    if (activeTab === 0) {
+      return registeredCustomerColumns;
+    } else {
+      return guestCustomerColumns;
+    }
+  };
+
+  const getTotalCustomersForCurrentTab = () => {
+    if (activeTab === 0) {
+      return getRegisteredCustomersCount();
+    } else {
+      return getGuestCustomersCount();
+    }
+  };
+
+  useEffect(() => scrollToTop(), [brandCustomers]);
 
   return (
     <>
@@ -321,158 +328,138 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
                 Customers
               </h1>
               <span className="text-[14px] text-[#6D7280]">
-                {displayedUsers.length} TOTAL
+                {brandCustomers.totalCustomers || 0} TOTAL
               </span>
             </div>
 
-            {!isEmpty(displayedUsers) && (
-              <div className="flex items-center gap-5">
-                {/* Search Section */}
-                <div className="flex items-center gap-2">
-                  {searchExpanded ? (
-                    <div className="flex items-center gap-2 transition-all duration-300">
-                      <input
-                        type="text"
-                        value={setSearchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                        placeholder="Search products..."
-                        className="px-3 py-2 border border-gray-300 rounded-md text-sm w-64"
-                        autoFocus
-                      />
-                      <button
-                        onClick={handleSearchToggle}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                        >
-                          <path
-                            d="M12 4L4 12M4 4l8 8"
-                            stroke="#111111"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      {!isMobile && (
-                        <span className="text-[14px] text-[#111111]">
-                          Search
-                        </span>
-                      )}
-                      <button
-                        onClick={handleSearchToggle}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <SearchBlackIcon className="w-4 h-4" />
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                <DividerIcon />
-
-                {/* Filters Section */}
-                <div
-                  className="flex items-center gap-2 cursor-pointer"
-                  // onClick={() => setFilterModalOpen(true)}
-                >
-                  {!isMobile && (
-                    <span className="text-[14px] text-[#111111]">
-                      {/* Filters {appliedFilters > 0 && `(${appliedFilters})`} */}
-                      Filters
-                    </span>
-                  )}
-                  <button
-                    // onClick={() => setFilterModalOpen(true)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <FilterIcon
-                      className={classNames("w-4 h-4", {
-                        // "fill-[#690007]": appliedFilters > 0,
-                        // "fill-[#111111]": appliedFilters === 0,
-                      })}
+            <div className="flex items-center gap-5">
+              {/* Search Section */}
+              <div className="flex items-center gap-2">
+                {searchExpanded ? (
+                  <div className="flex items-center gap-2 transition-all duration-300">
+                    <input
+                      type="text"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      placeholder="Search customers..."
+                      className="px-3 py-2 border border-gray-300 rounded-md text-sm w-64"
+                      autoFocus
                     />
-                  </button>
-                </div>
-
-                <DividerIcon />
-
-                {/* Export Section */}
-                <div
-                  className="flex items-center gap-2 cursor-pointer"
-                  // onClick={() => setFilterModalOpen(true)}
-                >
-                  {!isMobile && (
-                    <span className="text-[14px] text-[#111111]">
-                      {/* Export {appliedFilters > 0 && `(${appliedFilters})`} */}
-                      Export
-                    </span>
-                  )}
-                  <button
-                    // onClick={() => setFilterModalOpen(true)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <ExportIcon
-                      className={classNames("w-4 h-4", {
-                        // "fill-[#690007]": appliedFilters > 0,
-                        // "fill-[#111111]": appliedFilters === 0,
-                      })}
-                    />
-                  </button>
-                </div>
+                    <button
+                      onClick={handleSearchToggle}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                      >
+                        <path
+                          d="M12 4L4 12M4 4l8 8"
+                          stroke="#111111"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {!isMobile && (
+                      <span className="text-[14px] text-[#111111]">
+                        Search
+                      </span>
+                    )}
+                    <button
+                      onClick={handleSearchToggle}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <SearchBlackIcon className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
               </div>
-            )}
+
+              <DividerIcon />
+
+              {/* Filters Section */}
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => setFilterModalOpen(true)}
+              >
+                {!isMobile && (
+                  <span className="text-[14px] text-[#111111]">
+                    Filters {appliedFiltersCount > 0 && `(${appliedFiltersCount})`}
+                  </span>
+                )}
+                <button
+                  onClick={() => setFilterModalOpen(true)}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <FilterIcon
+                    className={classNames("w-4 h-4", {
+                      "fill-[#690007]": appliedFiltersCount > 0,
+                      "fill-[#111111]": appliedFiltersCount === 0,
+                    })}
+                  />
+                </button>
+              </div>
+
+              <DividerIcon />
+
+              {/* Export Section */}
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => console.log("Export customers")}
+              >
+                {!isMobile && (
+                  <span className="text-[14px] text-[#111111]">
+                    Export
+                  </span>
+                )}
+                <button
+                  onClick={() => console.log("Export customers")}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <ExportIcon className="w-4 h-4 fill-[#111111]" />
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* <Tabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} /> */}
-          {isLoading ? (
+          {getMyBrandCustomersLoading ? (
             <CircleLoader blue />
           ) : (
             <>
-              {isSearchMode &&
-                `Search results - ${numberWithCommas(searchResultCount)}`}
+              {searchQuery && brandCustomers.searchResultsCount !== undefined &&
+                `Search results - ${numberWithCommas(brandCustomers.searchResultsCount)}`}
               <div className="flex flex-col flex-grow justify-start items-center w-full h-full">
-                {!isEmpty(displayedUsers) ? (
+                {!isEmpty(getDisplayedCustomers()) ? (
                   <Table
-                    data={displayedUsers}
-                    columns={columns}
-                    onRowClicked={handleRowClick}
+                    data={getDisplayedCustomers()}
+                    columns={getDisplayedColumns()}
+                    onRowClicked={handleCustomerClick}
                     pointerOnHover
-                    isLoading={loading}
-                    pageCount={displayedUsersCount / pageCount}
-                    onPageChange={(page) =>
-                      isSearchMode
-                        ? setCurrentPageSearch(page)
-                        : isArchive
-                        ? setCurrentPageArchived(page)
-                        : setCurrentPage(page)
-                    }
-                    currentPage={
-                      isSearchMode
-                        ? currentPageSearch
-                        : isArchive
-                        ? currentPageArchived
-                        : currentPage
-                    }
+                    isLoading={getMyBrandCustomersLoading}
+                    pageCount={Math.ceil(getTotalCustomersForCurrentTab() / 50)}
+                    onPageChange={(page) => setCurrentPage(page)}
+                    currentPage={currentPage}
                     tableClassName="txn-section-table"
                     noPadding
-                    title="Users"
-                    itemCount={displayedUsersCount}
+                    useEnhancedTable={true}
+                    titleTabs={[
+                      { title: "Registered Customers", itemCount: getRegisteredCustomersCount() },
+                      { title: "Guest Customers", itemCount: getGuestCustomersCount() }
+                    ]}
+                    activeTab={activeTab}
+                    onTabChange={handleTabChange}
+                    title="Customers"
+                    itemCount={getTotalCustomersForCurrentTab()}
                     menuOptions={[
                       {
-                        name: "Export Users",
-                        onClick: () => console.log("Export users"),
-                      },
-                      {
-                        name: "Add New User",
-                        onClick: () =>
-                          navigate(`/dashboard/users/add/${warehouse_id}`),
+                        name: "Export Customers",
+                        onClick: () => console.log("Export customers"),
                       },
                     ]}
                   />
@@ -480,15 +467,13 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
                   <>
                     <div className="text-grey-text flex flex-col justify-center items-center space-y-3 h-full">
                       <SearchIcon className="stroke-current" />
-                      {
-                        <span>
-                          {isSearchMode && isEmpty(searchResult)
-                            ? `There are no results for your search '${searchQuery}'`
-                            : isArchive
-                            ? "There are currently no archived users"
-                            : "There are currently no users"}
-                        </span>
-                      }
+                      <span>
+                        {searchQuery && isEmpty(getDisplayedCustomers())
+                          ? `There are no results for your search '${searchQuery}'`
+                          : activeTab === 0
+                          ? "There are currently no registered customers"
+                          : "There are currently no guest customers"}
+                      </span>
                     </div>
                   </>
                 )}
@@ -497,6 +482,22 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
           )}
         </div>
       </div>
+
+      <CustomerFilterModal
+        active={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        onApplyFilters={handleFilterApply}
+        currentFilters={filters}
+      />
+
+      <CustomerDetailsModal
+        active={showCustomerDetailsModal}
+        customer={selectedCustomer}
+        onClose={() => {
+          setShowCustomerDetailsModal(false);
+          setSelectedCustomer(null);
+        }}
+      />
 
       <TransactionDetailsModal
         active={!!currentTxnDetails}

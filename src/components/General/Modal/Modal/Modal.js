@@ -32,7 +32,7 @@ const Modal = ({
       case "2xl":
         return "w-full md:max-w-[86%] md:w-[86%]";
       case "xl":
-        return "w-full md:max-w-[500px] md:w-[500px]";
+        return "w-full md:max-w-[600px] md:w-[600px]";
       case "lg":
         return "w-full md:max-w-[400px] md:w-[400px]";
       case "md":
@@ -139,7 +139,7 @@ const Modal = ({
             )}
           >
             {/* Fixed Submodal Header */}
-            <div className="flex w-full justify-between items-center border-b border-gray-200 bg-white sticky top-0 z-10">
+            <div className="flex w-full justify-between items-center border-b border-gray-200 bg-white sticky top-0 z-10 py-2 px-0">
               {submodal.title && (
                 <span className="text-[14px] #000000 font-600">
                   {submodal.title}
@@ -158,13 +158,13 @@ const Modal = ({
             </div>
 
             {/* Scrollable Submodal Content */}
-            <div className="flex-1 overflow-y-auto py-6">
+            <div className="flex-1 overflow-y-auto p-6">
               {submodal.children}
             </div>
 
             {/* Fixed Submodal Footer */}
             {submodal.footer && (
-              <div className="border-t border-gray-200 bg-white sticky bottom-0 z-10 py-6">
+              <div className="border-t border-gray-200 bg-white sticky bottom-0 z-10 py-4 px-6">
                 {submodal.footer}
               </div>
             )}
@@ -186,40 +186,41 @@ const Modal = ({
           )}
         >
           {/* Fixed Main Modal Header */}
-          {isSideModal && (
-            <div className="flex w-full justify-between items-center border-b border-gray-200 bg-white sticky top-0 z-10">
+          {(isSideModal || title) && (
+            <div className="flex w-full justify-between items-center border-b border-gray-200 bg-white sticky top-0 z-10 py-2 px-0">
               {title && (
                 <span className="text-[14px] #000000 font-600">{title}</span>
               )}
-              <div
-                className="cursor-pointer w-fit flex justify-start items-start text-white hover:bg-blue-border hover:text-black hover:bg-white rounded-full transition-all duration-150 ease-in-out "
-                onClick={toggler}
-              >
-                <div className="h-8 w-8 relative flex justify-center items-center">
-                  <CancelIcon className="stroke-current" />
+              {(isSideModal || hasToggler) && (
+                <div
+                  className="cursor-pointer w-fit flex justify-start items-start text-white hover:bg-blue-border hover:text-black hover:bg-white rounded-full transition-all duration-150 ease-in-out "
+                  onClick={toggler}
+                >
+                  <div className="h-8 w-8 relative flex justify-center items-center">
+                    <CancelIcon className="stroke-current" />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
           {/* Scrollable Main Modal Content */}
-          <div className="flex-1 overflow-y-auto py-6">{children}</div>
+          <div
+            className={clsx(
+              "flex-1 overflow-y-auto max-h-[75vh] min-h-[150px]",
+              {
+                "py-6": !(isSideModal || title), // Only add padding if no header
+                "py-6": isSideModal || title, // Add padding if there's a header
+              }
+            )}
+          >
+            {children}
+          </div>
 
           {/* Fixed Main Modal Footer */}
           {footer && (
-            <div className="border-t border-gray-200 bg-white sticky bottom-0 z-10 py-6">
+            <div className="border-t border-gray-200 bg-white sticky bottom-0 z-10 py-4 px-6">
               {footer}
-            </div>
-          )}
-
-          {hasToggler && !isSideModal && (
-            <div
-              className="absolute md:top-0 top-[-60px]  toggler right-[16.33px] md:-right-14 cursor-pointer flex justify-center items-center text-white bg-grey-whitesmoke bg-opacity-30 hover:bg-opacity-100 hover:text-black hover:bg-white rounded-full transition-all duration-150 ease-in-out "
-              onClick={toggler}
-            >
-              <div className="h-8 w-8 relative flex justify-center items-center">
-                <CancelIcon className="stroke-current" />
-              </div>
             </div>
           )}
         </div>

@@ -105,6 +105,25 @@ const ModernSideNav = ({
       icon: DashboardIcon,
       path: "/dashboard/home",
     },
+
+    // {
+    //   id: "products",
+    //   label: "Products",
+    //   icon: ProductsIcon,
+    //   path: "/dashboard/products",
+    //   subItems: [
+    //     { label: "All Products", path: "/dashboard/products/all" },
+    //     { label: "Categories", path: "/dashboard/products/categories" },
+    //     // { label: "Collections", path: "/dashboard/products/collections" },
+    //   ],
+    // },
+
+    {
+      id: "categories",
+      label: "Categories",
+      icon: ProductsIcon,
+      path: "/dashboard/products/categories",
+    },
     {
       id: "orders",
       label: "Orders",

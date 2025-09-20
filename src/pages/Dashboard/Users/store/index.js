@@ -17,6 +17,21 @@ class UsersStore {
   usersCount = 0;
   usersArchivedCount = 0;
   searchResultCount = 0;
+
+  // Brand customers state
+  brandCustomers = {
+    guestCustomers: [],
+    registeredCustomers: [],
+    appliedFilters: {},
+    brandInfo: {},
+    pagination: {},
+    searchQuery: "",
+    searchResultsCount: 0,
+    totalCustomers: 0,
+    totalGuestCustomers: 0,
+    totalRegisteredCustomers: 0,
+  };
+
   error = null;
   loading = false;
   loadingArchived = false;
@@ -26,6 +41,7 @@ class UsersStore {
   editUserWalletLoading = false;
   getUserLoading = false;
   deleteUserLoading = false;
+  getMyBrandCustomersLoading = false;
   constructor() {
     makeAutoObservable(this);
   }
@@ -37,8 +53,8 @@ class UsersStore {
   getUsers = async ({ data }) => {
     this.loading = true;
     try {
-      let res = await apis.getUsers(data);
-      res = res?.users;
+      let res = await apis.getUsers({ input: data });
+      res = res?.adminGetAllUsers;
       this.users = res?.results || [];
       this.usersCount = res?.total;
     } catch (error) {
@@ -147,6 +163,30 @@ class UsersStore {
       this.error = error;
     } finally {
       this.deleteUserLoading = false;
+    }
+  };
+
+  getMyBrandCustomers = async ({ data }) => {
+    this.getMyBrandCustomersLoading = true;
+    try {
+      let res = await apis.getMyBrandCustomers({ input: data });
+      res = res?.getMyBrandCustomers;
+      this.brandCustomers = {
+        guestCustomers: res?.guestCustomers || [],
+        registeredCustomers: res?.registeredCustomers || [],
+        appliedFilters: res?.appliedFilters || {},
+        brandInfo: res?.brandInfo || {},
+        pagination: res?.pagination || {},
+        searchQuery: res?.searchQuery || "",
+        searchResultsCount: res?.searchResultsCount || 0,
+        totalCustomers: res?.totalCustomers || 0,
+        totalGuestCustomers: res?.totalGuestCustomers || 0,
+        totalRegisteredCustomers: res?.totalRegisteredCustomers || 0,
+      };
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.getMyBrandCustomersLoading = false;
     }
   };
 }

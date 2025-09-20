@@ -32,9 +32,6 @@ class OrdersStore {
   refundedOrdersLoading = false;
   refundedOrdersCount = null;
 
-  brandOrders = [];
-  brandOrdersCount = null;
-  brandOrdersLoading = null;
 
   userOrders = [];
   userOrdersCount = null;
@@ -72,19 +69,6 @@ class OrdersStore {
     }
   };
 
-  getBrandOrders = async ({ data }) => {
-    this.brandOrdersLoading = true;
-    try {
-      let res = await apis.getBrandOrders(data);
-      res = res?.orders_by_brand_id;
-      this.brandOrders = res?.results || [];
-      this.brandOrdersCount = res?.total;
-    } catch (error) {
-      this.error = error;
-    } finally {
-      this.brandOrdersLoading = false;
-    }
-  };
 
   getOrdersByUser = async ({ data }) => {
     this.userOrdersLoading = true;
@@ -100,36 +84,83 @@ class OrdersStore {
     }
   };
 
-  getOrders = async ({ data }) => {
-    const status = data?.status;
+  getOrders = async ({ input }) => {
+    const status = input?.status;
     this.loading = true;
     try {
-      let res = await apis.getOrders(data);
-      res = res?.orders;
+      let res = await apis.getOrders({ input });
+      res = res?.adminGetAllOrders;
       const resResults =
         res?.results?.sort((a, b) =>
           moment(b.createdAt).diff(moment(a.createdAt))
         ) || [];
 
       switch (status) {
-        case INPROGRESS:
+        case "IN_PROGRESS":
           this.in_progressOrders = resResults;
           this.in_progressOrdersCount = res?.total;
-
           break;
-        case PENDING:
+        case "PROCESSING":
           this.pendingOrders = resResults;
           this.pendingOrdersCount = res?.total;
           break;
-        case DISPATCHED:
+        case "DISPATCHED":
           this.dispatchedOrders = resResults;
           this.dispatchedOrdersCount = res?.total;
           break;
-        case COMPLETED:
+        case "COMPLETED":
           this.completedOrders = resResults;
           this.completedOrdersCount = res?.total;
           break;
-        case CANCELLED:
+        case "CANCELLED":
+          this.cancelledOrders = resResults;
+          this.cancelledOrdersCount = res?.total;
+          break;
+        default:
+          this.orders = resResults;
+          this.ordersCount = res?.total;
+          break;
+      }
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.loading = false;
+    }
+  };
+
+  getBrandOrdersWithFlavorCloud = async ({ brandId, pageNumber = 1, pageSize = 50, status }) => {
+    this.loading = true;
+    try {
+      let res = await apis.getBrandOrdersWithFlavorCloud({
+        brandId,
+        pageNumber,
+        pageSize,
+        status,
+      });
+      res = res?.getBrandOrdersWithFlavorCloud;
+      const resResults =
+        res?.results?.sort((a, b) =>
+          moment(b.createdAt).diff(moment(a.createdAt))
+        ) || [];
+
+      switch (status) {
+        case "IN_PROGRESS":
+          this.in_progressOrders = resResults;
+          this.in_progressOrdersCount = res?.total;
+          break;
+        case "PROCESSING":
+          this.pendingOrders = resResults;
+          this.pendingOrdersCount = res?.total;
+          break;
+        case "DISPATCHED":
+          this.dispatchedOrders = resResults;
+          this.dispatchedOrdersCount = res?.total;
+          break;
+        case "COMPLETED":
+          this.completedOrders = resResults;
+          this.completedOrdersCount = res?.total;
+          break;
+        case "CANCELLED":
           this.cancelledOrders = resResults;
           this.cancelledOrdersCount = res?.total;
           break;
@@ -176,16 +207,16 @@ class OrdersStore {
     }
   };
 
-  getOrder = async ({ data, isRefund }) => {
+  getOrder = async ({ orderCode, isRefund }) => {
     this.getOrderLoading = true;
     try {
       let res;
       if (isRefund) {
-        res = await apis.getRefundedOrder(data);
+        res = await apis.getRefundedOrder({ id: orderCode });
         res = res?.order;
       } else {
-        res = await apis.getOrder(data);
-        res = res?.order;
+        res = await apis.getOrder({ orderCode });
+        res = res?.getOrderByCode;
       }
 
       this.order = res;

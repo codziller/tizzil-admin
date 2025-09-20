@@ -24,27 +24,47 @@ const getUserQuery = ({ id }) => gql`
     }
   }
 `;
-const getUsersQuery = ({ page }) => gql`
-  {
-    __typename
-    users(pageNumber: "${page}") {
+const getUsersQuery = ({ input }) => gql`
+  query adminGetAllUsers($input: GetAllUsersInput) {
+    adminGetAllUsers(input: $input) {
+      currentPage
+      hasNextPage
+      hasPreviousPage
+      pageSize
       total
+      totalPages
       results {
         balance
         baniCustomerRef
+        brandId
         createdAt
         dob
         email
         emailConfirmedTime
         firstName
         gender
+        guestAddress
         id
+        isAffiliateMarketer
         isDeleted
         isEmailConfirmed
         lastName
+        name
         phoneNumber
         referralCode
-        role
+        updatedAt
+        username
+        userPermissions {
+          createdAt
+          id
+          permission
+          updatedAt
+          userId
+        }
+        userRole {
+          id
+          name
+        }
       }
     }
   }
@@ -96,6 +116,67 @@ const searchUsersQuery = ({ page, searchQuery }) => gql`
         referralCode
         role
       }
+    }
+  }
+`;
+
+const getMyBrandCustomersQuery = ({ input }) => gql`
+  query getMyBrandCustomers($input: GetBrandCustomersInput!) {
+    getMyBrandCustomers(input: $input) {
+      appliedFilters {
+        customerType
+        dateFrom
+        dateTo
+        maxTotalSpent
+        minOrderCount
+        minTotalSpent
+        sortDirection
+        sortOrder
+      }
+      brandInfo {
+        brandId
+        brandName
+      }
+      guestCustomers {
+        firstOrderDate
+        guestEmail
+        guestFirstName
+        guestLastName
+        guestPhoneNumber
+        isGuestCustomer
+        lastOrderDate
+        similarityScore
+        totalOrders
+        totalSpent
+      }
+      pagination {
+        currentPage
+        hasNextPage
+        hasPreviousPage
+        pageSize
+        totalPages
+      }
+      registeredCustomers {
+        createdAt
+        email
+        firstName
+        firstOrderDate
+        id
+        isDeleted
+        isGuestCustomer
+        lastName
+        lastOrderDate
+        phoneNumber
+        similarityScore
+        totalOrders
+        totalSpent
+        updatedAt
+      }
+      searchQuery
+      searchResultsCount
+      totalCustomers
+      totalGuestCustomers
+      totalRegisteredCustomers
     }
   }
 `;
@@ -181,9 +262,9 @@ const deleteUserQuery = gql`
 `;
 
 const apis = {
-  getUsers: ({ page }) =>
-    graphQlInstance(getUsersQuery({ page }), {
-      method: "GET",
+  getUsers: ({ input }) =>
+    graphQlInstance(getUsersQuery({ input }), {
+      variables: { input },
     }),
   getArchivedUsers: ({ page }) =>
     graphQlInstance(getArchivedUsersQuery({ page }), {
@@ -216,6 +297,11 @@ const apis = {
   deleteUser: (variables) =>
     graphQlInstance(deleteUserQuery, {
       variables,
+    }),
+
+  getMyBrandCustomers: ({ input }) =>
+    graphQlInstance(getMyBrandCustomersQuery({ input }), {
+      variables: { input },
     }),
 };
 

@@ -108,12 +108,19 @@ const getCategoryQuery = ({ id }) => gql`
 `;
 
 const createCategoryQuery = gql`
-  mutation createCategory($name: String!, $parentCategoryId: String) {
-    createCategory(
-      createCategoryInput: { name: $name, parentCategoryId: $parentCategoryId }
+  mutation adminCreateCategory(
+    $name: String!
+    $parentCategoryId: String
+    $position: String
+  ) {
+    adminCreateCategory(
+      createCategoryInput: {
+        name: $name
+        parentCategoryId: $parentCategoryId
+        position: $position
+      }
     ) {
       name
-      parentCategoryId
     }
   }
 `;
@@ -196,6 +203,287 @@ const deleteHeaderNavQuery = gql`
   }
 `;
 
+// Collection Queries
+const getCollectionsQuery = () => gql`
+  {
+    __typename
+    collections {
+      id
+      name
+      description
+      imageUrl
+      brandId
+      isActive
+      archive
+      position
+      createdAt
+      updatedAt
+      brand {
+        id
+        brandName
+      }
+    }
+  }
+`;
+
+const getCollectionQuery = ({ id }) => gql`
+  {
+    __typename
+    collection(id: "${id}") {
+      id
+      name
+      description
+      imageUrl
+      brandId
+      isActive
+      archive
+      position
+      createdAt
+      updatedAt
+      brand {
+        id
+        brandName
+      }
+    }
+  }
+`;
+
+const getActiveCollectionsQuery = () => gql`
+  {
+    __typename
+    active_collections {
+      id
+      name
+      description
+      imageUrl
+      brandId
+      isActive
+      archive
+      position
+      createdAt
+      updatedAt
+      brand {
+        id
+        brandName
+      }
+    }
+  }
+`;
+
+const getInactiveCollectionsQuery = () => gql`
+  {
+    __typename
+    inactive_collections {
+      id
+      name
+      description
+      imageUrl
+      brandId
+      isActive
+      archive
+      position
+      createdAt
+      updatedAt
+      brand {
+        id
+        brandName
+      }
+    }
+  }
+`;
+
+const getActiveCollectionsByBrandQuery = ({ brandId }) => gql`
+  {
+    __typename
+    active_collections_by_brand(brandId: "${brandId}") {
+      id
+      name
+      description
+      imageUrl
+      brandId
+      isActive
+      archive
+      position
+      createdAt
+      updatedAt
+      brand {
+        id
+        brandName
+      }
+    }
+  }
+`;
+
+const getCollectionsByBrandQuery = ({ brandId }) => gql`
+  {
+    __typename
+    collections_by_brand(brandId: "${brandId}") {
+      id
+      name
+      description
+      imageUrl
+      brandId
+      isActive
+      archive
+      position
+      createdAt
+      updatedAt
+      brand {
+        id
+        brandName
+      }
+    }
+  }
+`;
+
+const getCollectionProductsQuery = ({ collectionId }) => gql`
+  {
+    __typename
+    collection_products(collectionId: "${collectionId}")
+  }
+`;
+
+// Collection Mutations
+const createCollectionQuery = gql`
+  mutation createCollection($createCollectionInput: CreateCollectionInput!) {
+    createCollection(createCollectionInput: $createCollectionInput) {
+      id
+    }
+  }
+`;
+
+const updateCollectionQuery = gql`
+  mutation updateCollection($updateCollectionInput: UpdateCollectionInput!) {
+    updateCollection(updateCollectionInput: $updateCollectionInput) {
+      id
+    }
+  }
+`;
+
+const activateCollectionQuery = gql`
+  mutation activateCollection($id: String!) {
+    activateCollection(id: $id) {
+      id
+      name
+      isActive
+    }
+  }
+`;
+
+const deactivateCollectionQuery = gql`
+  mutation deactivateCollection($id: String!) {
+    deactivateCollection(id: $id) {
+      id
+      name
+      isActive
+    }
+  }
+`;
+
+const removeCollectionQuery = gql`
+  mutation removeCollection($id: String!) {
+    removeCollection(id: $id) {
+      status
+    }
+  }
+`;
+
+const addProductToCollectionQuery = gql`
+  mutation addProductToCollection($collectionId: String!, $productId: String!) {
+    addProductToCollection(collectionId: $collectionId, productId: $productId) {
+      status
+    }
+  }
+`;
+
+const removeProductFromCollectionQuery = gql`
+  mutation removeProductFromCollection(
+    $collectionId: String!
+    $productId: String!
+  ) {
+    removeProductFromCollection(
+      collectionId: $collectionId
+      productId: $productId
+    ) {
+      status
+    }
+  }
+`;
+
+const updateMultipleCollectionPositionsQuery = gql`
+  mutation updateMultipleCollectionPositions(
+    $updateCollectionIdsPositionQuery: UpdateCollectionIdsPositionQuery!
+  ) {
+    updateMultipleCollectionPositions(
+      updateCollectionIdsPositionQuery: $updateCollectionIdsPositionQuery
+    ) {
+      status
+    }
+  }
+`;
+
+// Product-Category Management Mutations
+const addProductsToCategoryQuery = gql`
+  mutation addProductsToCategory($input: AddProductsToCategoryInput!) {
+    addProductsToCategory(input: $input) {
+      message
+      success
+    }
+  }
+`;
+
+const removeProductsFromCategoryQuery = gql`
+  mutation removeProductsFromCategory(
+    $categoryId: String!
+    $productIds: [String!]!
+  ) {
+    removeProductsFromCategory(
+      categoryId: $categoryId
+      productIds: $productIds
+    ) {
+      brand {
+        id
+      }
+      status
+    }
+  }
+`;
+
+// Product-Collection Management Mutations
+const addMultipleProductsToCollectionQuery = gql`
+  mutation addMultipleProductsToCollection(
+    $collectionId: String!
+    $productIds: [String!]!
+  ) {
+    addMultipleProductsToCollection(
+      collectionId: $collectionId
+      productIds: $productIds
+    ) {
+      brand {
+        id
+      }
+      status
+    }
+  }
+`;
+
+const removeMultipleProductsFromCollectionQuery = gql`
+  mutation removeMultipleProductsFromCollection(
+    $collectionId: String!
+    $productIds: [String!]!
+  ) {
+    removeMultipleProductsFromCollection(
+      collectionId: $collectionId
+      productIds: $productIds
+    ) {
+      brand {
+        id
+      }
+      status
+    }
+  }
+`;
+
 const apis = {
   getCategories: () =>
     graphQlInstance(getCategoriesQuery(), {
@@ -249,6 +537,104 @@ const apis = {
     }),
   deleteHeaderNav: (variables) =>
     graphQlInstance(deleteHeaderNavQuery, {
+      variables,
+    }),
+
+  // Collection APIs
+  getCollections: () =>
+    graphQlInstance(getCollectionsQuery(), {
+      method: "GET",
+    }),
+
+  getCollection: ({ id }) =>
+    graphQlInstance(getCollectionQuery({ id }), {
+      method: "GET",
+    }),
+
+  getActiveCollections: () =>
+    graphQlInstance(getActiveCollectionsQuery(), {
+      method: "GET",
+    }),
+
+  getInactiveCollections: () =>
+    graphQlInstance(getInactiveCollectionsQuery(), {
+      method: "GET",
+    }),
+
+  getActiveCollectionsByBrand: ({ brandId }) =>
+    graphQlInstance(getActiveCollectionsByBrandQuery({ brandId }), {
+      method: "GET",
+    }),
+
+  getCollectionsByBrand: ({ brandId }) =>
+    graphQlInstance(getCollectionsByBrandQuery({ brandId }), {
+      method: "GET",
+    }),
+
+  getCollectionProducts: ({ collectionId }) =>
+    graphQlInstance(getCollectionProductsQuery({ collectionId }), {
+      method: "GET",
+    }),
+
+  createCollection: (variables) =>
+    graphQlInstance(createCollectionQuery, {
+      variables,
+    }),
+
+  updateCollection: (variables) =>
+    graphQlInstance(updateCollectionQuery, {
+      variables,
+    }),
+
+  activateCollection: (variables) =>
+    graphQlInstance(activateCollectionQuery, {
+      variables,
+    }),
+
+  deactivateCollection: (variables) =>
+    graphQlInstance(deactivateCollectionQuery, {
+      variables,
+    }),
+
+  removeCollection: (variables) =>
+    graphQlInstance(removeCollectionQuery, {
+      variables,
+    }),
+
+  addProductToCollection: (variables) =>
+    graphQlInstance(addProductToCollectionQuery, {
+      variables,
+    }),
+
+  removeProductFromCollection: (variables) =>
+    graphQlInstance(removeProductFromCollectionQuery, {
+      variables,
+    }),
+
+  updateMultipleCollectionPositions: (variables) =>
+    graphQlInstance(updateMultipleCollectionPositionsQuery, {
+      variables,
+    }),
+
+  // Product-Category Management APIs
+  addProductsToCategory: (variables) =>
+    graphQlInstance(addProductsToCategoryQuery, {
+      variables,
+    }),
+
+  removeProductsFromCategory: (variables) =>
+    graphQlInstance(removeProductsFromCategoryQuery, {
+      variables,
+    }),
+
+  // Product-Collection Management APIs
+  addMultipleProductsToCollection: (variables) =>
+    graphQlInstance(addMultipleProductsToCollectionQuery, {
+      variables,
+    }),
+
+  removeMultipleProductsFromCollection: (variables) =>
+    graphQlInstance(removeMultipleProductsFromCollectionQuery, {
       variables,
     }),
 };

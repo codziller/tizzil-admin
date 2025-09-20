@@ -59,6 +59,7 @@ const ImageList = ({
                           isBanner={isBanner}
                           isPost={isPost}
                           isMarketingImg={isMarketingImg}
+                          index={index}
                         />
                       ) : null}
                     </div>

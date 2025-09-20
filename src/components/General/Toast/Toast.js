@@ -31,7 +31,17 @@ const ToastLoader = styled.div`
 
 const Toast = () => {
   return (
-    <Toaster position="top-left">
+    <Toaster
+      position="top-left"
+      toastOptions={{
+        style: {
+          zIndex: 999999,
+        },
+      }}
+      containerStyle={{
+        zIndex: 999999,
+      }}
+    >
       {(t) => (
         <ToastBar
           toast={t}
@@ -45,7 +55,8 @@ const Toast = () => {
             padding: "15px",
             boxSizing: "border-box",
             overflow: "hidden",
-            zIndex: "99999",
+            zIndex: 999999,
+            ...t.style,
           }}
         >
           {({ icon, message }) => {
@@ -64,16 +75,17 @@ const Toast = () => {
                 <div className="flex justify-between align-start w-full">
                   <div className="flex justify-between align-start">
                     <div className="bani-toast-icon mr-[20px]">{toastIcon}</div>
-                    <div className="bani-toast-message flex flex-col justify-center items-start gap-[8px]">
-                      <span className="bani-toast-header font-semibold text-base">
-                        {message.props.title}
-                      </span>
-                      {message.props.children ? (
-                        <p className="helv-regular text-grey-text bani-toast-content text-sm">
-                          {message.props.children}
-                        </p>
-                      ) : null}
-                      
+                    <div className="bani-toast-message flex flex-col sm:flex-row justify-center sm:justify-between items-start sm:items-center gap-[8px]">
+                      <div className="flex flex-col justify-center items-start gap-[8px]">
+                        <span className="bani-toast-header font-semibold text-base">
+                          {message.props.title}
+                        </span>
+                        {message.props.children ? (
+                          <p className="helv-regular text-grey-text bani-toast-content text-sm">
+                            {message.props.children}
+                          </p>
+                        ) : null}
+                      </div>
                       {/* Action Buttons */}
                       {message.props.actions && t.type === "success" && (
                         <div className="flex gap-2 mt-2">
@@ -132,10 +144,11 @@ export const warningToast = (title, message) => {
   });
 };
 
-export const successToast = (title, message, duration, actions) => {
+export const successToast = (title, message, duration, actions, extraStyle) => {
   toast.success(message, {
     ...defaultConfig,
     duration: duration || DEFAULT_TOAST_DURATION,
+    style: extraStyle,
     ariaProps: {
       role: "success",
       title,

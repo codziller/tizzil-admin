@@ -23,7 +23,7 @@ import { ReactComponent as OrderHistoryIcon } from "assets/icons/order-history-i
 import OrdersStore from "../store";
 
 const OrderDetailsPage = () => {
-  const { order_id: orderId } = useParams();
+  const { orderCode } = useParams();
   const navigate = useNavigate();
   const { getOrder, order, getOrderLoading } = OrdersStore;
 
@@ -34,63 +34,62 @@ const OrderDetailsPage = () => {
 
   // Sample order data for development
   const sampleOrder = {
-    id: orderId,
+    id: orderCode,
     orderCode: "ORD-2024-001",
     orderStatus: "PENDING",
+    user: {
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@email.com",
+      phoneNumber: "+1234567890",
+    },
+    totalAmount: 45000,
+    deliveryFee: 3000,
     calculatedOrder: {
       user: {
         firstName: "John",
         lastName: "Doe",
         email: "john.doe@email.com",
-        profileImageUrl: null,
       },
       totalAmount: 45000,
       serviceCharge: 2000,
       deliveryFee: 3000,
-      tax: 4000,
+      address: {
+        addressText: "123 Main Street, Lagos, Nigeria",
+        city: "Lagos",
+        state: "Lagos",
+        country: "Nigeria",
+      },
+      calculatedOrderProducts: [
+        {
+          id: 1,
+          product: {
+            name: "Nike Air Max 270",
+            imageUrls: ["https://via.placeholder.com/70x70"],
+          },
+          productVariant: {
+            variantName: "US 9",
+          },
+          quantity: 2,
+          salePrice: 20000,
+        },
+        {
+          id: 2,
+          product: {
+            name: "Adidas Ultra Boost",
+            imageUrls: ["https://via.placeholder.com/70x70"],
+          },
+          productVariant: {
+            variantName: "Black",
+          },
+          quantity: 1,
+          salePrice: 25000,
+        },
+      ],
     },
-    calculatedOrderProducts: [
-      {
-        id: 1,
-        product: {
-          name: "Nike Air Max 270",
-          imageUrls: ["https://via.placeholder.com/70x70"],
-          brand: {
-            brandName: "Nike",
-            brandEmail: "nike@brand.com",
-            brandPhone: "+1234567890",
-          },
-        },
-        productOption: {
-          name: "Size",
-          variantName: "US 9",
-        },
-        quantity: 2,
-        salePrice: 20000,
-      },
-      {
-        id: 2,
-        product: {
-          name: "Adidas Ultra Boost",
-          imageUrls: ["https://via.placeholder.com/70x70"],
-          brand: {
-            brandName: "Adidas",
-            brandEmail: "adidas@brand.com",
-            brandPhone: "+0987654321",
-          },
-        },
-        productOption: {
-          name: "Color",
-          variantName: "Black",
-        },
-        quantity: 1,
-        salePrice: 25000,
-      },
-    ],
-    deliveryAddress: "123 Main Street, Lagos, Nigeria",
-    deliveryCountry: "Nigeria",
-    deliveryLat: 6.5244,
-    deliveryLng: 3.3792,
+    brand: {
+      brandName: "Nike",
+    },
   };
 
   const displayOrder = order || sampleOrder;
@@ -157,7 +156,7 @@ const OrderDetailsPage = () => {
   ];
 
   const userOrderHistoryData = {
-    user: displayOrder.calculatedOrder?.user,
+    user: displayOrder.user || displayOrder.calculatedOrder?.user,
     orderHistory: sampleOrderHistory,
     totalPrice: sampleOrderHistory.reduce(
       (total, { orderProduct }) =>
@@ -168,10 +167,10 @@ const OrderDetailsPage = () => {
   };
 
   useEffect(() => {
-    if (orderId) {
-      // getOrder({ data: { id: orderId } });
+    if (orderCode) {
+      getOrder({ orderCode });
     }
-  }, [orderId]);
+  }, [orderCode]);
 
   const handleStatusChange = (newStatus) => {
     setPendingStatusChange(newStatus);
@@ -186,11 +185,10 @@ const OrderDetailsPage = () => {
   };
 
   const calculateSubtotal = () => {
-    return (
-      displayOrder.calculatedOrderProducts?.reduce((total, product) => {
-        return total + product.salePrice * product.quantity;
-      }, 0) || 0
-    );
+    const products = displayOrder.calculatedOrder?.calculatedOrderProducts || displayOrder.calculatedOrderProducts || [];
+    return products.reduce((total, product) => {
+      return total + (product.salePrice || 0) * (product.quantity || 0);
+    }, 0);
   };
 
   const breadcrumbLinks = [
@@ -239,28 +237,29 @@ const OrderDetailsPage = () => {
           <div className="flex items-center gap-2 mb-6">
             <h2 className="text-[17px] text-[#111111]">Order details</h2>
             <span className="text-gray-400">
-              ({displayOrder.calculatedOrderProducts?.length || 0})
+              ({(displayOrder.calculatedOrder?.calculatedOrderProducts || displayOrder.calculatedOrderProducts || []).length})
             </span>
           </div>
 
           {/* Products Table */}
           <div className="bg-white rounded-lg border border-gray-200">
-            {displayOrder.calculatedOrderProducts?.map((product, index) => (
+            {(displayOrder.calculatedOrder?.calculatedOrderProducts || displayOrder.calculatedOrderProducts)?.map((product, index) => (
               <div
                 key={product.id}
                 className={classNames("flex items-center py-5 px-4", {
                   "border-b border-[#DDDDDD]":
-                    index < displayOrder.calculatedOrderProducts.length - 1,
+                    index < (displayOrder.calculatedOrder?.calculatedOrderProducts || displayOrder.calculatedOrderProducts || []).length - 1,
                 })}
               >
                 {/* Product Image */}
                 <div className="w-[70px] h-[70px] mr-4">
                   <img
                     src={
-                      product.product.imageUrls?.[0] ||
+                      product.product?.imageUrls?.[0] ||
+                      product.productVariant?.imageUrls?.[0] ||
                       "https://via.placeholder.com/70x70"
                     }
-                    alt={product.product.name}
+                    alt={product.product?.name || "Product"}
                     className="w-full h-full object-cover rounded-md"
                   />
                 </div>
@@ -268,12 +267,11 @@ const OrderDetailsPage = () => {
                 {/* Product Details - 45% width */}
                 <div className="flex-[0.45] mr-4">
                   <h3 className="text-[15px] font-bold text-[#690007] mb-1.5">
-                    {product.product.name}
+                    {product.product?.name}
                   </h3>
-                  {product.productOption && (
+                  {product.productVariant?.variantName && (
                     <p className="text-[14px] text-[#777777]">
-                      {product.productOption.name}:{" "}
-                      {product.productOption.variantName}
+                      Variant: {product.productVariant.variantName}
                     </p>
                   )}
                 </div>
@@ -307,32 +305,21 @@ const OrderDetailsPage = () => {
             <div className="flex justify-between items-center">
               <span className="text-[14px] text-[#888888]">Shipping fee</span>
               <span className="text-[14px] text-[#111111] ml-25">
-                ₦
-                {displayOrder.calculatedOrder?.deliveryFee?.toLocaleString() ||
-                  "0"}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-[14px] text-[#888888]">Tax</span>
-              <span className="text-[14px] text-[#111111] ml-25">
-                ₦{displayOrder.calculatedOrder?.tax?.toLocaleString() || "0"}
+                ₦{(displayOrder.deliveryFee || displayOrder.calculatedOrder?.deliveryFee || 0).toLocaleString()}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
               <span className="text-[14px] text-[#888888]">Service charge</span>
               <span className="text-[14px] text-[#111111] ml-25">
-                ₦
-                {displayOrder.calculatedOrder?.serviceCharge?.toLocaleString() ||
-                  "0"}
+                ₦{(displayOrder.calculatedOrder?.serviceCharge || 0).toLocaleString()}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
               <span className="text-[14px] text-[#888888]">Total</span>
               <span className="text-[14px] text-[#111111] ml-25">
-                ₦{displayOrder.calculatedOrder?.totalAmount?.toLocaleString()}
+                ₦{(displayOrder.totalAmount || displayOrder.calculatedOrder?.totalAmount || 0).toLocaleString()}
               </span>
             </div>
 
@@ -341,7 +328,7 @@ const OrderDetailsPage = () => {
                 Amount to be paid
               </span>
               <span className="text-[14px] font-bold text-[#111111] ml-25">
-                ₦{displayOrder.calculatedOrder?.totalAmount?.toLocaleString()}
+                ₦{(displayOrder.totalAmount || displayOrder.calculatedOrder?.totalAmount || 0).toLocaleString()}
               </span>
             </div>
           </div>
@@ -354,9 +341,9 @@ const OrderDetailsPage = () => {
 
           <div className="flex items-center mb-7">
             <div className="w-8 h-8 mr-5">
-              {displayOrder.calculatedOrder?.user?.profileImageUrl ? (
+              {(displayOrder.user || displayOrder.calculatedOrder?.user)?.profileImageUrl ? (
                 <img
-                  src={displayOrder.calculatedOrder.user.profileImageUrl}
+                  src={(displayOrder.user || displayOrder.calculatedOrder?.user).profileImageUrl}
                   alt="User"
                   className="w-full h-full rounded-full border border-[#02152B14]"
                 />
@@ -366,11 +353,11 @@ const OrderDetailsPage = () => {
             </div>
             <div>
               <p className="text-[14px] text-[#111111] font-medium">
-                {displayOrder.calculatedOrder?.user?.firstName}{" "}
-                {displayOrder.calculatedOrder?.user?.lastName}
+                {(displayOrder.user || displayOrder.calculatedOrder?.user)?.firstName || displayOrder.guestFirstName}{" "}
+                {(displayOrder.user || displayOrder.calculatedOrder?.user)?.lastName || displayOrder.guestLastName}
               </p>
               <p className="text-[12px] text-[#888888] mt-1">
-                {displayOrder.calculatedOrder?.user?.email}
+                {(displayOrder.user || displayOrder.calculatedOrder?.user)?.email || displayOrder.guestEmail}
               </p>
             </div>
           </div>
@@ -399,42 +386,7 @@ const OrderDetailsPage = () => {
               <div>
                 <p className="text-[12px] text-[#888888]">Brand Name</p>
                 <p className="text-[12px] text-[#111111] mt-1">
-                  {
-                    displayOrder.calculatedOrderProducts?.[0]?.product?.brand
-                      ?.brandName
-                  }
-                </p>
-              </div>
-            </div>
-
-            {/* Brand Email */}
-            <div className="flex items-start">
-              <div className="w-8 h-8 rounded-full border border-[#DDDDDD] flex items-center justify-center mr-3">
-                <FiMail className="w-4 h-4 text-[#690007]" />
-              </div>
-              <div>
-                <p className="text-[12px] text-[#888888]">Email</p>
-                <p className="text-[12px] text-[#111111] mt-1">
-                  {
-                    displayOrder.calculatedOrderProducts?.[0]?.product?.brand
-                      ?.brandEmail
-                  }
-                </p>
-              </div>
-            </div>
-
-            {/* Brand Phone */}
-            <div className="flex items-start">
-              <div className="w-8 h-8 rounded-full border border-[#DDDDDD] flex items-center justify-center mr-3">
-                <FiPhone className="w-4 h-4 text-[#690007]" />
-              </div>
-              <div>
-                <p className="text-[12px] text-[#888888]">Phone</p>
-                <p className="text-[12px] text-[#111111] mt-1">
-                  {
-                    displayOrder.calculatedOrderProducts?.[0]?.product?.brand
-                      ?.brandPhone
-                  }
+                  {displayOrder.brand?.brandName}
                 </p>
               </div>
             </div>
@@ -448,12 +400,12 @@ const OrderDetailsPage = () => {
 
           {/* Google Map */}
           <GoogleMap
-            lat={displayOrder.deliveryLat || 6.5244}
-            lng={displayOrder.deliveryLng || 3.3792}
+            lat={(displayOrder.calculatedOrder?.address?.addressLat || 6.5244)}
+            lng={(displayOrder.calculatedOrder?.address?.addressLng || 3.3792)}
             height="200px"
             width="100%"
             className="mb-3.5"
-            address={displayOrder.deliveryAddress}
+            address={displayOrder.calculatedOrder?.address?.addressText || displayOrder.guestAddress}
           />
 
           <div className="flex items-start mb-3.5">
@@ -462,10 +414,10 @@ const OrderDetailsPage = () => {
             </div>
             <div>
               <p className="text-[12px] text-[#111111]">
-                {displayOrder.deliveryAddress}
+                {displayOrder.calculatedOrder?.address?.addressText || displayOrder.guestAddress}
               </p>
               <p className="text-[12px] text-[#888888] mt-1">
-                {displayOrder.deliveryCountry}
+                {displayOrder.calculatedOrder?.address?.country}
               </p>
             </div>
           </div>
@@ -488,10 +440,10 @@ const OrderDetailsPage = () => {
             </div>
             <div>
               <p className="text-[12px] text-[#111111]">
-                {displayOrder.deliveryAddress}
+                {displayOrder.calculatedOrder?.address?.addressText || displayOrder.guestAddress}
               </p>
               <p className="text-[12px] text-[#888888] mt-1">
-                {displayOrder.deliveryCountry}
+                {displayOrder.calculatedOrder?.address?.country}
               </p>
             </div>
           </div>

@@ -14,14 +14,15 @@ import useWindowDimensions from "hooks/useWindowDimensions";
 import { Button } from "components/General/Button";
 import { observer } from "mobx-react-lite";
 import ProductsStore from "../store";
+import CategoriesStore from "../../Categories/store";
 import classNames from "classnames";
 import { sampleProducts } from "utils/sampleData";
+import { getUserInfoFromStorage } from "utils/storage";
 import ProductCard from "components/General/ProductCard";
 import CategoryFilterModal from "components/General/FilterModals/CategoryFilterModal";
-import AddProductModal from "./AddProductModal";
+import AddCategoryModal from "./AddCategoryModal";
 import AddProductToCategoryModal from "./AddProductToCategoryModal";
-import ProductDetailsModal from "./ProductDetailsModal";
-
+import { ReactComponent as EditTiny } from "assets/icons/edit-tiny.svg";
 
 const ProductCategoriesPage = ({
   isModal,
@@ -32,43 +33,48 @@ const ProductCategoriesPage = ({
   const navigate = useNavigate();
   const { warehouse_id } = useParams();
   const { getProducts, products, productsCount, loading } = ProductsStore;
+  const { getCategories, categories, loadingCategories } = CategoriesStore;
+
+  // Get user info
+  const userInfo = getUserInfoFromStorage();
+  const user =
+    userInfo?.user || JSON.parse(localStorage.getItem("user") || "{}");
+  const isAdmin = user?.userRole?.name === "ADMIN";
+  const brandId = userInfo?.brand?.id;
 
   const { width, isMobile } = useWindowDimensions();
-  const [displayProducts, setDisplayProducts] = useState([]);
+  const [displayCategories, setDisplayCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState(0);
   const [activeProductTab, setActiveProductTab] = useState("All Products");
-  const [activeProduct, setActiveProduct] = useState("All Products");
-  const [showNewProductModal, setShowNewProductModal] = useState(false);
-  const [showProductsModal, setShowProductsModal] = useState(false);
-  const [showProductDetailsModal, setShowProductDetailsModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-
-  const productTabs = ["All Products", "Drafts", "Most Purchased", "Jorts"];
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [showAddProductToCategoryModal, setShowAddProductToCategoryModal] = useState(false);
+  const [selectedCategoryForProducts, setSelectedCategoryForProducts] = useState(null);
 
   useEffect(() => {
-    // Initialize with sample data or fetch real data
-    if (isEmpty(products)) {
-      setDisplayProducts(sampleProducts);
-    } else {
-      setDisplayProducts(products);
-    }
-  }, [products]);
+    loadCategories();
+  }, []);
 
-  const handleProductTabClick = (tab) => {
-    setActiveProductTab(tab);
+  const loadCategories = async () => {
     setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      // For now, just use sample data for all tabs
-      setDisplayProducts(sampleProducts);
+    try {
+      await getCategories();
+      setDisplayCategories(categories);
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
+
+  useEffect(() => {
+    // Update display categories when store data changes
+    setDisplayCategories(categories);
+  }, [categories]);
 
   const handleSearchToggle = () => {
     setSearchExpanded(!searchExpanded);
@@ -85,9 +91,29 @@ const ProductCategoriesPage = ({
     setAppliedFilters(Object.values(filters).filter(Boolean).length);
   };
 
-  const handleProductCardClick = (product) => {
-    setSelectedProduct(product);
-    setShowProductDetailsModal(true);
+  const handleCategoryCardClick = (category) => {
+    setSelectedCategory(category);
+    setShowAddCategoryModal(true);
+  };
+
+  const handleAddCategoryClick = () => {
+    setSelectedCategory(null);
+    setShowAddCategoryModal(true);
+  };
+
+  const handleCloseCategoryModal = () => {
+    setShowAddCategoryModal(false);
+    setSelectedCategory(null);
+  };
+
+  const handleAddProductToCategoryClick = (category) => {
+    setSelectedCategoryForProducts(category);
+    setShowAddProductToCategoryModal(true);
+  };
+
+  const handleCloseAddProductToCategoryModal = () => {
+    setShowAddProductToCategoryModal(false);
+    setSelectedCategoryForProducts(null);
   };
 
   return (
@@ -110,7 +136,7 @@ const ProductCategoriesPage = ({
               </p>
             </div>
 
-            {!isEmpty(displayProducts) && (
+            {!isEmpty(displayCategories) && (
               <div className="flex items-center gap-5">
                 {/* Search Section */}
                 <div className="flex items-center gap-2">
@@ -120,7 +146,7 @@ const ProductCategoriesPage = ({
                         type="text"
                         value={searchQuery}
                         onChange={handleSearchChange}
-                        placeholder="Search products..."
+                        placeholder="Search categories..."
                         className="px-3 py-2 border border-gray-300 rounded-md text-sm w-64"
                         autoFocus
                       />
@@ -187,18 +213,18 @@ const ProductCategoriesPage = ({
 
                 <DividerIcon />
 
-                {/* Add Product Button */}
+                {/* Add category section */}
                 <div
                   className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => setShowNewProductModal(true)}
+                  onClick={handleAddCategoryClick}
                 >
                   {!isMobile && (
                     <span className="text-[12px] text-[#111111] uppercase">
-                      Add a product
+                      Add a category
                     </span>
                   )}
                   <button
-                    onClick={() => setShowNewProductModal(true)}
+                    onClick={handleAddCategoryClick}
                     className="w-7 h-7 bg-[#690007] rounded-full flex items-center justify-center hover:bg-[#5a0006] transition-colors"
                   >
                     <PlusIcon className="w-4 h-4" />
@@ -208,40 +234,19 @@ const ProductCategoriesPage = ({
             )}
           </div>
 
-          {/* Product Tabs */}
-          {/* {!isEmpty(displayProducts) && (
-            <div className="flex gap-5">
-              {productTabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => handleProductTabClick(tab)}
-                  className={classNames("text-[14px] transition-colors", {
-                    "text-[#690007]": activeProductTab === tab,
-                    "text-[#AAAAAA]": activeProductTab !== tab,
-                  })}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          )} */}
-
           {/* Content Section */}
-          {isLoading ? (
+          {isLoading || loadingCategories ? (
             <div className="flex justify-center items-center h-64 w-full">
               <CircleLoader blue />
             </div>
-          ) : isEmpty(displayProducts) ? (
+          ) : isEmpty(displayCategories) ? (
             <div className="flex flex-col items-center justify-center h-64 w-full">
               <EmptyListIcon className="mb-8" />
               <h3 className="text-[16px] text-[#000000] font-medium mb-2">
                 Nothing to see here
               </h3>
-              <p className="text-[16px] text-[#777777] mb-8">products</p>
-              <Button
-                text="ADD A PRODUCT"
-                onClick={() => setShowNewProductModal(true)}
-              />
+              <p className="text-[16px] text-[#777777] mb-8">categories</p>
+              <Button text="ADD A CATEGORY" onClick={handleAddCategoryClick} />
             </div>
           ) : (
             <div
@@ -250,17 +255,27 @@ const ProductCategoriesPage = ({
                 "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
               )}
             >
-              {displayProducts.map((product) => (
+              {displayCategories.map((category) => (
                 <ProductCard
-                  key={product.id}
-                  product={product}
-                  onClick={handleProductCardClick}
+                  key={category.id}
+                  product={category}
+                  onClick={handleCategoryCardClick}
+                  onAddCategoryClick={(item) => {}}
+                  onViewItemsClick={handleCategoryCardClick}
                   isCategory
                   hasMenu
-                  onAddCategoryClick={() => {
-                    setActiveProduct(product);
-                    setShowProductsModal(true);
-                  }}
+                  menuOptions={[
+                    {
+                      icon: EditTiny,
+                      label: "Add to category",
+                      onClick: handleAddProductToCategoryClick,
+                    },
+                    {
+                      icon: EditTiny,
+                      label: "Edit category",
+                      onClick: handleCategoryCardClick,
+                    },
+                  ]}
                 />
               ))}
             </div>
@@ -275,21 +290,16 @@ const ProductCategoriesPage = ({
         onApply={handleFilterApply}
       />
 
-      <AddProductModal
-        isOpen={showNewProductModal}
-        onClose={() => setShowNewProductModal(false)}
+      <AddCategoryModal
+        isOpen={showAddCategoryModal}
+        onClose={handleCloseCategoryModal}
+        category={selectedCategory}
       />
 
       <AddProductToCategoryModal
-        isOpen={showProductsModal}
-        onClose={() => setShowProductsModal(false)}
-        product={activeProduct}
-      />
-
-      <ProductDetailsModal
-        isOpen={showProductDetailsModal}
-        onClose={() => setShowProductDetailsModal(false)}
-        product={selectedProduct}
+        isOpen={showAddProductToCategoryModal}
+        onClose={handleCloseAddProductToCategoryModal}
+        category={selectedCategoryForProducts}
       />
     </>
   );

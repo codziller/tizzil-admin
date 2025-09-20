@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Modal from "components/General/Modal/Modal/Modal";
-import ImagePicker from "components/General/Input/ImagePicker";
-import ImageSelection from "components/General/Input/ImageSelection";
-import Select from "components/General/Input/Select";
-import Input from "components/General/Input/Input";
 import { Button } from "components/General/Button";
 import { observer } from "mobx-react-lite";
 import ProductsStore from "../store";
@@ -15,6 +11,9 @@ import classNames from "classnames";
 import { FaTrash } from "react-icons/fa";
 import OptionModal from "./OptionModal";
 import VariantModal from "./VariantModal";
+import BasicTab from "./BasicTab";
+import MediaDeetsTab from "./MediaDeetsTab";
+import FulfillmentTab from "./FulfillmentTab";
 
 const AddProductModal = ({
   isOpen,
@@ -22,9 +21,12 @@ const AddProductModal = ({
   productId = null,
   filters = {},
   pageNumber = 1,
+  product: editProduct = null,
+  isEdit = false,
 }) => {
   const {
     createProductWithInventory,
+    updateProduct,
     createProductLoading,
     getProduct,
     product,
@@ -36,7 +38,7 @@ const AddProductModal = ({
   const [showVariantModal, setShowVariantModal] = useState(false);
   const [showOptionModal, setShowOptionModal] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-  
+
   // Store actual file objects for uploading later
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState([]);
@@ -91,23 +93,51 @@ const AddProductModal = ({
     if (isOpen) {
       getCategories();
       if (productId) {
-        // Load product for editing
+        // Load product for editing (legacy)
         getProduct({ data: { id: productId } });
+      } else if (isEdit && editProduct?.id) {
+        // Load product for editing (new prop-based approach)
+        getProduct({ data: { id: editProduct.id } });
       }
     } else {
       // Clean up when modal is closed
-      imagePreviewUrls.forEach(url => {
-        if (url.startsWith('blob:')) {
+      imagePreviewUrls.forEach((url) => {
+        if (url.startsWith("blob:")) {
           URL.revokeObjectURL(url);
         }
       });
       setImageFiles([]);
       setImagePreviewUrls([]);
+      // Reset form data
+      setProductData({
+        name: "",
+        description: "",
+        basePrice: "",
+        baseCostPrice: "",
+        baseSku: "",
+        categoryIds: [],
+        imageUrls: [],
+        initialStock: "",
+        weight: "",
+        weightType: "grams",
+        isPrivate: false,
+        metaTitle: "",
+        metaDescription: "",
+        howToUse: "",
+        productIngredients: "",
+        tags: [],
+        options: [],
+        variants: [],
+        ribbon: null,
+        exchangeRateSaleCurrency: null,
+        lowInQuantityValue: "",
+      });
+      setActiveTab("Basics");
     }
-  }, [isOpen, productId]);
+  }, [isOpen, productId, isEdit, editProduct]);
 
   useEffect(() => {
-    if (product && productId) {
+    if (product && (productId || (isEdit && editProduct?.id))) {
       // Populate form when editing
       setProductData({
         name: product.name || "",
@@ -175,14 +205,14 @@ const AddProductModal = ({
         lowInQuantityValue: product.lowInQuantityValue || "",
       });
     }
-  }, [product, productId]);
+  }, [product, productId, isEdit, editProduct]);
 
   // Cleanup effect for when component unmounts
   useEffect(() => {
     return () => {
       // Clean up any remaining object URLs
-      imagePreviewUrls.forEach(url => {
-        if (url.startsWith('blob:')) {
+      imagePreviewUrls.forEach((url) => {
+        if (url.startsWith("blob:")) {
           URL.revokeObjectURL(url);
         }
       });
@@ -198,7 +228,7 @@ const AddProductModal = ({
 
     // Create preview URLs for the new files
     const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
-    
+
     // Store the actual files for uploading later
     setImageFiles((prev) => [...prev, ...files]);
     setImagePreviewUrls((prev) => [...prev, ...newPreviewUrls]);
@@ -220,12 +250,12 @@ const AddProductModal = ({
     } else {
       // Removing a preview URL (new file)
       const previewIndex = index - existingUrlsCount;
-      
+
       // Revoke the object URL to free memory
       if (imagePreviewUrls[previewIndex]) {
         URL.revokeObjectURL(imagePreviewUrls[previewIndex]);
       }
-      
+
       // Remove from both arrays
       setImageFiles((prev) => prev.filter((_, i) => i !== previewIndex));
       setImagePreviewUrls((prev) => prev.filter((_, i) => i !== previewIndex));
@@ -350,7 +380,7 @@ const AddProductModal = ({
     if (!brandId) return;
 
     setIsUploadingImages(true);
-    
+
     try {
       let finalImageUrls = [...(productData.imageUrls || [])];
 
@@ -359,7 +389,10 @@ const AddProductModal = ({
         const uploadedUrls = await uploadImagesToCloud(imageFiles);
         if (uploadedUrls && uploadedUrls.length > 0) {
           finalImageUrls = [...finalImageUrls, ...uploadedUrls];
-          successToast("Images uploaded successfully", `${uploadedUrls.length} new image(s) uploaded to cloud`);
+          successToast(
+            "Images uploaded successfully",
+            `${uploadedUrls.length} new image(s) uploaded to cloud`
+          );
         } else {
           errorToast("Upload failed", "Some images failed to upload");
           setIsUploadingImages(false);
@@ -375,78 +408,144 @@ const AddProductModal = ({
         variants: variants,
       };
 
-      await createProductWithInventory({
-        brandId,
-        productData: submissionData,
-        filters,
-        pageNumber,
-        onSuccess: (createdProduct) => {
-          onClose();
-          
-          // Clean up object URLs
-          imagePreviewUrls.forEach(url => {
-            if (url.startsWith('blob:')) {
-              URL.revokeObjectURL(url);
-            }
-          });
+      if (isEdit && (editProduct?.id || productId)) {
+        // Update existing product
+        const updateData = {
+          id: editProduct?.id || productId,
+          ...submissionData,
+        };
 
-          // Reset form
-          setProductData({
-            name: "",
-            description: "",
-            basePrice: 0,
-            baseCostPrice: 0,
-            baseSku: "",
-            categoryIds: [],
-            imageUrls: [],
-            initialStock: 0,
-            weight: 0,
-            weightType: "grams",
-            isPrivate: false,
-            metaTitle: "",
-            metaDescription: "",
-            howToUse: "",
-            productIngredients: "",
-            tags: [],
-            options: [],
-            variants: [],
-            ribbon: null,
-            exchangeRateSaleCurrency: null,
-            lowInQuantityValue: "",
-          });
-          setOptions([]);
-          setVariants([]);
-          setImageFiles([]);
-          setImagePreviewUrls([]);
-          setActiveTab("Basics");
+        await updateProduct({
+          brandId,
+          updateData,
+          filters,
+          pageNumber,
+          onSuccess: (updatedProduct) => {
+            onClose();
 
-          // Show success toast with actions
-          successToast(
-            "Product Created Successfully",
-            `${createdProduct.name} has been created and is now available in your inventory.`,
-            8000,
-            [
-              {
-                label: "Edit",
-                variant: "outline",
-                onClick: () => {
-                  // Reopen modal in edit mode
-                  // TODO: Implement edit functionality
+            // Clean up object URLs
+            imagePreviewUrls.forEach((url) => {
+              if (url.startsWith("blob:")) {
+                URL.revokeObjectURL(url);
+              }
+            });
+
+            // Reset form
+            setProductData({
+              name: "",
+              description: "",
+              basePrice: 0,
+              baseCostPrice: 0,
+              baseSku: "",
+              categoryIds: [],
+              imageUrls: [],
+              initialStock: 0,
+              weight: 0,
+              weightType: "grams",
+              isPrivate: false,
+              metaTitle: "",
+              metaDescription: "",
+              howToUse: "",
+              productIngredients: "",
+              tags: [],
+              options: [],
+              variants: [],
+              ribbon: null,
+              exchangeRateSaleCurrency: null,
+              lowInQuantityValue: "",
+            });
+            setOptions([]);
+            setVariants([]);
+            setImageFiles([]);
+            setImagePreviewUrls([]);
+            setActiveTab("Basics");
+
+            // Show success toast
+            successToast(
+              "Product Updated Successfully",
+              `${updatedProduct.name} has been updated successfully.`
+            );
+          },
+        });
+      } else {
+        // Create new product
+        await createProductWithInventory({
+          brandId,
+          productData: submissionData,
+          filters,
+          pageNumber,
+          onSuccess: (createdProduct) => {
+            onClose();
+
+            // Clean up object URLs
+            imagePreviewUrls.forEach((url) => {
+              if (url.startsWith("blob:")) {
+                URL.revokeObjectURL(url);
+              }
+            });
+
+            // Reset form
+            setProductData({
+              name: "",
+              description: "",
+              basePrice: 0,
+              baseCostPrice: 0,
+              baseSku: "",
+              categoryIds: [],
+              imageUrls: [],
+              initialStock: 0,
+              weight: 0,
+              weightType: "grams",
+              isPrivate: false,
+              metaTitle: "",
+              metaDescription: "",
+              howToUse: "",
+              productIngredients: "",
+              tags: [],
+              options: [],
+              variants: [],
+              ribbon: null,
+              exchangeRateSaleCurrency: null,
+              lowInQuantityValue: "",
+            });
+            setOptions([]);
+            setVariants([]);
+            setImageFiles([]);
+            setImagePreviewUrls([]);
+            setActiveTab("Basics");
+
+            // Show success toast with actions
+            successToast(
+              "Product Created Successfully",
+              `${createdProduct.name} has been created and is now available in your inventory.`,
+              8000,
+              [
+                {
+                  label: "Edit",
+                  variant: "outline",
+                  onClick: () => {
+                    // Reopen modal in edit mode
+                    // TODO: Implement edit functionality
+                  },
                 },
-              },
-              {
-                label: "Duplicate",
-                onClick: () => {
-                  // TODO: Open duplicate modal
+                {
+                  label: "Duplicate",
+                  onClick: () => {
+                    // TODO: Open duplicate modal
+                  },
                 },
-              },
-            ]
-          );
-        },
-      });
+              ],
+              { maxWidth: "100%", width: "100%" }
+            );
+          },
+        });
+      }
     } catch (error) {
-      console.error("Error creating product:", error);
-      errorToast("Error", "Failed to create product. Please try again.");
+      console.error("Error saving product:", error);
+      errorToast(
+        "Error",
+        `Failed to ${isEdit ? "update" : "create"} product. Please try again.`
+      );
     } finally {
       setIsUploadingImages(false);
     }
@@ -480,7 +579,7 @@ const AddProductModal = ({
       active={isOpen}
       toggler={onClose}
       isSideModal={true}
-      title="NEW PRODUCT"
+      title={isEdit ? "EDIT PRODUCT" : "NEW PRODUCT"}
       size="xl"
       footer={
         <div className="flex justify-end gap-3">
@@ -504,14 +603,16 @@ const AddProductModal = ({
             )}
           <Button
             text={
-              activeTab === "Fulfillment" 
-                ? isUploadingImages 
-                  ? "UPLOADING IMAGES..." 
-                  : "CREATE PRODUCT" 
+              activeTab === "Fulfillment"
+                ? isUploadingImages
+                  ? "UPLOADING IMAGES..."
+                  : isEdit
+                  ? "UPDATE PRODUCT"
+                  : "CREATE PRODUCT"
                 : "CONTINUE"
             }
             onClick={activeTab === "Fulfillment" ? handleSubmit : handleNext}
-            loading={createProductLoading || isUploadingImages}
+            isLoading={createProductLoading || isUploadingImages}
           />
         </div>
       }
@@ -572,250 +673,33 @@ const AddProductModal = ({
         <div className="py-6">
           {/* Basics Tab */}
           {activeTab === "Basics" && (
-            <div className="gap-y-2">
-              <Input
-                placeholder="Product Name"
-                value={productData.name}
-                onChangeFunc={(val) => handleInputChange("name", val)}
-                fullWidth
-              />
-
-              <div className="mb-4">
-                <label className="text-[14px] text-[#555555] block mb-2">
-                  Product description
-                </label>
-                <textarea
-                  value={productData.description}
-                  onChange={(e) =>
-                    handleInputChange("description", e.target.value)
-                  }
-                  placeholder="Write your description here (max 140 chars)"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm min-h-[100px]"
-                  maxLength={140}
-                />
-                <div className="text-xs text-gray-500 mt-1">
-                  {productData.description.length}/140 characters
-                </div>
-              </div>
-
-              <Select
-                placeholder="Categories"
-                options={categoryOptions}
-                value={selectedCategories}
-                onChange={(selected) => {
-                  const categoryIds = selected
-                    ? selected.map((cat) => cat.value)
-                    : [];
-                  handleInputChange("categoryIds", categoryIds);
-                }}
-                fullWidth
-                isMulti
-              />
-
-              <div className="flex gap-3">
-                <Input
-                  placeholder="Base Price"
-                  type="number"
-                  value={productData.basePrice}
-                  onChangeFunc={(val) =>
-                    handleInputChange("basePrice", parseFloat(val) || "")
-                  }
-                />
-                <Input
-                  placeholder="Cost Price"
-                  type="number"
-                  value={productData.baseCostPrice}
-                  onChangeFunc={(val) =>
-                    handleInputChange("baseCostPrice", parseFloat(val) || 0)
-                  }
-                />
-              </div>
-
-              <Input
-                placeholder="SKU"
-                value={productData.baseSku}
-                onChangeFunc={(val) => handleInputChange("baseSku", val)}
-                fullWidth
-              />
-            </div>
+            <BasicTab
+              productData={productData}
+              handleInputChange={handleInputChange}
+              categoryOptions={categoryOptions}
+              selectedCategories={selectedCategories}
+            />
           )}
 
           {/* Media & deets Tab */}
           {activeTab === "Media & deets" && (
-            <div className="flex flex-col justify-start gap-y-6">
-              <ImagePicker
-                label={isUploadingImages ? "Uploading images..." : `Please upload at least 2, max 6 (${getAllImages().length} selected)`}
-                handleDrop={handleImageDrop}
-                images={getAllImages()}
-                setImages={() => {}} // Not used in this new approach
-                removeImage={handleImageRemove}
-                multiple
-                disabled={isUploadingImages}
-              />
-
-              <Input
-                placeholder="Initial Stock"
-                type="number"
-                value={productData.initialStock}
-                onChangeFunc={(val) =>
-                  handleInputChange("initialStock", parseInt(val) || 0)
-                }
-                fullWidth
-              />
-
-              <div className="mb-4">
-                <label className="text-[14px] text-[#555555] block mb-2">
-                  Meta Title
-                </label>
-                <Input
-                  value={productData.metaTitle}
-                  onChangeFunc={(val) => handleInputChange("metaTitle", val)}
-                  placeholder="Enter meta title"
-                  fullWidth
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="text-[14px] text-[#555555] block mb-2">
-                  Meta Description
-                </label>
-                <textarea
-                  value={productData.metaDescription}
-                  onChange={(e) =>
-                    handleInputChange("metaDescription", e.target.value)
-                  }
-                  placeholder="Enter meta description"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm min-h-[100px]"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="text-[14px] text-[#555555] block mb-2">
-                  How to Use
-                </label>
-                <textarea
-                  value={productData.howToUse}
-                  onChange={(e) =>
-                    handleInputChange("howToUse", e.target.value)
-                  }
-                  placeholder="Enter usage instructions"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm min-h-[100px]"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="text-[14px] text-[#555555] block mb-2">
-                  Product Ingredients
-                </label>
-                <textarea
-                  value={productData.productIngredients}
-                  onChange={(e) =>
-                    handleInputChange("productIngredients", e.target.value)
-                  }
-                  placeholder="Enter product ingredients"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm min-h-[100px]"
-                />
-              </div>
-
-              <Select
-                placeholder="Ribbon"
-                options={ribbonOptions}
-                value={ribbonOptions.find(
-                  (option) => option.value === productData.ribbon
-                )}
-                onChange={(selected) =>
-                  handleInputChange("ribbon", selected?.value || null)
-                }
-                fullWidth
-              />
-
-              <Input
-                placeholder="Low Stock Alert Quantity"
-                type="number"
-                value={productData.lowInQuantityValue}
-                onChangeFunc={(val) =>
-                  handleInputChange("lowInQuantityValue", val)
-                }
-                fullWidth
-              />
-
-              <div className="flex items-center gap-3 mt-4">
-                <input
-                  type="checkbox"
-                  id="isPrivate"
-                  checked={productData.isPrivate}
-                  onChange={(e) =>
-                    handleInputChange("isPrivate", e.target.checked)
-                  }
-                  className="w-4 h-4 text-[#690007] border-gray-300 rounded focus:ring-[#690007]"
-                />
-                <label htmlFor="isPrivate" className="text-sm text-gray-700">
-                  Make this product private
-                </label>
-              </div>
-            </div>
+            <MediaDeetsTab
+              productData={productData}
+              handleInputChange={handleInputChange}
+              isUploadingImages={isUploadingImages}
+              getAllImages={getAllImages}
+              handleImageDrop={handleImageDrop}
+              handleImageRemove={handleImageRemove}
+              ribbonOptions={ribbonOptions}
+            />
           )}
 
           {/* Fulfillment Tab */}
           {activeTab === "Fulfillment" && (
-            <div className="flex flex-col gap-4">
-              <div className="flex gap-3">
-                <Input
-                  placeholder="Weight"
-                  type="number"
-                  value={productData.weight}
-                  onChangeFunc={(val) =>
-                    handleInputChange("weight", parseFloat(val) || 0)
-                  }
-                />
-                <Select
-                  placeholder="Type"
-                  options={[
-                    { label: "grams", value: "grams" },
-                    { label: "kg", value: "kg" },
-                    { label: "lb", value: "lb" },
-                  ]}
-                  value={{
-                    label: productData.weightType,
-                    value: productData.weightType,
-                  }}
-                  onChange={(selected) =>
-                    handleInputChange("weightType", selected?.value || "grams")
-                  }
-                  className="w-32"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="text-[14px] text-[#555555] block mb-2">
-                  Tags (comma separated)
-                </label>
-                <Input
-                  value={productData.tags.join(", ")}
-                  onChangeFunc={(val) => {
-                    const tagsArray = val
-                      .split(",")
-                      .map((tag) => tag.trim())
-                      .filter((tag) => tag);
-                    handleInputChange("tags", tagsArray);
-                  }}
-                  placeholder="Enter tags separated by commas"
-                  fullWidth
-                />
-              </div>
-
-              <Input
-                placeholder="Exchange Rate Sale Currency"
-                value={productData.exchangeRateSaleCurrency}
-                onChangeFunc={(val) =>
-                  handleInputChange(
-                    "exchangeRateSaleCurrency",
-                    parseFloat(val) || null
-                  )
-                }
-                fullWidth
-              />
-            </div>
+            <FulfillmentTab
+              productData={productData}
+              handleInputChange={handleInputChange}
+            />
           )}
         </div>
 
@@ -937,4 +821,4 @@ const AddProductModal = ({
   );
 };
 
-export default AddProductModal;
+export default observer(AddProductModal);

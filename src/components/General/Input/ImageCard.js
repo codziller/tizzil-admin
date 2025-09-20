@@ -11,6 +11,7 @@ const ImageCard = ({
   isBanner,
   isPost,
   isMarketingImg,
+  index,
 }) => {
   return type === "video" ? (
     <div key={image?.name} className="image-item w-full h-full relative">
@@ -20,7 +21,7 @@ const ImageCard = ({
         </span>
         {multiple && (
           <button
-            onClick={() => removeImage?.(image)}
+            onClick={() => removeImage?.(index)}
             className="text-red "
             type="button"
           >
@@ -52,7 +53,7 @@ const ImageCard = ({
         </span>
         {multiple && (
           <button
-            onClick={() => removeImage?.(image)}
+            onClick={() => removeImage?.(index)}
             className="text-red flex justify-center items-center min-w-[25px] min-h-[25px] hover:bg-grey-fade rounded-full transition-colors duration-300 ease-in-out"
             type="button"
           >
@@ -83,6 +84,7 @@ ImageCard.propTypes = {
   isBanner: PropTypes.bool,
   isPost: PropTypes.bool,
   isMarketingImg: PropTypes.bool,
+  index: PropTypes.number,
 };
 
 export default ImageCard;

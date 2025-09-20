@@ -35,89 +35,13 @@ const CollectionFilterModal = ({ isOpen, onClose, onApply }) => {
   };
 
   return (
-    <Modal active={isOpen} toggler={onClose}>
-      <div className="w-full max-w-md mx-auto bg-white rounded-lg p-4">
-        <h3 className="text-[#111827] text-base font-bold mb-6">Filter Collections</h3>
-
-        <div className="space-y-5">
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[#111827] text-sm font-bold">
-                Date created
-              </span>
-              <button
-                onClick={handleDateReset}
-                className="text-[#690007] text-sm font-bold"
-              >
-                Reset
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="date"
-                placeholder="From"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-              />
-              <input
-                type="date"
-                placeholder="To"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-              />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[#111827] text-sm font-bold">Collection Type</span>
-              <button
-                onClick={handleCollectionTypeReset}
-                className="text-[#690007] text-sm font-bold"
-              >
-                Reset
-              </button>
-            </div>
-            <select
-              value={collectionType}
-              onChange={(e) => setCollectionType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-            >
-              <option value="">Select collection type</option>
-              <option value="seasonal">Seasonal</option>
-              <option value="featured">Featured</option>
-              <option value="bestsellers">Bestsellers</option>
-              <option value="new-arrivals">New Arrivals</option>
-              <option value="custom">Custom</option>
-            </select>
-          </div>
-
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[#111827] text-sm font-bold">Status</span>
-              <button
-                onClick={handleStatusReset}
-                className="text-[#690007] text-sm font-bold"
-              >
-                Reset
-              </button>
-            </div>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-            >
-              <option value="">Select status</option>
-              <option value="live">Live</option>
-              <option value="pending">Pending</option>
-              <option value="draft">Draft</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex justify-between gap-5 mt-9">
+    <Modal
+      active={isOpen}
+      toggler={onClose}
+      title="Filter Collections"
+      size="md"
+      footer={
+        <div className="flex justify-between gap-3 w-full">
           <Button
             text="Reset all"
             isOutline
@@ -129,6 +53,84 @@ const CollectionFilterModal = ({ isOpen, onClose, onApply }) => {
             onClick={handleApply}
             className="flex-1"
           />
+        </div>
+      }
+    >
+      <div className="space-y-5">
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[#111827] text-sm font-bold">
+              Date created
+            </span>
+            <button
+              onClick={handleDateReset}
+              className="text-[#690007] text-sm font-bold"
+            >
+              Reset
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="date"
+              placeholder="From"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+            />
+            <input
+              type="date"
+              placeholder="To"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+            />
+          </div>
+        </div>
+
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[#111827] text-sm font-bold">Collection Type</span>
+            <button
+              onClick={handleCollectionTypeReset}
+              className="text-[#690007] text-sm font-bold"
+            >
+              Reset
+            </button>
+          </div>
+          <select
+            value={collectionType}
+            onChange={(e) => setCollectionType(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+          >
+            <option value="">Select collection type</option>
+            <option value="seasonal">Seasonal</option>
+            <option value="featured">Featured</option>
+            <option value="bestsellers">Bestsellers</option>
+            <option value="new-arrivals">New Arrivals</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[#111827] text-sm font-bold">Status</span>
+            <button
+              onClick={handleStatusReset}
+              className="text-[#690007] text-sm font-bold"
+            >
+              Reset
+            </button>
+          </div>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+          >
+            <option value="">Select status</option>
+            <option value="live">Live</option>
+            <option value="pending">Pending</option>
+            <option value="draft">Draft</option>
+          </select>
         </div>
       </div>
     </Modal>

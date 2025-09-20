@@ -9,6 +9,7 @@ import { ReactComponent as BsCaretDownFill } from "assets/icons/Arrow/caret-down
 import { FormErrorMessage } from "../FormErrorMessage";
 import ToolTip from "../ToolTip";
 import { isObject } from "lodash";
+import MultiSelect from "../MultiSelect";
 
 const Select = ({
   label,
@@ -27,8 +28,42 @@ const Select = ({
   onBlur,
   showFormError,
   tooltip,
+  isMulti,
+  loadOptions,
+  customOption,
+  customSelectedOption,
+  showSelectedOutside,
+  selectedPosition,
+  leftIcon,
   ...rest
 }) => {
+  // If isMulti is true, use the MultiSelect component
+  if (isMulti) {
+    return (
+      <MultiSelect
+        label={label}
+        options={options}
+        value={value}
+        onChange={onChange}
+        onInputChange={rest.onInputChange}
+        loadOptions={async ? loadOptions : undefined}
+        loading={rest.isLoading}
+        disabled={rest.isDisabled}
+        leftIcon={leftIcon}
+        showSelectedOutside={showSelectedOutside}
+        selectedPosition={selectedPosition}
+        customOption={customOption}
+        customSelectedOption={customSelectedOption}
+        fullWidth={fullWidth}
+        formError={formError}
+        showFormError={showFormError}
+        tooltip={tooltip}
+        onBlur={onBlur}
+        placeholder={rest.placeholder}
+        {...rest}
+      />
+    );
+  }
   const classNames = `${
     fullWidth ? "w-full" : "w-fit"
   } h-fit mx-[1px] text-lg md:text-[13px] border-slate-300 placeholder-slate-400 !placeholder:text-grey cursor-pointer`;
@@ -243,6 +278,13 @@ Select.propTypes = {
   fullWidth: PropTypes.bool,
   value: PropTypes.any,
   tooltip: PropTypes.string,
+  isMulti: PropTypes.bool,
+  loadOptions: PropTypes.func,
+  customOption: PropTypes.func,
+  customSelectedOption: PropTypes.func,
+  showSelectedOutside: PropTypes.bool,
+  selectedPosition: PropTypes.oneOf(["above", "below"]),
+  leftIcon: PropTypes.element,
 };
 
 export default Select;

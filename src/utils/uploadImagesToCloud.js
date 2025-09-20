@@ -2,9 +2,9 @@ import axios from "axios";
 import { errorToast } from "components/General/Toast/Toast";
 import CryptoJS from "crypto-js";
 
-const CLOUDINARY_API_KEY = process.env.REACT_APP_CLOUDINARY_API_KEY;
-const CLOUDINARY_SECRET = process.env.REACT_APP_CLOUDINARY_SECRET;
-const CLOUDINARY_CLOUDNAME = "tizzil"; // Default cloudname for Tizzil
+const CLOUDINARY_API_KEY = process.env.REACT_APP_CLOUDINARY_API_KEY?.trim();
+const CLOUDINARY_SECRET = process.env.REACT_APP_CLOUDINARY_SECRET?.trim();
+const CLOUDINARY_CLOUDNAME = process.env.REACT_APP_CLOUDINARY_CLOUDNAME?.trim();
 
 const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUDNAME}/upload`;
 
@@ -16,9 +16,9 @@ const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUDNAME}/
 const generateSignature = (params) => {
   const sortedParams = Object.keys(params)
     .sort()
-    .map(key => `${key}=${params[key]}`)
-    .join('&');
-  
+    .map((key) => `${key}=${params[key]}`)
+    .join("&");
+
   return CryptoJS.SHA1(sortedParams + CLOUDINARY_SECRET).toString();
 };
 
@@ -32,12 +32,18 @@ export const uploadImagesToCloud = async (files) => {
     return [];
   }
 
+  // Validate required environment variables
+  if (!CLOUDINARY_API_KEY || !CLOUDINARY_SECRET || !CLOUDINARY_CLOUDNAME) {
+    console.error("Cloudinary configuration missing");
+    errorToast("Configuration Error", "Cloudinary configuration is incomplete");
+    return [];
+  }
+
   const imageUrls = [];
   const uploaders = files.map((file) => {
     const timestamp = Math.floor(Date.now() / 1000);
     const uploadParams = {
       timestamp: timestamp,
-      folder: "tizzil_products", // Optional: organize uploads in folders
     };
 
     // Generate signature for signed upload
@@ -48,7 +54,6 @@ export const uploadImagesToCloud = async (files) => {
     formData.append("api_key", CLOUDINARY_API_KEY);
     formData.append("timestamp", timestamp);
     formData.append("signature", signature);
-    formData.append("folder", uploadParams.folder);
 
     return axios
       .post(CLOUDINARY_URL, formData, {
@@ -61,7 +66,10 @@ export const uploadImagesToCloud = async (files) => {
       })
       .catch((error) => {
         console.error("Cloudinary upload error:", error);
-        errorToast("Error uploading file.", error?.response?.data?.error?.message || error?.message);
+        errorToast(
+          "Error uploading file.",
+          error?.response?.data?.error?.message || error?.message
+        );
       });
   });
 
@@ -79,30 +87,33 @@ export const uploadImagesToCloud = async (files) => {
 export const uploadImageToCloud = async (file, compress = false) => {
   if (!file) return null;
 
+  // Validate required environment variables
+  if (!CLOUDINARY_API_KEY || !CLOUDINARY_SECRET || !CLOUDINARY_CLOUDNAME) {
+    console.error("Cloudinary configuration missing:", {
+      api_key: !!CLOUDINARY_API_KEY,
+      secret: !!CLOUDINARY_SECRET,
+      cloudname: !!CLOUDINARY_CLOUDNAME
+    });
+    errorToast("Configuration Error", "Cloudinary configuration is incomplete");
+    return null;
+  }
+
   const timestamp = Math.floor(Date.now() / 1000);
+
+  // For signed uploads, we'll use minimal parameters to avoid signature issues
   const uploadParams = {
     timestamp: timestamp,
-    folder: "tizzil_products", // Optional: organize uploads in folders
   };
-
-  // Add quality parameter if not compressing
-  if (!compress) {
-    uploadParams.quality = "auto:good";
-  }
 
   // Generate signature for signed upload
   const signature = generateSignature(uploadParams);
 
+  // Build form data
   const formData = new FormData();
   formData.append("file", file);
   formData.append("api_key", CLOUDINARY_API_KEY);
   formData.append("timestamp", timestamp);
   formData.append("signature", signature);
-  formData.append("folder", uploadParams.folder);
-  
-  if (!compress) {
-    formData.append("quality", "auto:good"); // For optimizing image quality
-  }
 
   try {
     const response = await axios.post(CLOUDINARY_URL, formData, {
@@ -114,7 +125,10 @@ export const uploadImageToCloud = async (file, compress = false) => {
     return response.data.secure_url;
   } catch (error) {
     console.error("Cloudinary upload error:", error);
-    errorToast("Error uploading file.", error?.response?.data?.error?.message || error?.message);
+    errorToast(
+      "Error uploading file.",
+      error?.response?.data?.error?.message || error?.message
+    );
     return null;
   }
 };

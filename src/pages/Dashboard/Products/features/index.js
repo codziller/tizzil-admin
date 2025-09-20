@@ -4,20 +4,18 @@ import { useNavigate, useParams } from "react-router";
 import PropTypes from "prop-types";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 
-import { NAIRA, PRODUCT_MODAL_TYPES, pageCount } from "utils/appConstant";
 import { ReactComponent as SearchBlackIcon } from "assets/icons/search-black.svg";
 import { ReactComponent as FilterIcon } from "assets/icons/filter-icon.svg";
 import { ReactComponent as PlusIcon } from "assets/icons/plus-icon.svg";
 import { ReactComponent as DividerIcon } from "assets/icons/divider-icon.svg";
 import { ReactComponent as EmptyListIcon } from "assets/icons/empty-list-icon.svg";
-import { ReactComponent as ChevronDown } from "assets/icons/Arrow/chevron-down.svg";
+import { ReactComponent as EditTiny } from "assets/icons/edit-tiny.svg";
+import { ReactComponent as EyeTiny } from "assets/icons/eye-tiny.svg";
 import useWindowDimensions from "hooks/useWindowDimensions";
-import { Button } from "components/General/Button";
 import { observer } from "mobx-react-lite";
 import ProductsStore from "../store";
 import CategoriesStore from "../../Categories/store";
 import classNames from "classnames";
-import { sampleProducts } from "utils/sampleData";
 import ProductCard from "components/General/ProductCard";
 import ProductFilterModal from "components/General/FilterModals/ProductFilterModal";
 import Pagination from "components/General/Pagination";
@@ -54,7 +52,9 @@ const ProductsPage = ({
   const [activeProductTab, setActiveProductTab] = useState("All Products");
   const [showNewProductModal, setShowNewProductModal] = useState(false);
   const [showProductDetailsModal, setShowProductDetailsModal] = useState(false);
+  const [showEditProductModal, setShowEditProductModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productToEdit, setProductToEdit] = useState(null);
 
   // Pagination and filtering state
   const [currentPage, setCurrentPage] = useState(1);
@@ -111,10 +111,11 @@ const ProductsPage = ({
   };
 
   const handleSearchToggle = () => {
-    setSearchExpanded(!searchExpanded);
-    if (!searchExpanded) {
+    if (searchExpanded) {
+      // If search is currently expanded, we're closing it, so clear the query
       setSearchQuery("");
     }
+    setSearchExpanded(!searchExpanded);
   };
 
   const handleSearchChange = (e) => {
@@ -151,6 +152,34 @@ const ProductsPage = ({
     setShowProductDetailsModal(true);
   };
 
+  const handleEditProduct = (product) => {
+    setProductToEdit(product);
+    // Load full product details for editing
+    getProduct({ data: { id: product.id } });
+    setShowEditProductModal(true);
+  };
+
+  const handleViewProduct = (product) => {
+    setSelectedProduct(product);
+    // Load full product details
+    getProduct({ data: { id: product.id } });
+    setShowProductDetailsModal(true);
+  };
+
+  // Define menu options for ProductCard
+  const productMenuOptions = [
+    {
+      icon: EditTiny,
+      label: "Edit Product",
+      onClick: handleEditProduct,
+    },
+    {
+      icon: EyeTiny,
+      label: "View Product",
+      onClick: handleViewProduct,
+    },
+  ];
+
   // Calculate pagination
   const pageSize = 12; // Assuming 12 products per page
   const totalPages = Math.ceil(productsCount / pageSize);
@@ -173,121 +202,115 @@ const ProductsPage = ({
               </p>
             </div>
 
-            {!isEmpty(displayProducts) && (
-              <div className="flex items-center gap-5">
-                {/* Search Section */}
-                <div className="flex items-center gap-2">
-                  {searchExpanded ? (
-                    <div className="flex items-center gap-2 transition-all duration-300">
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        placeholder="Search products..."
-                        className="px-3 py-2 border border-gray-300 rounded-md text-sm w-64"
-                        autoFocus
-                      />
-                      <button
-                        onClick={handleSearchToggle}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                        >
-                          <path
-                            d="M12 4L4 12M4 4l8 8"
-                            stroke="#111111"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      {!isMobile && (
-                        <span className="text-[14px] text-[#111111]">
-                          Search
-                        </span>
-                      )}
-                      <button
-                        onClick={handleSearchToggle}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <SearchBlackIcon className="w-4 h-4" />
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                <DividerIcon />
-
-                {/* Filters Section */}
-                <div
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => setFilterModalOpen(true)}
-                >
-                  {!isMobile && (
-                    <span className="text-[14px] text-[#111111]">
-                      Filters {appliedFilters > 0 && `(${appliedFilters})`}
-                    </span>
-                  )}
-                  <button
-                    onClick={() => setFilterModalOpen(true)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <FilterIcon
-                      className={classNames("w-4 h-4", {
-                        "fill-[#690007]": appliedFilters > 0,
-                        "fill-[#111111]": appliedFilters === 0,
-                      })}
+            <div className="flex items-center gap-5">
+              {/* Search Section */}
+              <div className="flex items-center gap-2">
+                {searchExpanded ? (
+                  <div className="flex items-center gap-2 transition-all duration-300">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      placeholder="Search products..."
+                      className="px-3 py-2 border border-gray-300 rounded-md text-sm w-64"
+                      autoFocus
                     />
-                  </button>
-                </div>
-
-                <DividerIcon />
-
-                {/* Add Product Button */}
-                <div
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => setShowNewProductModal(true)}
-                >
-                  {!isMobile && (
-                    <span className="text-[12px] text-[#111111] uppercase">
-                      Add a product
-                    </span>
-                  )}
-                  <button
-                    onClick={() => setShowNewProductModal(true)}
-                    className="w-7 h-7 bg-[#690007] rounded-full flex items-center justify-center hover:bg-[#5a0006] transition-colors"
-                  >
-                    <PlusIcon className="w-4 h-4" />
-                  </button>
-                </div>
+                    <button
+                      onClick={handleSearchToggle}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                      >
+                        <path
+                          d="M12 4L4 12M4 4l8 8"
+                          stroke="#111111"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {!isMobile && (
+                      <span className="text-[14px] text-[#111111]">Search</span>
+                    )}
+                    <button
+                      onClick={handleSearchToggle}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <SearchBlackIcon className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
               </div>
-            )}
+
+              <DividerIcon />
+
+              {/* Filters Section */}
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => setFilterModalOpen(true)}
+              >
+                {!isMobile && (
+                  <span className="text-[14px] text-[#111111]">
+                    Filters {appliedFilters > 0 && `(${appliedFilters})`}
+                  </span>
+                )}
+                <button
+                  onClick={() => setFilterModalOpen(true)}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <FilterIcon
+                    className={classNames("w-4 h-4", {
+                      "fill-[#690007]": appliedFilters > 0,
+                      "fill-[#111111]": appliedFilters === 0,
+                    })}
+                  />
+                </button>
+              </div>
+
+              <DividerIcon />
+
+              {/* Add Product Button */}
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => setShowNewProductModal(true)}
+              >
+                {!isMobile && (
+                  <span className="text-[12px] text-[#111111] uppercase">
+                    Add a product
+                  </span>
+                )}
+                <button
+                  onClick={() => setShowNewProductModal(true)}
+                  className="w-7 h-7 bg-[#690007] rounded-full flex items-center justify-center hover:bg-[#5a0006] transition-colors"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Product Tabs */}
-          {!isEmpty(displayProducts) && (
-            <div className="flex gap-5">
-              {productTabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => handleProductTabClick(tab)}
-                  className={classNames("text-[14px] transition-colors", {
-                    "text-[#690007]": activeProductTab === tab,
-                    "text-[#AAAAAA]": activeProductTab !== tab,
-                  })}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="flex gap-5">
+            {productTabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => handleProductTabClick(tab)}
+                className={classNames("text-[14px] transition-colors", {
+                  "text-[#690007]": activeProductTab === tab,
+                  "text-[#AAAAAA]": activeProductTab !== tab,
+                })}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
 
           {/* Content Section */}
           {loading || isLoading ? (
@@ -298,13 +321,11 @@ const ProductsPage = ({
             <div className="flex flex-col items-center justify-center h-64 w-full">
               <EmptyListIcon className="mb-8" />
               <h3 className="text-[16px] text-[#000000] font-medium mb-2">
-                Nothing to see here
+                No products found
               </h3>
-              <p className="text-[16px] text-[#777777] mb-8">products</p>
-              <Button
-                text="ADD A PRODUCT"
-                onClick={() => setShowNewProductModal(true)}
-              />
+              <p className="text-[16px] text-[#777777]">
+                Try adjusting your search or filter criteria
+              </p>
             </div>
           ) : (
             <div
@@ -318,7 +339,8 @@ const ProductsPage = ({
                   key={product.id}
                   product={product}
                   onClick={handleProductCardClick}
-                  hasMenu={false}
+                  hasMenu={true}
+                  menuOptions={productMenuOptions}
                 />
               ))}
             </div>
@@ -348,6 +370,13 @@ const ProductsPage = ({
       <AddProductModal
         isOpen={showNewProductModal}
         onClose={() => setShowNewProductModal(false)}
+      />
+
+      <AddProductModal
+        isOpen={showEditProductModal}
+        onClose={() => setShowEditProductModal(false)}
+        product={productToEdit}
+        isEdit={true}
       />
 
       <ProductDetailsModal

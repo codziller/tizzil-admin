@@ -4,7 +4,7 @@ import { graphQlInstance } from "services";
 const getProductQuery = ({ id }) => gql`
   {
     __typename
-    product(id: "${id}") {
+    productWithInventory(id: "${id}") {
      
 id     
 brand {
@@ -16,19 +16,14 @@ categories {
   name
   id
   }
-costPrice
+baseCostPrice
 createdAt
-discountType
-discountValue
-isDiscountAllowed
 enablePreOrder
-isPrivate
 howToUse
 id
 name
 preOrderLimit
 preOrderMessage
-productDescription
 productIngredients
 productOptions {
   createdAt
@@ -104,7 +99,6 @@ productVariants {
   isLowStock
   isOutOfStock
   productId
-  salePrice
   sku
   updatedAt
   variantName
@@ -136,38 +130,12 @@ productVariants {
   weight
   weightType
 }
-productSubscriptions {
-  name
-  id
-  active
-  discountType
-  discountValue
-  subscriptionDuration
-  subscriptionFrequency
-  tagline
-}
 ribbon
-salePrice
 updatedAt
 weight
 weightType
 imageUrls
-lowInQuantityValue
-warehouseInventory {
-id
-lowInQuantityValue
-quantity
-warehouseId
-}
-quantity
-productCostPrice {
-  costPrice
-  updatedAt
-  id
-  quantityLeft
-}
-archive
-       
+lowInQuantityValue 
     }
   }
 `;
@@ -347,6 +315,7 @@ productOptions {
 const getProductsWithInventoryQuery = ({
   brandIds,
   categoryIds,
+  collectionIds,
   inStockOnly,
   pageNumber,
   searchQuery,
@@ -357,6 +326,7 @@ const getProductsWithInventoryQuery = ({
     productsWithInventory(
       ${brandIds ? `brandIds: ${JSON.stringify(brandIds)}` : ""}
       ${categoryIds ? `categoryIds: ${JSON.stringify(categoryIds)}` : ""}
+      ${collectionIds ? `collectionIds: ${JSON.stringify(collectionIds)}` : ""}
       ${inStockOnly !== undefined ? `inStockOnly: ${inStockOnly}` : ""}
       pageNumber: "${pageNumber}"
       ${searchQuery ? `searchQuery: "${searchQuery}"` : ""}
@@ -387,6 +357,7 @@ const getProductsWithInventoryQuery = ({
         imageUrls
         inventory {
           id
+          quantityAvailable
         }
         isActive
         isLowStock
@@ -515,79 +486,16 @@ const getProductsWithInventoryQuery = ({
   }
 `;
 
-const createProductWithInventoryQuery = ({ brandId, productData }) => gql`
-  mutation {
+const createProductWithInventoryQuery = gql`
+  mutation createProductWithInventory(
+    $brandId: String!
+    $productData: CreateProductWithInventoryInput!
+  ) {
     createProductWithInventory(
-      brandId: "${brandId}"
-      productData: {
-        name: "${productData.name}"
-        baseCostPrice: ${productData.baseCostPrice}
-        basePrice: ${productData.basePrice}
-        ${productData.baseSku ? `baseSku: "${productData.baseSku}"` : ""}
-        ${
-          productData.categoryIds
-            ? `categoryIds: ${JSON.stringify(productData.categoryIds)}`
-            : ""
-        }
-        ${
-          productData.description
-            ? `description: "${productData.description}"`
-            : ""
-        }
-        ${
-          productData.exchangeRateSaleCurrency
-            ? `exchangeRateSaleCurrency: ${productData.exchangeRateSaleCurrency}`
-            : ""
-        }
-        ${productData.howToUse ? `howToUse: "${productData.howToUse}"` : ""}
-        ${
-          productData.imageUrls
-            ? `imageUrls: ${JSON.stringify(productData.imageUrls)}`
-            : ""
-        }
-        ${
-          productData.initialStock
-            ? `initialStock: ${productData.initialStock}`
-            : ""
-        }
-        ${
-          productData.isPrivate !== undefined
-            ? `isPrivate: ${productData.isPrivate}`
-            : ""
-        }
-        ${
-          productData.lowInQuantityValue
-            ? `lowInQuantityValue: "${productData.lowInQuantityValue}"`
-            : ""
-        }
-        ${
-          productData.metaDescription
-            ? `metaDescription: "${productData.metaDescription}"`
-            : ""
-        }
-        ${productData.metaTitle ? `metaTitle: "${productData.metaTitle}"` : ""}
-        ${
-          productData.options
-            ? `options: ${JSON.stringify(productData.options)}`
-            : ""
-        }
-        ${
-          productData.productIngredients
-            ? `productIngredients: "${productData.productIngredients}"`
-            : ""
-        }
-        ${productData.ribbon ? `ribbon: ${productData.ribbon}` : ""}
-        ${productData.tags ? `tags: ${JSON.stringify(productData.tags)}` : ""}
-        ${
-          productData.variants
-            ? `variants: ${JSON.stringify(productData.variants)}`
-            : ""
-        }
-        ${productData.weight ? `weight: ${productData.weight}` : ""}
-        ${productData.weightType ? `weightType: ${productData.weightType}` : ""}
-      }
+      brandId: $brandId
+      productData: $productData
     ) {
-     id
+      id
     }
   }
 `;
@@ -1174,7 +1082,6 @@ const searchProductsQuery = ({ page, searchQuery }) => gql`
         name
         quantity
         lowInQuantityValue
-        salePrice
         imageUrls
         archive 
         productOptions {
@@ -1411,6 +1318,7 @@ const apis = {
   getProductsWithInventory: ({
     brandIds,
     categoryIds,
+    collectionIds,
     inStockOnly,
     pageNumber,
     searchQuery,
@@ -1420,6 +1328,7 @@ const apis = {
       getProductsWithInventoryQuery({
         brandIds,
         categoryIds,
+        collectionIds,
         inStockOnly,
         pageNumber,
         searchQuery,
@@ -1431,8 +1340,9 @@ const apis = {
     ),
 
   createProductWithInventory: ({ brandId, productData }) =>
-    graphQlInstance(createProductWithInventoryQuery({ brandId, productData }), {
+    graphQlInstance(createProductWithInventoryQuery, {
       method: "POST",
+      variables: { brandId, productData },
     }),
 
   updateProduct: ({ updateData }) =>

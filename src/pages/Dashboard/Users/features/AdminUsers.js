@@ -6,16 +6,22 @@ import moment from "moment";
 import { ReactComponent as Plus } from "assets/icons/add.svg";
 import { ReactComponent as TrashIcon } from "assets/icons/trash-box.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/SearchIcon/searchIcon.svg";
+import { ReactComponent as FilterIcon } from "assets/icons/filter-icon.svg";
+import { ReactComponent as DividerIcon } from "assets/icons/divider-icon.svg";
+import { ReactComponent as EmptyListIcon } from "assets/icons/empty-list-icon.svg";
+import { ReactComponent as SearchBlackIcon } from "assets/icons/search-black.svg";
+import { ReactComponent as PlusIcon } from "assets/icons/plus-icon.svg";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import Table from "components/General/Table";
 import TableDropdown from "components/General/Dropdown/TableDropdown";
-import SearchBar from "components/General/Searchbar/SearchBar";
 import { Button } from "components/General/Button";
 import TransactionDetailsModal from "./DetailsModal";
 import AddUserModal from "./AddUserModal";
 import UserDetailsModal from "./UserDetailsModal";
+import UserFilterModal from "../../FilterModals/UserFilterModal";
 import UsersStore from "../store";
 import { pageCount } from "utils/appConstant";
+import useWindowDimensions from "hooks/useWindowDimensions";
 
 // Admin navigation items for permissions
 const adminNavItems = [
@@ -56,39 +62,6 @@ const adminNavItems = [
   },
 ];
 
-// Sample admin users data
-const sampleAdminUsers = [
-  {
-    id: 1,
-    firstName: "John",
-    lastName: "Admin",
-    email: "john.admin@tizzil.com",
-    phoneNumber: "+1234567890",
-    createdAt: new Date("2024-01-15"),
-    permissions: ["dashboard-overview", "orders", "brands"],
-    status: "Active",
-  },
-  {
-    id: 2,
-    firstName: "Jane",
-    lastName: "Manager",
-    email: "jane.manager@tizzil.com",
-    phoneNumber: "+0987654321",
-    createdAt: new Date("2024-02-10"),
-    permissions: ["orders", "brands", "reviews"],
-    status: "Active",
-  },
-  {
-    id: 3,
-    firstName: "Mike",
-    lastName: "Support",
-    email: "mike.support@tizzil.com",
-    phoneNumber: "+1122334455",
-    createdAt: new Date("2024-03-05"),
-    permissions: ["discover-users", "user-management"],
-    status: "Inactive",
-  },
-];
 
 const USER_STATUS_OPTIONS = [
   { label: "Active", value: "Active" },
@@ -98,35 +71,82 @@ const USER_STATUS_OPTIONS = [
 
 const AdminUsers = () => {
   const {
+    getUsers,
     users,
     loading,
     usersCount,
   } = UsersStore;
 
+  const { width, isMobile } = useWindowDimensions();
   const [currentTxnDetails, setCurrentTxnDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showUserDetailsModal, setShowUserDetailsModal] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [appliedFiltersCount, setAppliedFiltersCount] = useState(0);
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [filters, setFilters] = useState({
+    brandId: "",
+    createdAfter: "",
+    createdBefore: "",
+    hasOrders: "",
+    isDeleted: "",
+    isEmailConfirmed: "",
+  });
 
   const searchQuery = searchInput?.trim();
 
-  const displayedUsers = useMemo(() => {
-    let baseUsers = users.length > 0 ? users : sampleAdminUsers;
-    
-    if (searchQuery) {
-      baseUsers = baseUsers.filter(user =>
-        `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const loadUsers = () => {
+    const params = {
+      pageNumber: currentPage,
+      searchQuery: searchQuery || undefined,
+      brandId: filters.brandId || undefined,
+      createdAfter: filters.createdAfter || undefined,
+      createdBefore: filters.createdBefore || undefined,
+      hasOrders: filters.hasOrders !== "" ? filters.hasOrders : undefined,
+      isDeleted: filters.isDeleted !== "" ? filters.isDeleted : undefined,
+      isEmailConfirmed: filters.isEmailConfirmed !== "" ? filters.isEmailConfirmed : undefined,
+    };
+
+    getUsers({ data: params });
+  };
+
+  const handleFilterApply = (newFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+
+    // Count applied filters
+    const filterCount = Object.values(newFilters).filter(value =>
+      value !== "" && value !== null && value !== undefined
+    ).length;
+    setAppliedFiltersCount(filterCount);
+  };
+
+  const handleSearchToggle = () => {
+    setSearchExpanded(!searchExpanded);
+    if (!searchExpanded) {
+      setSearchInput("");
     }
-    
-    return baseUsers;
-  }, [users, searchQuery]);
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, [currentPage, searchQuery, filters]);
+
+  useEffect(() => {
+    if (searchQuery?.length > 1 || !searchQuery) {
+      setCurrentPage(1);
+    }
+  }, [searchInput]);
+
+  const displayedUsers = useMemo(() => {
+    return users || [];
+  }, [users]);
 
   const displayedUsersCount = useMemo(() => {
-    return usersCount > 0 ? usersCount : sampleAdminUsers.length;
+    return usersCount || 0;
   }, [usersCount]);
 
   const handleAddUser = (userData) => {
@@ -232,62 +252,154 @@ const AdminUsers = () => {
           <div className="flex justify-between items-center w-full gap-4">
             <h1 className="text-[22px] font-bold text-[#111111]">Admin Users</h1>
 
-            <div className="flex items-center justify-between gap-4">
-              <SearchBar
-                placeholder={"Search admin users"}
-                onChange={setSearchInput}
-                value={searchInput}
-                className="flex !w-[250px]"
-              />
-              <Button
-                text="Add User"
-                icon={<Plus className="stroke-current" />}
-                onClick={() => setShowAddUserModal(true)}
-                className="flex items-center gap-2"
-              />
-            </div>
+            {displayedUsers.length > 0 && (
+              <div className="flex items-center gap-5">
+                {/* Search Section */}
+                <div className="flex items-center gap-2">
+                  {searchExpanded ? (
+                    <div className="flex items-center gap-2 transition-all duration-300">
+                      <input
+                        type="text"
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        placeholder="Search admin users..."
+                        className="px-3 py-2 border border-gray-300 rounded-md text-sm w-64"
+                        autoFocus
+                      />
+                      <button
+                        onClick={handleSearchToggle}
+                        className="p-1 hover:bg-gray-100 rounded"
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M12 4L4 12M4 4l8 8"
+                            stroke="#111111"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {!isMobile && (
+                        <span className="text-[14px] text-[#111111]">
+                          Search
+                        </span>
+                      )}
+                      <button
+                        onClick={handleSearchToggle}
+                        className="p-1 hover:bg-gray-100 rounded"
+                      >
+                        <SearchBlackIcon className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                <DividerIcon />
+
+                {/* Filters Section */}
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => setShowFilterModal(true)}
+                >
+                  {!isMobile && (
+                    <span className="text-[14px] text-[#111111]">
+                      Filters {appliedFiltersCount > 0 && `(${appliedFiltersCount})`}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => setShowFilterModal(true)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <FilterIcon
+                      className={classNames("w-4 h-4", {
+                        "fill-[#690007]": appliedFiltersCount > 0,
+                        "fill-[#111111]": appliedFiltersCount === 0,
+                      })}
+                    />
+                  </button>
+                </div>
+
+                <DividerIcon />
+
+                {/* Add User section */}
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => setShowAddUserModal(true)}
+                >
+                  {!isMobile && (
+                    <span className="text-[12px] text-[#111111] uppercase">
+                      Add a user
+                    </span>
+                  )}
+                  <button
+                    onClick={() => setShowAddUserModal(true)}
+                    className="w-7 h-7 bg-[#690007] rounded-full flex items-center justify-center hover:bg-[#5a0006] transition-colors"
+                  >
+                    <PlusIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {loading ? (
-            <CircleLoader blue />
+            <div className="flex justify-center items-center h-64 w-full">
+              <CircleLoader blue />
+            </div>
+          ) : displayedUsers.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 w-full">
+              <EmptyListIcon className="mb-8" />
+              <h3 className="text-[16px] text-[#000000] font-medium mb-2">
+                {searchQuery || appliedFiltersCount > 0
+                  ? "No users found"
+                  : "Nothing to see here"}
+              </h3>
+              <p className="text-[16px] text-[#777777] mb-8">
+                {searchQuery
+                  ? `No results for "${searchQuery}"`
+                  : appliedFiltersCount > 0
+                  ? "Try adjusting your filters"
+                  : "admin users"}
+              </p>
+              {!searchQuery && appliedFiltersCount === 0 && (
+                <Button text="ADD A USER" onClick={() => setShowAddUserModal(true)} />
+              )}
+            </div>
           ) : (
             <div className="flex flex-col flex-grow justify-start items-center w-full h-full">
-              {displayedUsers.length > 0 ? (
-                <Table
-                  data={displayedUsers}
-                  columns={columns}
-                  onRowClicked={handleUserClick}
-                  pointerOnHover
-                  isLoading={loading}
-                  pageCount={Math.ceil(displayedUsersCount / pageCount)}
-                  onPageChange={setCurrentPage}
-                  currentPage={currentPage}
-                  tableClassName="txn-section-table"
-                  noPadding
-                  useEnhancedTable={true}
-                  title="Admin Users"
-                  itemCount={displayedUsersCount}
-                  menuOptions={[
-                    {
-                      name: "Export Users",
-                      onClick: () => console.log("Export users"),
-                    },
-                    {
-                      name: "Add New User",
-                      onClick: () => setShowAddUserModal(true),
-                    },
-                  ]}
-                />
-              ) : (
-                <div className="text-grey-text flex flex-col justify-center items-center space-y-3 h-full">
-                  <SearchIcon className="stroke-current" />
-                  <span>
-                    {searchQuery
-                      ? `There are no results for your search '${searchQuery}'`
-                      : "There are currently no admin users"}
-                  </span>
-                </div>
-              )}
+              <Table
+                data={displayedUsers}
+                columns={columns}
+                onRowClicked={handleUserClick}
+                pointerOnHover
+                isLoading={loading}
+                pageCount={Math.ceil(displayedUsersCount / pageCount)}
+                onPageChange={setCurrentPage}
+                currentPage={currentPage}
+                tableClassName="txn-section-table"
+                noPadding
+                useEnhancedTable={true}
+                title="Admin Users"
+                itemCount={displayedUsersCount}
+                menuOptions={[
+                  {
+                    name: "Export Users",
+                    onClick: () => console.log("Export users"),
+                  },
+                  {
+                    name: "Add New User",
+                    onClick: () => setShowAddUserModal(true),
+                  },
+                ]}
+              />
             </div>
           )}
         </div>
@@ -317,6 +429,14 @@ const AdminUsers = () => {
           setSelectedUser(null);
         }}
         adminNavItems={adminNavItems}
+      />
+
+      {/* User Filter Modal */}
+      <UserFilterModal
+        active={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApplyFilters={handleFilterApply}
+        currentFilters={filters}
       />
     </>
   );

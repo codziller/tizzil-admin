@@ -18,6 +18,7 @@ import { flattenArrayToString } from "utils/functions";
 import Tabs from "components/General/Tabs";
 import HeaderNavs from "./HeaderNavs";
 import HeaderNavsHidden from "./HeaderNavsHidden";
+import AddCategoryModal from "./AddCategoryModal";
 
 export const dateFilters = [
   {
@@ -53,6 +54,8 @@ const CategoriesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [activeTab, setActiveTab] = useState(TABS[0]?.name);
+  const [addCategoryModalOpen, setAddCategoryModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   useEffect(() => {
     getCategories();
   }, []);
@@ -72,7 +75,18 @@ const CategoriesPage = () => {
   };
 
   const handleEdit = (row) => {
-    setCurrentTxnDetails({ ...row, modalType: "edit" });
+    setSelectedCategory(row);
+    setAddCategoryModalOpen(true);
+  };
+
+  const handleAddCategory = () => {
+    setSelectedCategory(null);
+    setAddCategoryModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setAddCategoryModalOpen(false);
+    setSelectedCategory(null);
   };
   const columns = [
     {
@@ -154,9 +168,7 @@ const CategoriesPage = () => {
                 text="Add Category"
                 icon={<Plus className="stroke-current" />}
                 className="hidden md:block"
-                onClick={() =>
-                  setCurrentTxnDetails({ modalType: "add", isAdd: true })
-                }
+                onClick={handleAddCategory}
               />
             </div>
 
@@ -205,6 +217,12 @@ const CategoriesPage = () => {
         active={!!currentTxnDetails}
         details={currentTxnDetails}
         toggler={() => setCurrentTxnDetails(null)}
+      />
+
+      <AddCategoryModal
+        isOpen={addCategoryModalOpen}
+        onClose={handleCloseModal}
+        category={selectedCategory}
       />
     </>
   );

@@ -57,39 +57,201 @@ const getOrdersByUserQuery = ({ page, id }) => gql`
   }
 `;
 
-const getOrdersQuery = ({
-  page,
-  status,
-  startDate,
-  endDate,
-  deliveryHandler,
-  warehouseId,
-}) => gql`
-  {
-    __typename
-    orders(pageNumber: "${page}", warehouseId: "${warehouseId}", status: "${status}",startDate: "${startDate}", endDate: "${endDate}",  ${
-  deliveryHandler ? `deliveryHandler:"${deliveryHandler}"` : ""
-}) {
+const getOrdersQuery = gql`
+  query adminGetAllOrders($input: GetOrdersInput!) {
+    adminGetAllOrders(input: $input) {
       total
       results {
-        calculatedOrder {
-          erpWarehouseNames,
-          totalAmount
-          user {
-            firstName
-            lastName
-          }
-        }
         id
-        deliveryMethod
-        orderSource
         orderCode
         orderStatus
         paid
         paymentMethod
+        deliveryMethod
+        orderSource
+        totalAmount
+        subtotal
+        deliveryFee
+        createdAt
         updatedAt
+        actualDeliveryDate
+        expectedDeliveryDate
+        trackingNumber
+        trackingUrl
+        notes
+        isPreOrder
+        isSubscription
+        isInventoryUpdated
         guestFirstName
         guestLastName
+        guestEmail
+        guestPhoneNumber
+        guestAddress
+        brand {
+          id
+          brandName
+        }
+        user {
+          id
+          firstName
+          lastName
+          email
+          phoneNumber
+        }
+        calculatedOrder {
+          id
+          totalAmount
+          realTotalAmount
+          deliveryFee
+          realDeliveryFee
+          freeDelivery
+          serviceCharge
+          user {
+            id
+            firstName
+            lastName
+            email
+          }
+          address {
+            id
+            addressText
+            firstName
+            lastName
+            phoneNumber
+            email
+            city
+            state
+            country
+          }
+          calculatedOrderProducts {
+            id
+            quantity
+            salePrice
+            costPrice
+            profit
+            isPreOrder
+            isProductFree
+            product {
+              id
+              name
+              imageUrls
+            }
+            productVariant {
+              id
+              variantName
+              imageUrls
+            }
+          }
+        }
+        history {
+          date
+          text
+        }
+      }
+    }
+  }
+`;
+
+const getBrandOrdersWithFlavorCloudQuery = gql`
+  query getBrandOrdersWithFlavorCloud(
+    $brandId: String!
+    $pageNumber: Int! = 1
+    $pageSize: Int! = 50
+    $status: ORDER_STATUS
+  ) {
+    getBrandOrdersWithFlavorCloud(
+      brandId: $brandId
+      pageNumber: $pageNumber
+      pageSize: $pageSize
+      status: $status
+    ) {
+      total
+      results {
+        id
+        orderCode
+        orderStatus
+        paid
+        paymentMethod
+        deliveryMethod
+        orderSource
+        totalAmount
+        subtotal
+        deliveryFee
+        createdAt
+        updatedAt
+        actualDeliveryDate
+        expectedDeliveryDate
+        trackingNumber
+        trackingUrl
+        notes
+        isPreOrder
+        isSubscription
+        isInventoryUpdated
+        guestFirstName
+        guestLastName
+        guestEmail
+        guestPhoneNumber
+        guestAddress
+        brand {
+          id
+          brandName
+        }
+        user {
+          id
+          firstName
+          lastName
+          email
+          phoneNumber
+        }
+        calculatedOrder {
+          id
+          totalAmount
+          realTotalAmount
+          deliveryFee
+          realDeliveryFee
+          freeDelivery
+          serviceCharge
+          user {
+            id
+            firstName
+            lastName
+            email
+          }
+          address {
+            id
+            addressText
+            firstName
+            lastName
+            phoneNumber
+            email
+            city
+            state
+            country
+          }
+          calculatedOrderProducts {
+            id
+            quantity
+            salePrice
+            costPrice
+            profit
+            isPreOrder
+            isProductFree
+            product {
+              id
+              name
+              imageUrls
+            }
+            productVariant {
+              id
+              variantName
+              imageUrls
+            }
+          }
+        }
+        history {
+          date
+          text
+        }
       }
     }
   }
@@ -128,30 +290,6 @@ const getRefundedOrdersQuery = ({
   }
 `;
 
-const getBrandOrdersQuery = ({ page, id, startDate, endDate }) => gql`
-  {
-    __typename
-    orders_by_brand_id(pageNumber: "${page}", id: "${id}",startDate: "${startDate}", endDate: "${endDate}") {
-      total
-      results {
-        calculatedOrder {
-          totalAmount
-          user {
-            firstName
-            lastName
-          }
-        }
-        id
-        deliveryMethod
-        orderCode
-        orderStatus
-        paid
-        paymentMethod
-        updatedAt
-      }
-    }
-  }
-`;
 
 const refundItemInOrderQuery = ({
   calculatedProductId,
@@ -174,91 +312,102 @@ const getOrdersCountQuery = ({ page }) => gql`
     }
   }
 `;
-const getOrderQuery = ({ id }) => gql`
-  {
-    __typename
-    order(id: "${id}") {
-      calculatedOrder {
-        warehouse{
-          name
-        }
-        trackingUrl
-        topshipShipmentRate {
-          mode
-        }
-        checkDiscountCodeResult {
-          status
-          amountSaved
-          discountCode
-          realTotalAmount
-          discountType
-        }
-        address {
-          addressText
-          firstName
-          lastName
-          phoneNumber
-        }
-        calculatedOrderProducts {
-          id
-          salePrice
-          erpWarehouseNames
-          costPrices{
-            costPrice
-            quantityBought
-            quantityLeft
-          }
-          product {
-            id
-            name
-            imageUrls
-            salePrice
-            brand {
-              brandName
-              id
-            }
-          }
-          productOption {
-            name
-            choices{
-              variantName
-              variantSalePrice
-              imageUrls
-            }
-          }
-          productOptionChoiceIndex
-          productOptionId
-          quantity
-        }
-        deliveryFee
-        freeDelivery
-        serviceCharge
-        totalAmount
-        updatedAt
-        user {
-          firstName
-          lastName
-          phoneNumber
-          gender
-          email
-        }
-      }
-      deliveryMethod
-      guestAddress
-      guestDeliveryFee
-      guestEmail
-      guestFirstName
-      guestLastName
-      guestPhoneNumber
-      storePaymentMethod
-      orderSource
+const getOrderQuery = gql`
+  query getOrderByCode($orderCode: String!) {
+    getOrderByCode(orderCode: $orderCode) {
       id
       orderCode
       orderStatus
       paid
       paymentMethod
-      topshipDispatchStatus
+      deliveryMethod
+      orderSource
+      totalAmount
+      subtotal
+      deliveryFee
+      createdAt
       updatedAt
+      actualDeliveryDate
+      expectedDeliveryDate
+      trackingNumber
+      trackingUrl
+      notes
+      isPreOrder
+      isSubscription
+      isInventoryUpdated
+      guestFirstName
+      guestLastName
+      guestEmail
+      guestPhoneNumber
+      guestAddress
+      paymentReference
+      pickupAddressText
+      updatedBy
+      brand {
+        id
+        brandName
+      }
+      user {
+        id
+        firstName
+        lastName
+        email
+        phoneNumber
+      }
+      calculatedOrder {
+        id
+        totalAmount
+        realTotalAmount
+        deliveryFee
+        realDeliveryFee
+        freeDelivery
+        serviceCharge
+        orderProductsTotalAmount
+        user {
+          id
+          firstName
+          lastName
+          email
+          phoneNumber
+        }
+        address {
+          id
+          addressText
+          firstName
+          lastName
+          phoneNumber
+          email
+          city
+          state
+          country
+          postalCode
+          addressLat
+          addressLng
+        }
+        calculatedOrderProducts {
+          id
+          quantity
+          salePrice
+          costPrice
+          profit
+          isPreOrder
+          isProductFree
+          product {
+            id
+            name
+            imageUrls
+          }
+          productVariant {
+            id
+            variantName
+            imageUrls
+          }
+        }
+      }
+      history {
+        date
+        text
+      }
     }
   }
 `;
@@ -391,27 +540,17 @@ const apis = {
     graphQlInstance(getOrdersByUserQuery({ page, id }), {
       method: "GET",
     }),
-  getOrders: ({
-    page,
-    status,
-    startDate,
-    endDate,
-    deliveryHandler,
-    warehouseId,
-  }) =>
-    graphQlInstance(
-      getOrdersQuery({
-        page,
-        status,
-        startDate,
-        endDate,
-        deliveryHandler,
-        warehouseId,
-      }),
-      {
-        method: "GET",
-      }
-    ),
+  getOrders: (variables) =>
+    graphQlInstance(getOrdersQuery, {
+      method: "POST",
+      variables,
+    }),
+
+  getBrandOrdersWithFlavorCloud: (variables) =>
+    graphQlInstance(getBrandOrdersWithFlavorCloudQuery, {
+      method: "POST",
+      variables,
+    }),
 
   getRefundedOrders: ({ page, startDate, endDate, warehouseId }) =>
     graphQlInstance(
@@ -425,17 +564,14 @@ const apis = {
         method: "GET",
       }
     ),
-  getBrandOrders: ({ page, id, startDate, endDate }) =>
-    graphQlInstance(getBrandOrdersQuery({ page, id, startDate, endDate }), {
-      method: "GET",
-    }),
   getOrdersCount: ({ page }) =>
     graphQlInstance(getOrdersCountQuery({ page }), {
       method: "GET",
     }),
-  getOrder: ({ id }) =>
-    graphQlInstance(getOrderQuery({ id }), {
-      method: "GET",
+  getOrder: (variables) =>
+    graphQlInstance(getOrderQuery, {
+      method: "POST",
+      variables,
     }),
 
   getRefundedOrder: ({ id }) =>

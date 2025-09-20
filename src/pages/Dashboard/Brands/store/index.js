@@ -14,12 +14,19 @@ class BrandsStore {
   brands = [];
   brand = null;
   brandsCount = null;
+  pendingBrands = [];
+  pendingBrandsCount = null;
+  dashboardStats = null;
   error = null;
   loading = false;
+  pendingBrandsLoading = false;
+  dashboardStatsLoading = false;
   createBrandLoading = false;
   editBrandLoading = false;
   getBrandLoading = false;
   deleteBrandLoading = false;
+  approveBrandLoading = false;
+  rejectBrandLoading = false;
   constructor() {
     makeAutoObservable(this);
   }
@@ -32,9 +39,9 @@ class BrandsStore {
     this.loading = true;
     try {
       let res = await apis.getBrands(data);
-      res = res?.brands;
+      res = res?.adminGetPublicBrands;
       this.brands =
-        res?.results
+        res?.data
           ?.sort((a, b) => moment(b.createdAt).diff(moment(a.createdAt)))
           ?.map((item) => {
             return { ...item, label: item?.brandName, value: item?.id };
@@ -51,12 +58,58 @@ class BrandsStore {
     this.getBrandLoading = true;
     try {
       let res = await apis.getBrand(data);
-      res = res?.brand;
+      res = res?.adminGetBrandById;
       this.brand = res;
     } catch (error) {
       this.error = error;
     } finally {
       this.getBrandLoading = false;
+    }
+  };
+
+  getBrandsAwaitingApproval = async ({ data }) => {
+    this.pendingBrandsLoading = true;
+    try {
+      let res = await apis.getBrandsAwaitingApproval({
+        page: data?.page,
+        city: data?.city,
+        country: data?.country,
+        endDate: data?.endDate,
+        hasShopifyIntegration: data?.hasShopifyIntegration,
+        maxEstimatedMonthlyOrders: data?.maxEstimatedMonthlyOrders,
+        maxYearsInBusiness: data?.maxYearsInBusiness,
+        minEstimatedMonthlyOrders: data?.minEstimatedMonthlyOrders,
+        minYearsInBusiness: data?.minYearsInBusiness,
+        productImportMethod: data?.productImportMethod,
+        searchQuery: data?.searchQuery,
+        startDate: data?.startDate,
+        state: data?.state
+      });
+      res = res?.adminGetBrandsAwaitingApproval;
+      this.pendingBrands =
+        res?.data
+          ?.sort((a, b) => moment(b.submittedAt).diff(moment(a.submittedAt)))
+          ?.map((item) => {
+            return { ...item, label: item?.brandName, value: item?.registrationId };
+          }) || [];
+      this.pendingBrandsCount = res?.total;
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.pendingBrandsLoading = false;
+    }
+  };
+
+  getBrandDashboardStats = async () => {
+    this.dashboardStatsLoading = true;
+    try {
+      let res = await apis.getBrandDashboardStats();
+      res = res?.adminGetBrandDashboardStats;
+      this.dashboardStats = res;
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.dashboardStatsLoading = false;
     }
   };
 
@@ -99,6 +152,34 @@ class BrandsStore {
       this.error = error;
     } finally {
       this.deleteBrandLoading = false;
+    }
+  };
+
+  approveBrandRegistration = async ({ registrationId, onSuccess, filters = {} }) => {
+    this.approveBrandLoading = true;
+    try {
+      await apis.approveBrandRegistration({ registrationId });
+      successToast("Operation Successful!", "Brand approved successfully.");
+      onSuccess?.();
+      await this.getBrandsAwaitingApproval({ data: { page: 1, ...filters } });
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.approveBrandLoading = false;
+    }
+  };
+
+  rejectBrandRegistration = async ({ registrationId, rejectionReason, onSuccess, filters = {} }) => {
+    this.rejectBrandLoading = true;
+    try {
+      await apis.rejectBrandRegistration({ registrationId, rejectionReason });
+      successToast("Operation Successful!", "Brand rejected successfully.");
+      onSuccess?.();
+      await this.getBrandsAwaitingApproval({ data: { page: 1, ...filters } });
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.rejectBrandLoading = false;
     }
   };
 }

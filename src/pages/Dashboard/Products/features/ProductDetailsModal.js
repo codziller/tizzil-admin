@@ -3,6 +3,7 @@ import Modal from "components/General/Modal/Modal/Modal";
 import { Button } from "components/General/Button";
 import { observer } from "mobx-react-lite";
 import ProductsStore from "../store";
+import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import classNames from "classnames";
 
 const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
@@ -31,10 +32,7 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
         size="xl"
       >
         <div className="w-full h-full flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#690007]"></div>
-            <p className="text-gray-600">Loading product details...</p>
-          </div>
+          <CircleLoader blue />
         </div>
       </Modal>
     );
@@ -398,6 +396,80 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
               </div>
             </div>
           )}
+
+          {/* SEO Information */}
+          {(productData.metaTitle || productData.metaDescription) && (
+            <div className="mb-8">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                SEO Information:
+              </h4>
+              <div className="space-y-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                {productData.metaTitle && (
+                  <div>
+                    <span className="text-xs font-medium text-gray-700">Meta Title:</span>
+                    <p className="text-sm text-gray-600 mt-1">{productData.metaTitle}</p>
+                  </div>
+                )}
+                {productData.metaDescription && (
+                  <div>
+                    <span className="text-xs font-medium text-gray-700">Meta Description:</span>
+                    <p className="text-sm text-gray-600 mt-1">{productData.metaDescription}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Exchange Rate Information */}
+          {productData.exchangeRateSaleCurrency && (
+            <div className="mb-8">
+              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                Currency Information:
+              </h4>
+              <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                <span className="text-sm text-gray-600">
+                  Exchange Rate Sale Currency: {productData.exchangeRateSaleCurrency}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Creation & Update Timestamps */}
+          <div className="mb-8">
+            <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+              Product Information:
+            </h4>
+            <div className="grid grid-cols-2 gap-4 p-3 border border-gray-200 rounded-lg bg-gray-50">
+              {productData.createdAt && (
+                <div>
+                  <span className="text-xs font-medium text-gray-700">Created:</span>
+                  <p className="text-sm text-gray-600">
+                    {new Date(productData.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+              {productData.updatedAt && (
+                <div>
+                  <span className="text-xs font-medium text-gray-700">Last Updated:</span>
+                  <p className="text-sm text-gray-600">
+                    {new Date(productData.updatedAt).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+              {productData.id && (
+                <div>
+                  <span className="text-xs font-medium text-gray-700">Product ID:</span>
+                  <p className="text-sm text-gray-600 font-mono">{productData.id}</p>
+                </div>
+              )}
+              <div>
+                <span className="text-xs font-medium text-gray-700">Visibility:</span>
+                <p className="text-sm text-gray-600">
+                  {productData.isPublic ? 'Public' : 'Private'}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer Buttons */}

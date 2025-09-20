@@ -167,30 +167,39 @@ class ProductsStore {
     }
   };
 
-  getProductsWithInventory = async ({
-    brandIds,
-    categoryIds,
-    inStockOnly,
-    pageNumber,
-    searchQuery,
-    sortBy,
-  }) => {
+  getProductsWithInventory = async (
+    {
+      brandIds,
+      categoryIds,
+      collectionIds,
+      inStockOnly,
+      pageNumber,
+      searchQuery,
+      sortBy,
+    },
+    isSearch
+  ) => {
     this.loading = true;
     try {
       let res = await apis.getProductsWithInventory({
         brandIds,
         categoryIds,
+        collectionIds,
         inStockOnly,
         pageNumber,
         searchQuery,
         sortBy,
       });
       res = res?.productsWithInventory;
-      this.products =
-        res?.results?.sort((a, b) =>
-          moment(b.createdAt).diff(moment(a.createdAt))
-        ) || [];
-      this.productsCount = res?.total;
+      if (!isSearch) {
+        this.products =
+          res?.results?.sort((a, b) =>
+            moment(b.createdAt).diff(moment(a.createdAt))
+          ) || [];
+        this.productsCount = res?.total;
+      }
+
+      return res?.results;
     } catch (error) {
       this.error = error;
     } finally {
@@ -302,7 +311,7 @@ class ProductsStore {
     this.getProductLoading = true;
     try {
       let res = await apis.getProduct(data);
-      res = res?.product;
+      res = res?.productWithInventory;
       this.product = allowAddVariantOriginalSalePrice
         ? {
             ...res,
@@ -412,6 +421,33 @@ class ProductsStore {
       this.error = error;
     } finally {
       this.editProductLoading = false;
+    }
+  };
+
+  updateProduct = async ({
+    brandId,
+    updateData,
+    onSuccess,
+    filters = {},
+    pageNumber = 1,
+  }) => {
+    this.createProductLoading = true; // Reuse the same loading state as create
+    try {
+      const response = await apis.updateProduct({ updateData });
+      successToast("Operation Successful!", "Product updated Successfully.");
+
+      // Refresh products list with current filters
+      await this.getProductsWithInventory({
+        brandIds: [brandId],
+        pageNumber: pageNumber.toString(),
+        ...filters,
+      });
+
+      onSuccess?.(response?.updateProduct);
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.createProductLoading = false;
     }
   };
 
