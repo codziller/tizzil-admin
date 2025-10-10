@@ -489,12 +489,9 @@ const getProductsWithInventoryQuery = ({
 const createProductWithInventoryQuery = gql`
   mutation createProductWithInventory(
     $brandId: String!
-    $productData: CreateProductWithInventoryInput!
+    $productData: CreateProductSchema!
   ) {
-    createProductWithInventory(
-      brandId: $brandId
-      productData: $productData
-    ) {
+    createProductWithInventory(brandId: $brandId, productData: $productData) {
       id
     }
   }

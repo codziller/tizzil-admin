@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import CryptoJS from "crypto-js";
 import { Link, useLocation } from "react-router-dom";
 import { MdClear, MdMoreVert } from "react-icons/md";
 import { BiLogOut } from "react-icons/bi";
@@ -36,6 +37,23 @@ const ModernSideNav = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedItems, setExpandedItems] = useState(new Set());
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+
+  // Form Bani signature
+
+  const tribe_account_ref = "BN-cm1zek3xg04aa39a8bsydjj146";
+  const public_key = "pub_prod_PPXCEPDW5MSKKSEFS4PDKTBNG6PCKQ";
+  const merchant_private_key =
+    "2oSkZw03UYN9nX8U47_UY1mI48ODUSkqVFeRwwFV5hiVo_EX89Zlng";
+
+  const digest_msg = tribe_account_ref + public_key;
+
+  // Create HMAC-SHA256 signature
+  const moni_signature = CryptoJS.HmacSHA256(
+    digest_msg,
+    merchant_private_key
+  ).toString(CryptoJS.enc.Hex);
+
+  console.log("moni_signature:", moni_signature);
 
   // Get user data from localStorage
   const userData = getUserInfoFromStorage();
