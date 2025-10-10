@@ -8,9 +8,7 @@ import { Link } from "react-router-dom";
 const ProviderDashboardLayout = ({ children }) => {
   return (
     <div
-      className={`w-screen flex flex-grow flex-col h-full ${
-        IS_DEV ? "h-with-test-banner" : "min-h-[100vh]"
-      }`}
+      className={`w-screen flex flex-grow flex-col h-full h-with-test-banner`}
     >
       <Toast />
 
