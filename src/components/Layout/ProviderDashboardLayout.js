@@ -1,7 +1,5 @@
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import { IS_DEV } from "utils/appConstant";
-
 import Toast from "../General/Toast/Toast";
 import { Link } from "react-router-dom";
 

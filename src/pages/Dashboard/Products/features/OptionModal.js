@@ -5,7 +5,7 @@ import Input from "components/General/Input/Input";
 import Select from "components/General/Input/Select";
 import { HexColorPicker } from "react-colorful";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { MdAdd, MdDelete, MdDragIndicator } from "react-icons/md";
+import { MdAdd, MdDelete, MdDragIndicator, MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 
 const OptionModal = ({
@@ -20,9 +20,56 @@ const OptionModal = ({
   updateOptionValue,
   onOptionDragEnd,
   saveCurrentOption,
+  editingOptionIndex,
+  setEditingOptionIndex,
 }) => {
   const removeOption = (indexToRemove) => {
     setOptions((prev) => prev.filter((_, index) => index !== indexToRemove));
+    // If we're editing this option, clear the edit state
+    if (editingOptionIndex === indexToRemove) {
+      setEditingOptionIndex(null);
+      setCurrentOption({
+        name: "",
+        type: "TEXT",
+        values: [{ value: "", displayValue: "", colorHex: "" }],
+      });
+    }
+  };
+
+  const handleEditOption = (index) => {
+    const optionToEdit = options[index];
+    setCurrentOption(optionToEdit);
+    setEditingOptionIndex(index);
+  };
+
+  const handleUpdateOption = () => {
+    if (
+      !currentOption.name ||
+      currentOption.values.some((v) => !v.value) ||
+      editingOptionIndex === null
+    )
+      return;
+
+    setOptions((prev) =>
+      prev.map((option, index) =>
+        index === editingOptionIndex ? currentOption : option
+      )
+    );
+    setEditingOptionIndex(null);
+    setCurrentOption({
+      name: "",
+      type: "TEXT",
+      values: [{ value: "", displayValue: "", colorHex: "" }],
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingOptionIndex(null);
+    setCurrentOption({
+      name: "",
+      type: "TEXT",
+      values: [{ value: "", displayValue: "", colorHex: "" }],
+    });
   };
 
   return {
@@ -33,13 +80,27 @@ const OptionModal = ({
     footer: (
       <div className="flex gap-3">
         <Button text="CLOSE" onClick={onClose} isOutline />
-        <Button
-          text="ADD OPTION"
-          onClick={saveCurrentOption}
-          disabled={
-            !currentOption.name || currentOption.values.some((v) => !v.value)
-          }
-        />
+        {editingOptionIndex !== null ? (
+          <>
+            <Button text="CANCEL" onClick={handleCancelEdit} isOutline />
+            <Button
+              text="UPDATE OPTION"
+              onClick={handleUpdateOption}
+              isDisabled={
+                !currentOption.name ||
+                currentOption.values.some((v) => !v.value)
+              }
+            />
+          </>
+        ) : (
+          <Button
+            text="ADD OPTION"
+            onClick={saveCurrentOption}
+            isDisabled={
+              !currentOption.name || currentOption.values.some((v) => !v.value)
+            }
+          />
+        )}
       </div>
     ),
     children: (
@@ -56,14 +117,23 @@ const OptionModal = ({
                   key={index}
                   className="relative p-3 bg-gray-50 rounded-lg border"
                 >
-                  <button
-                    onClick={() => removeOption(index)}
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
-                    title="Delete option"
-                  >
-                    <FaTrash size={12} />
-                  </button>
-                  <div className="flex items-center justify-between pr-8">
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    <button
+                      onClick={() => handleEditOption(index)}
+                      className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition-colors"
+                      title="Edit option"
+                    >
+                      <MdEdit size={14} />
+                    </button>
+                    <button
+                      onClick={() => removeOption(index)}
+                      className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
+                      title="Delete option"
+                    >
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between pr-16">
                     <span className="font-medium">{option.name}</span>
                     <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
                       {option.type}
@@ -95,7 +165,9 @@ const OptionModal = ({
 
         {/* Current Option Form */}
         <div className="space-y-4">
-          <h4 className="text-sm font-medium text-gray-900">Add New Option</h4>
+          <h4 className="text-sm font-medium text-gray-900">
+            {editingOptionIndex !== null ? "Edit Option" : "Add New Option"}
+          </h4>
 
           <div className="flex gap-3">
             <Input
@@ -235,6 +307,8 @@ OptionModal.propTypes = {
   updateOptionValue: PropTypes.func.isRequired,
   onOptionDragEnd: PropTypes.func.isRequired,
   saveCurrentOption: PropTypes.func.isRequired,
+  editingOptionIndex: PropTypes.number,
+  setEditingOptionIndex: PropTypes.func.isRequired,
 };
 
 export default OptionModal;

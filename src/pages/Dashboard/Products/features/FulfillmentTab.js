@@ -43,8 +43,7 @@ const FulfillmentTab = ({
           onChangeFunc={(val) => {
             const tagsArray = val
               .split(",")
-              .map((tag) => tag.trim())
-              .filter((tag) => tag);
+              .map((tag) => tag.trim());
             handleInputChange("tags", tagsArray);
           }}
           placeholder="Enter tags separated by commas"

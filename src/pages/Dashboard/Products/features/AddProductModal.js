@@ -9,6 +9,7 @@ import { successToast, errorToast } from "components/General/Toast/Toast";
 import { uploadImagesToCloud } from "utils/uploadImagesToCloud";
 import classNames from "classnames";
 import { FaTrash } from "react-icons/fa";
+import { MdEdit } from "react-icons/md";
 import OptionModal from "./OptionModal";
 import VariantModal from "./VariantModal";
 import BasicTab from "./BasicTab";
@@ -38,6 +39,8 @@ const AddProductModal = ({
   const [showVariantModal, setShowVariantModal] = useState(false);
   const [showOptionModal, setShowOptionModal] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [editingOptionIndex, setEditingOptionIndex] = useState(null);
+  const [editingVariantIndex, setEditingVariantIndex] = useState(null);
 
   // Store actual file objects for uploading later
   const [imageFiles, setImageFiles] = useState([]);
@@ -56,7 +59,7 @@ const AddProductModal = ({
   const [currentVariant, setCurrentVariant] = useState({
     name: "",
     sku: "",
-    initialStock: "",
+    initialStock: 0,
     optionValues: [{ optionName: "", optionValue: "" }],
   });
   const [productData, setProductData] = useState({
@@ -67,7 +70,7 @@ const AddProductModal = ({
     baseSku: "",
     categoryIds: [],
     imageUrls: [],
-    initialStock: "",
+    initialStock: 0,
     weight: "",
     weightType: "grams",
     isPrivate: false,
@@ -117,7 +120,7 @@ const AddProductModal = ({
         baseSku: "",
         categoryIds: [],
         imageUrls: [],
-        initialStock: "",
+        initialStock: 0,
         weight: "",
         weightType: "grams",
         isPrivate: false,
@@ -331,6 +334,20 @@ const AddProductModal = ({
     setVariants((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
+  const handleEditOptionFromCard = (index) => {
+    const optionToEdit = options[index];
+    setCurrentOption(optionToEdit);
+    setEditingOptionIndex(index);
+    setShowOptionModal(true);
+  };
+
+  const handleEditVariantFromCard = (index) => {
+    const variantToEdit = variants[index];
+    setCurrentVariant(variantToEdit);
+    setEditingVariantIndex(index);
+    setShowVariantModal(true);
+  };
+
   // Variants management functions
   const addOptionValueToVariant = () => {
     setCurrentVariant((prev) => ({
@@ -406,6 +423,7 @@ const AddProductModal = ({
         imageUrls: finalImageUrls,
         options: options,
         variants: variants,
+        tags: productData.tags.filter((tag) => tag.trim() !== ""),
       };
 
       if (isEdit && (editProduct?.id || productId)) {
@@ -587,12 +605,14 @@ const AddProductModal = ({
             !showVariantModal &&
             !showOptionModal && (
               <>
-                <Button
-                  text="CREATE VARIANT"
-                  onClick={() => setShowVariantModal(true)}
-                  isOutline
-                  size="sm"
-                />
+                {options.length > 0 && (
+                  <Button
+                    text="CREATE VARIANT"
+                    onClick={() => setShowVariantModal(true)}
+                    isOutline
+                    size="sm"
+                  />
+                )}
                 <Button
                   text="CREATE OPTION"
                   onClick={() => setShowOptionModal(true)}
@@ -630,6 +650,8 @@ const AddProductModal = ({
               updateOptionValue,
               onOptionDragEnd,
               saveCurrentOption,
+              editingOptionIndex,
+              setEditingOptionIndex,
             })
           : showVariantModal
           ? VariantModal({
@@ -644,6 +666,9 @@ const AddProductModal = ({
               updateVariantOptionValue,
               saveCurrentVariant,
               addNewVariant,
+              options,
+              editingVariantIndex,
+              setEditingVariantIndex,
             })
           : null
       }
@@ -719,14 +744,23 @@ const AddProductModal = ({
                         key={index}
                         className="relative p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200"
                       >
-                        <button
-                          onClick={() => removeOption(index)}
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
-                          title="Delete option"
-                        >
-                          <FaTrash size={12} />
-                        </button>
-                        <div className="flex items-center justify-between mb-2 pr-6">
+                        <div className="absolute top-2 right-2 flex gap-1">
+                          <button
+                            onClick={() => handleEditOptionFromCard(index)}
+                            className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition-colors"
+                            title="Edit option"
+                          >
+                            <MdEdit size={14} />
+                          </button>
+                          <button
+                            onClick={() => removeOption(index)}
+                            className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
+                            title="Delete option"
+                          >
+                            <FaTrash size={12} />
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between mb-2 pr-16">
                           <h5 className="font-medium text-blue-900">
                             {option.name}
                           </h5>
@@ -770,14 +804,23 @@ const AddProductModal = ({
                         key={index}
                         className="relative p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200"
                       >
-                        <button
-                          onClick={() => removeVariant(index)}
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
-                          title="Delete variant"
-                        >
-                          <FaTrash size={12} />
-                        </button>
-                        <div className="flex items-center justify-between mb-2 pr-6">
+                        <div className="absolute top-2 right-2 flex gap-1">
+                          <button
+                            onClick={() => handleEditVariantFromCard(index)}
+                            className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition-colors"
+                            title="Edit variant"
+                          >
+                            <MdEdit size={14} />
+                          </button>
+                          <button
+                            onClick={() => removeVariant(index)}
+                            className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
+                            title="Delete variant"
+                          >
+                            <FaTrash size={12} />
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between mb-2 pr-16">
                           <h5 className="font-medium text-green-900">
                             {variant.name}
                           </h5>

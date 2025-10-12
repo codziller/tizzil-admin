@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
-import { IS_DEV } from "utils/appConstant";
 import OnboardingHeader from "./OnboardingHeader";
 import loginImage from "assets/images/login-image.png";
 import signupImage from "assets/images/signup-image.png";
@@ -16,9 +15,7 @@ export default function Index({ children }) {
 
   return (
     <div
-      className={`${
-        IS_DEV ? "h-with-test-banner" : "h-screen"
-      } w-screen bg-white relative overflow-hidden flex flex-col`}
+      className={`h-with-test-banner w-screen bg-white relative overflow-hidden flex flex-col`}
     >
       <OnboardingHeader />
 
