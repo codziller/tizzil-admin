@@ -21,9 +21,11 @@ import { ReactComponent as Warning2Icon } from "assets/icons/warning-2.svg";
 import { ReactComponent as LocationIcon } from "assets/icons/location-icon.svg";
 import { ReactComponent as OrderHistoryIcon } from "assets/icons/order-history-icon.svg";
 import OrdersStore from "../store";
+import { formatCurrency } from "utils/formatter";
 
 const OrderDetailsPage = () => {
   const { orderCode } = useParams();
+  console.log("orderCode: ", orderCode);
   const navigate = useNavigate();
   const { getOrder, order, getOrderLoading } = OrdersStore;
 
@@ -185,7 +187,10 @@ const OrderDetailsPage = () => {
   };
 
   const calculateSubtotal = () => {
-    const products = displayOrder.calculatedOrder?.calculatedOrderProducts || displayOrder.calculatedOrderProducts || [];
+    const products =
+      displayOrder.calculatedOrder?.calculatedOrderProducts ||
+      displayOrder.calculatedOrderProducts ||
+      [];
     return products.reduce((total, product) => {
       return total + (product.salePrice || 0) * (product.quantity || 0);
     }, 0);
@@ -237,18 +242,35 @@ const OrderDetailsPage = () => {
           <div className="flex items-center gap-2 mb-6">
             <h2 className="text-[17px] text-[#111111]">Order details</h2>
             <span className="text-gray-400">
-              ({(displayOrder.calculatedOrder?.calculatedOrderProducts || displayOrder.calculatedOrderProducts || []).length})
+              (
+              {
+                (
+                  displayOrder.calculatedOrder?.calculatedOrderProducts ||
+                  displayOrder.calculatedOrderProducts ||
+                  []
+                ).length
+              }
+              )
             </span>
           </div>
 
           {/* Products Table */}
           <div className="bg-white rounded-lg border border-gray-200">
-            {(displayOrder.calculatedOrder?.calculatedOrderProducts || displayOrder.calculatedOrderProducts)?.map((product, index) => (
+            {(
+              displayOrder.calculatedOrder?.calculatedOrderProducts ||
+              displayOrder.calculatedOrderProducts
+            )?.map((product, index) => (
               <div
                 key={product.id}
                 className={classNames("flex items-center py-5 px-4", {
                   "border-b border-[#DDDDDD]":
-                    index < (displayOrder.calculatedOrder?.calculatedOrderProducts || displayOrder.calculatedOrderProducts || []).length - 1,
+                    index <
+                    (
+                      displayOrder.calculatedOrder?.calculatedOrderProducts ||
+                      displayOrder.calculatedOrderProducts ||
+                      []
+                    ).length -
+                      1,
                 })}
               >
                 {/* Product Image */}
@@ -286,7 +308,7 @@ const OrderDetailsPage = () => {
                 {/* Price */}
                 <div className="flex-[0.25]">
                   <span className="text-[15px] font-bold text-[#690007]">
-                    ₦{product.salePrice?.toLocaleString()}
+                    {formatCurrency(product.salePrice)}
                   </span>
                 </div>
               </div>
@@ -298,28 +320,36 @@ const OrderDetailsPage = () => {
             <div className="flex justify-between items-center">
               <span className="text-[14px] text-[#888888]">Subtotal</span>
               <span className="text-[14px] text-[#111111] ml-25">
-                ₦{calculateSubtotal().toLocaleString()}
+                {formatCurrency(calculateSubtotal())}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
               <span className="text-[14px] text-[#888888]">Shipping fee</span>
               <span className="text-[14px] text-[#111111] ml-25">
-                ₦{(displayOrder.deliveryFee || displayOrder.calculatedOrder?.deliveryFee || 0).toLocaleString()}
+                {formatCurrency(
+                  displayOrder.deliveryFee ||
+                  displayOrder.calculatedOrder?.deliveryFee ||
+                  0
+                )}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
               <span className="text-[14px] text-[#888888]">Service charge</span>
               <span className="text-[14px] text-[#111111] ml-25">
-                ₦{(displayOrder.calculatedOrder?.serviceCharge || 0).toLocaleString()}
+                {formatCurrency(displayOrder.calculatedOrder?.serviceCharge || 0)}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
               <span className="text-[14px] text-[#888888]">Total</span>
               <span className="text-[14px] text-[#111111] ml-25">
-                ₦{(displayOrder.totalAmount || displayOrder.calculatedOrder?.totalAmount || 0).toLocaleString()}
+                {formatCurrency(
+                  displayOrder.totalAmount ||
+                  displayOrder.calculatedOrder?.totalAmount ||
+                  0
+                )}
               </span>
             </div>
 
@@ -328,7 +358,11 @@ const OrderDetailsPage = () => {
                 Amount to be paid
               </span>
               <span className="text-[14px] font-bold text-[#111111] ml-25">
-                ₦{(displayOrder.totalAmount || displayOrder.calculatedOrder?.totalAmount || 0).toLocaleString()}
+                {formatCurrency(
+                  displayOrder.totalAmount ||
+                  displayOrder.calculatedOrder?.totalAmount ||
+                  0
+                )}
               </span>
             </div>
           </div>
@@ -341,9 +375,13 @@ const OrderDetailsPage = () => {
 
           <div className="flex items-center mb-7">
             <div className="w-8 h-8 mr-5">
-              {(displayOrder.user || displayOrder.calculatedOrder?.user)?.profileImageUrl ? (
+              {(displayOrder.user || displayOrder.calculatedOrder?.user)
+                ?.profileImageUrl ? (
                 <img
-                  src={(displayOrder.user || displayOrder.calculatedOrder?.user).profileImageUrl}
+                  src={
+                    (displayOrder.user || displayOrder.calculatedOrder?.user)
+                      .profileImageUrl
+                  }
                   alt="User"
                   className="w-full h-full rounded-full border border-[#02152B14]"
                 />
@@ -353,11 +391,14 @@ const OrderDetailsPage = () => {
             </div>
             <div>
               <p className="text-[14px] text-[#111111] font-medium">
-                {(displayOrder.user || displayOrder.calculatedOrder?.user)?.firstName || displayOrder.guestFirstName}{" "}
-                {(displayOrder.user || displayOrder.calculatedOrder?.user)?.lastName || displayOrder.guestLastName}
+                {(displayOrder.user || displayOrder.calculatedOrder?.user)
+                  ?.firstName || displayOrder.guestFirstName}{" "}
+                {(displayOrder.user || displayOrder.calculatedOrder?.user)
+                  ?.lastName || displayOrder.guestLastName}
               </p>
               <p className="text-[12px] text-[#888888] mt-1">
-                {(displayOrder.user || displayOrder.calculatedOrder?.user)?.email || displayOrder.guestEmail}
+                {(displayOrder.user || displayOrder.calculatedOrder?.user)
+                  ?.email || displayOrder.guestEmail}
               </p>
             </div>
           </div>
@@ -400,12 +441,15 @@ const OrderDetailsPage = () => {
 
           {/* Google Map */}
           <GoogleMap
-            lat={(displayOrder.calculatedOrder?.address?.addressLat || 6.5244)}
-            lng={(displayOrder.calculatedOrder?.address?.addressLng || 3.3792)}
+            lat={displayOrder.calculatedOrder?.address?.addressLat || 6.5244}
+            lng={displayOrder.calculatedOrder?.address?.addressLng || 3.3792}
             height="200px"
             width="100%"
             className="mb-3.5"
-            address={displayOrder.calculatedOrder?.address?.addressText || displayOrder.guestAddress}
+            address={
+              displayOrder.calculatedOrder?.address?.addressText ||
+              displayOrder.guestAddress
+            }
           />
 
           <div className="flex items-start mb-3.5">
@@ -414,7 +458,8 @@ const OrderDetailsPage = () => {
             </div>
             <div>
               <p className="text-[12px] text-[#111111]">
-                {displayOrder.calculatedOrder?.address?.addressText || displayOrder.guestAddress}
+                {displayOrder.calculatedOrder?.address?.addressText ||
+                  displayOrder.guestAddress}
               </p>
               <p className="text-[12px] text-[#888888] mt-1">
                 {displayOrder.calculatedOrder?.address?.country}
@@ -440,7 +485,8 @@ const OrderDetailsPage = () => {
             </div>
             <div>
               <p className="text-[12px] text-[#111111]">
-                {displayOrder.calculatedOrder?.address?.addressText || displayOrder.guestAddress}
+                {displayOrder.calculatedOrder?.address?.addressText ||
+                  displayOrder.guestAddress}
               </p>
               <p className="text-[12px] text-[#888888] mt-1">
                 {displayOrder.calculatedOrder?.address?.country}

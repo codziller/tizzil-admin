@@ -433,6 +433,7 @@ class ProductsStore {
   }) => {
     this.createProductLoading = true; // Reuse the same loading state as create
     try {
+      console.log("updateData: ", updateData);
       const response = await apis.updateProduct({ updateData });
       successToast("Operation Successful!", "Product updated Successfully.");
 

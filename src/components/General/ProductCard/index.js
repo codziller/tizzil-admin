@@ -4,6 +4,7 @@ import { ReactComponent as EditTiny } from "assets/icons/edit-tiny.svg";
 import { ReactComponent as EyeTiny } from "assets/icons/eye-tiny.svg";
 import useWindowDimensions from "hooks/useWindowDimensions";
 import Checkbox from "components/General/Checkbox";
+import { formatCurrency } from "utils/formatter";
 
 const ProductCard = ({
   product,
@@ -172,7 +173,7 @@ const ProductCard = ({
             </p>
           ) : (
             <p className="text-[#690007] text-sm font-medium">
-              {product.basePrice || product.salePrice}
+              {formatCurrency(product.basePrice || product.salePrice)}
             </p>
           )}
         </div>

@@ -23,9 +23,7 @@ const BasicTab = ({
         </label>
         <textarea
           value={productData.description}
-          onChange={(e) =>
-            handleInputChange("description", e.target.value)
-          }
+          onChange={(e) => handleInputChange("description", e.target.value)}
           placeholder="Write your description here (max 140 chars)"
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm min-h-[100px]"
           maxLength={140}
@@ -40,9 +38,7 @@ const BasicTab = ({
         options={categoryOptions}
         value={selectedCategories}
         onChange={(selected) => {
-          const categoryIds = selected
-            ? selected.map((cat) => cat.value)
-            : [];
+          const categoryIds = selected ? selected.map((cat) => cat.value) : [];
           handleInputChange("categoryIds", categoryIds);
         }}
         fullWidth
@@ -57,6 +53,7 @@ const BasicTab = ({
           onChangeFunc={(val) =>
             handleInputChange("basePrice", parseFloat(val) || "")
           }
+          prefix="USD"
         />
         <Input
           placeholder="Cost Price"
@@ -65,6 +62,7 @@ const BasicTab = ({
           onChangeFunc={(val) =>
             handleInputChange("baseCostPrice", parseFloat(val) || 0)
           }
+          prefix="USD"
         />
       </div>
 

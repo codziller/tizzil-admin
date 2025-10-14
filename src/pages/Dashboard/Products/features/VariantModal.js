@@ -22,17 +22,31 @@ const VariantModal = ({
   editingVariantIndex,
   setEditingVariantIndex,
 }) => {
+  const defaultVariantState = {
+    name: "",
+    sku: "",
+    barcode: "",
+    initialStock: 0,
+    salePrice: "",
+    costPrice: "",
+    compareAtPrice: "",
+    description: "",
+    imageUrls: [],
+    videoUrls: [],
+    weight: "",
+    weightType: "grams",
+    isActive: true,
+    isDefault: false,
+    visibility: true,
+    optionValues: [{ optionName: "", optionValue: "" }],
+  };
+
   const removeVariant = (indexToRemove) => {
     setVariants((prev) => prev.filter((_, index) => index !== indexToRemove));
     // If we're editing this variant, clear the edit state
     if (editingVariantIndex === indexToRemove) {
       setEditingVariantIndex(null);
-      setCurrentVariant({
-        name: "",
-        sku: "",
-        initialStock: 0,
-        optionValues: [{ optionName: "", optionValue: "" }],
-      });
+      setCurrentVariant(defaultVariantState);
     }
   };
 
@@ -51,22 +65,12 @@ const VariantModal = ({
       )
     );
     setEditingVariantIndex(null);
-    setCurrentVariant({
-      name: "",
-      sku: "",
-      initialStock: 0,
-      optionValues: [{ optionName: "", optionValue: "" }],
-    });
+    setCurrentVariant(defaultVariantState);
   };
 
   const handleCancelEdit = () => {
     setEditingVariantIndex(null);
-    setCurrentVariant({
-      name: "",
-      sku: "",
-      initialStock: 0,
-      optionValues: [{ optionName: "", optionValue: "" }],
-    });
+    setCurrentVariant(defaultVariantState);
   };
 
   // Create option name dropdown options
@@ -199,7 +203,7 @@ const VariantModal = ({
             fullWidth
           />
 
-          <div className="flex gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Input
               placeholder="SKU (optional)"
               value={currentVariant.sku}
@@ -207,6 +211,16 @@ const VariantModal = ({
                 setCurrentVariant((prev) => ({
                   ...prev,
                   sku: val,
+                }))
+              }
+            />
+            <Input
+              placeholder="Barcode (optional)"
+              value={currentVariant.barcode}
+              onChangeFunc={(val) =>
+                setCurrentVariant((prev) => ({
+                  ...prev,
+                  barcode: val,
                 }))
               }
             />
@@ -221,6 +235,134 @@ const VariantModal = ({
                 }))
               }
             />
+            <Input
+              placeholder="Sale Price"
+              type="number"
+              value={currentVariant.salePrice}
+              onChangeFunc={(val) =>
+                setCurrentVariant((prev) => ({
+                  ...prev,
+                  salePrice: parseFloat(val) || "",
+                }))
+              }
+            />
+            <Input
+              placeholder="Cost Price"
+              type="number"
+              value={currentVariant.costPrice}
+              onChangeFunc={(val) =>
+                setCurrentVariant((prev) => ({
+                  ...prev,
+                  costPrice: parseFloat(val) || "",
+                }))
+              }
+            />
+            <Input
+              placeholder="Compare At Price (optional)"
+              type="number"
+              value={currentVariant.compareAtPrice}
+              onChangeFunc={(val) =>
+                setCurrentVariant((prev) => ({
+                  ...prev,
+                  compareAtPrice: parseFloat(val) || "",
+                }))
+              }
+            />
+            <Input
+              placeholder="Weight"
+              type="number"
+              value={currentVariant.weight}
+              onChangeFunc={(val) =>
+                setCurrentVariant((prev) => ({
+                  ...prev,
+                  weight: parseFloat(val) || "",
+                }))
+              }
+            />
+            <Select
+              placeholder="Weight Type"
+              options={[
+                { label: "Grams", value: "grams" },
+                { label: "Kilograms", value: "kilograms" },
+                { label: "Pounds", value: "pounds" },
+                { label: "Ounces", value: "ounces" },
+              ]}
+              value={
+                currentVariant.weightType
+                  ? {
+                      label:
+                        currentVariant.weightType.charAt(0).toUpperCase() +
+                        currentVariant.weightType.slice(1),
+                      value: currentVariant.weightType,
+                    }
+                  : null
+              }
+              onChange={(selected) =>
+                setCurrentVariant((prev) => ({
+                  ...prev,
+                  weightType: selected?.value || "grams",
+                }))
+              }
+              fullWidth
+            />
+          </div>
+
+          <Input
+            placeholder="Description (optional)"
+            value={currentVariant.description}
+            onChangeFunc={(val) =>
+              setCurrentVariant((prev) => ({
+                ...prev,
+                description: val,
+              }))
+            }
+            fullWidth
+            type="textarea"
+          />
+
+          <div className="grid grid-cols-3 gap-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={currentVariant.isActive}
+                onChange={(e) =>
+                  setCurrentVariant((prev) => ({
+                    ...prev,
+                    isActive: e.target.checked,
+                  }))
+                }
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-gray-700">Active</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={currentVariant.isDefault}
+                onChange={(e) =>
+                  setCurrentVariant((prev) => ({
+                    ...prev,
+                    isDefault: e.target.checked,
+                  }))
+                }
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-gray-700">Default</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={currentVariant.visibility}
+                onChange={(e) =>
+                  setCurrentVariant((prev) => ({
+                    ...prev,
+                    visibility: e.target.checked,
+                  }))
+                }
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-gray-700">Visible</span>
+            </label>
           </div>
 
           <div>

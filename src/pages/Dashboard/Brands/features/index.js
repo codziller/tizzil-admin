@@ -25,6 +25,7 @@ import BrandFilterModal from "components/General/FilterModals/BrandFilterModal";
 import { convertToJs } from "utils/functions";
 import AuthStore from "pages/OnBoarding/SignIn/store";
 import { pageCount } from "utils/appConstant";
+import { formatCurrency } from "utils/formatter";
 export const dateFilters = [
   {
     value: "today",
@@ -292,7 +293,7 @@ const BrandsPage = ({
       className: "flex-[1]",
       selector: (row) => (
         <span className="text-[14px] text-[#666666]">
-          ₦{(row?.totalRevenue || 0).toLocaleString()}
+          {formatCurrency(row?.totalRevenue || 0, true)}
         </span>
       ),
       sortable: true,
@@ -302,7 +303,7 @@ const BrandsPage = ({
       className: "flex-[1]",
       selector: (row) => (
         <span className="text-[14px] text-[#666666]">
-          ₦{(row?.walletBalance || 0).toLocaleString()}
+          {formatCurrency(row?.walletBalance || 0, true)}
         </span>
       ),
       sortable: true,
@@ -325,7 +326,7 @@ const BrandsPage = ({
           row?.totalOrders > 0 ? row?.totalRevenue / row?.totalOrders : 0;
         return (
           <span className="text-[14px] text-[#666666]">
-            ₦{aov.toLocaleString()}
+            {formatCurrency(aov, true)}
           </span>
         );
       },

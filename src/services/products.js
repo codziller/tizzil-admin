@@ -11,6 +11,7 @@ brand {
   brandName
   id
 }
+  isActive
 brandId
 categories {
   name
@@ -486,6 +487,70 @@ const getProductsWithInventoryQuery = ({
   }
 `;
 
+// Helper function to map options from frontend format to GraphQL schema for create
+const mapOptionsForCreate = (options) => {
+  if (!options || !Array.isArray(options)) return null;
+
+  return options.map(option => {
+    const mapped = {
+      displayOrder: option.displayOrder || 1,
+      isRequired: option.isRequired || false,
+      optionName: option.name || option.optionName,
+      optionType: option.type || option.optionType,
+    };
+
+    // Map option values
+    if (option.values || option.optionValues) {
+      mapped.optionValues = (option.values || option.optionValues).map(value => ({
+        colorHex: value.colorHex || "",
+        displayOrder: value.displayOrder || 1,
+        displayValue: value.displayValue || "",
+        imageUrl: value.imageUrl || "",
+        isActive: value.isActive !== undefined ? value.isActive : true,
+        measurement: value.measurement,
+        measurementUnit: value.measurementUnit || "",
+        value: value.value,
+      }));
+    }
+
+    return mapped;
+  });
+};
+
+// Helper function to map variants from frontend format to GraphQL schema for create
+const mapVariantsForCreate = (variants) => {
+  if (!variants || !Array.isArray(variants)) return null;
+
+  return variants.map(variant => {
+    const mapped = {
+      barcode: variant.barcode || "",
+      compareAtPrice: variant.compareAtPrice,
+      costPrice: variant.costPrice,
+      description: variant.description || "",
+      imageUrls: variant.imageUrls || [],
+      isActive: variant.isActive !== undefined ? variant.isActive : true,
+      isDefault: variant.isDefault || false,
+      salePrice: variant.salePrice,
+      sku: variant.sku || "",
+      variantName: variant.name || variant.variantName,
+      videoUrls: variant.videoUrls || [],
+      visibility: variant.visibility !== undefined ? variant.visibility : true,
+      weight: variant.weight,
+      weightType: variant.weightType,
+    };
+
+    // Map option values
+    if (variant.optionValues) {
+      mapped.optionValues = variant.optionValues.map(ov => ({
+        optionName: ov.optionName,
+        optionValue: ov.optionValue,
+      }));
+    }
+
+    return mapped;
+  });
+};
+
 const createProductWithInventoryQuery = gql`
   mutation createProductWithInventory(
     $brandId: String!
@@ -497,101 +562,207 @@ const createProductWithInventoryQuery = gql`
   }
 `;
 
-const updateProductQuery = ({ updateData }) => gql`
-  mutation {
-    updateProduct(
-      updateData: {
-        id: "${updateData.id}"
-        ${updateData.name ? `name: "${updateData.name}"` : ""}
-        ${
-          updateData.baseCostPrice
-            ? `baseCostPrice: ${updateData.baseCostPrice}`
-            : ""
-        }
-        ${updateData.basePrice ? `basePrice: ${updateData.basePrice}` : ""}
-        ${updateData.baseSku ? `baseSku: "${updateData.baseSku}"` : ""}
-        ${
-          updateData.categoryIds
-            ? `categoryIds: ${JSON.stringify(updateData.categoryIds)}`
-            : ""
-        }
-        ${
-          updateData.description
-            ? `description: "${updateData.description}"`
-            : ""
-        }
-        ${
-          updateData.enablePreOrder !== undefined
-            ? `enablePreOrder: ${updateData.enablePreOrder}`
-            : ""
-        }
-        ${
-          updateData.exchangeRateSaleCurrency
-            ? `exchangeRateSaleCurrency: ${updateData.exchangeRateSaleCurrency}`
-            : ""
-        }
-        ${updateData.howToUse ? `howToUse: "${updateData.howToUse}"` : ""}
-        ${
-          updateData.imageUrls
-            ? `imageUrls: ${JSON.stringify(updateData.imageUrls)}`
-            : ""
-        }
-        ${
-          updateData.isActive !== undefined
-            ? `isActive: ${updateData.isActive}`
-            : ""
-        }
-        ${
-          updateData.isPublic !== undefined
-            ? `isPublic: ${updateData.isPublic}`
-            : ""
-        }
-        ${
-          updateData.lowInQuantityValue
-            ? `lowInQuantityValue: "${updateData.lowInQuantityValue}"`
-            : ""
-        }
-        ${
-          updateData.metaDescription
-            ? `metaDescription: "${updateData.metaDescription}"`
-            : ""
-        }
-        ${updateData.metaTitle ? `metaTitle: "${updateData.metaTitle}"` : ""}
-        ${
-          updateData.options
-            ? `options: ${JSON.stringify(updateData.options)}`
-            : ""
-        }
-        ${
-          updateData.preOrderLimit
-            ? `preOrderLimit: ${updateData.preOrderLimit}`
-            : ""
-        }
-        ${
-          updateData.preOrderMessage
-            ? `preOrderMessage: "${updateData.preOrderMessage}"`
-            : ""
-        }
-        ${
-          updateData.productIngredients
-            ? `productIngredients: "${updateData.productIngredients}"`
-            : ""
-        }
-        ${updateData.ribbon ? `ribbon: ${updateData.ribbon}` : ""}
-        ${updateData.tags ? `tags: ${JSON.stringify(updateData.tags)}` : ""}
-        ${
-          updateData.variants
-            ? `variants: ${JSON.stringify(updateData.variants)}`
-            : ""
-        }
-        ${updateData.weight ? `weight: ${updateData.weight}` : ""}
-        ${updateData.weightType ? `weightType: ${updateData.weightType}` : ""}
-      }
-    ) {
-      id
-    }
+// Helper function to serialize GraphQL input objects
+const serializeGraphQLInput = (obj) => {
+  if (obj === null || obj === undefined) return 'null';
+  if (typeof obj === 'string') return `"${obj.replace(/"/g, '\\"')}"`;
+  if (typeof obj === 'number' || typeof obj === 'boolean') return String(obj);
+  if (Array.isArray(obj)) {
+    return `[${obj.map(serializeGraphQLInput).join(', ')}]`;
   }
-`;
+  if (typeof obj === 'object') {
+    const fields = Object.entries(obj)
+      .map(([key, value]) => `${key}: ${serializeGraphQLInput(value)}`)
+      .join(', ');
+    return `{${fields}}`;
+  }
+  return String(obj);
+};
+
+// Helper function to map options from frontend format to GraphQL schema
+const mapOptionsForUpdate = (options) => {
+  if (!options || !Array.isArray(options)) return null;
+
+  return options.map(option => {
+    const mapped = {
+      displayOrder: option.displayOrder,
+      isRequired: option.isRequired,
+      optionName: option.name || option.optionName,
+      optionType: option.type || option.optionType,
+    };
+
+    // Only include id if it exists (for updates)
+    if (option.id) {
+      mapped.id = option.id;
+    }
+
+    // Map option values
+    if (option.values || option.optionValues) {
+      mapped.optionValues = (option.values || option.optionValues).map(value => {
+        const mappedValue = {
+          colorHex: value.colorHex || "",
+          displayOrder: value.displayOrder,
+          displayValue: value.displayValue || "",
+          imageUrl: value.imageUrl || "",
+          isActive: value.isActive !== undefined ? value.isActive : true,
+          measurement: value.measurement,
+          measurementUnit: value.measurementUnit || "",
+          value: value.value,
+        };
+
+        // Only include id if it exists (for updates)
+        if (value.id) {
+          mappedValue.id = value.id;
+        }
+
+        return mappedValue;
+      });
+    }
+
+    return mapped;
+  });
+};
+
+// Helper function to map variants from frontend format to GraphQL schema
+const mapVariantsForUpdate = (variants) => {
+  if (!variants || !Array.isArray(variants)) return null;
+
+  return variants.map(variant => {
+    const mapped = {
+      barcode: variant.barcode || "",
+      compareAtPrice: variant.compareAtPrice,
+      costPrice: variant.costPrice,
+      description: variant.description || "",
+      imageUrls: variant.imageUrls || [],
+      isActive: variant.isActive !== undefined ? variant.isActive : true,
+      isDefault: variant.isDefault || false,
+      salePrice: variant.salePrice,
+      sku: variant.sku || "",
+      variantName: variant.name || variant.variantName,
+      videoUrls: variant.videoUrls || [],
+      visibility: variant.visibility !== undefined ? variant.visibility : true,
+      weight: variant.weight,
+      weightType: variant.weightType,
+    };
+
+    // Only include id if it exists (for updates)
+    if (variant.id) {
+      mapped.id = variant.id;
+    }
+
+    // Map option values
+    if (variant.optionValues) {
+      mapped.optionValues = variant.optionValues.map(ov => ({
+        optionName: ov.optionName,
+        optionValue: ov.optionValue,
+      }));
+    }
+
+    return mapped;
+  });
+};
+
+const updateProductQuery = ({ updateData }) => {
+  // Map options and variants to correct schema format
+  const mappedOptions = updateData.options ? mapOptionsForUpdate(updateData.options) : null;
+  const mappedVariants = updateData.variants ? mapVariantsForUpdate(updateData.variants) : null;
+
+  return gql`
+    mutation {
+      updateProduct(
+        updateData: {
+          id: "${updateData.id}"
+          ${updateData.name ? `name: "${updateData.name}"` : ""}
+          ${
+            updateData.baseCostPrice
+              ? `baseCostPrice: ${updateData.baseCostPrice}`
+              : ""
+          }
+          ${updateData.basePrice ? `basePrice: ${updateData.basePrice}` : ""}
+          ${updateData.baseSku ? `baseSku: "${updateData.baseSku}"` : ""}
+          ${
+            updateData.categoryIds
+              ? `categoryIds: ${JSON.stringify(updateData.categoryIds)}`
+              : ""
+          }
+          ${
+            updateData.description
+              ? `description: "${updateData.description.replace(/"/g, '\\"')}"`
+              : ""
+          }
+          ${
+            updateData.enablePreOrder !== undefined
+              ? `enablePreOrder: ${updateData.enablePreOrder}`
+              : ""
+          }
+          ${
+            updateData.exchangeRateSaleCurrency
+              ? `exchangeRateSaleCurrency: ${updateData.exchangeRateSaleCurrency}`
+              : ""
+          }
+          ${updateData.howToUse ? `howToUse: "${updateData.howToUse.replace(/"/g, '\\"')}"` : ""}
+          ${
+            updateData.imageUrls
+              ? `imageUrls: ${JSON.stringify(updateData.imageUrls)}`
+              : ""
+          }
+          ${
+            updateData.isActive !== undefined
+              ? `isActive: ${updateData.isActive}`
+              : ""
+          }
+          ${
+            updateData.isPublic !== undefined
+              ? `isPublic: ${updateData.isPublic}`
+              : ""
+          }
+          ${
+            updateData.lowInQuantityValue
+              ? `lowInQuantityValue: "${updateData.lowInQuantityValue}"`
+              : ""
+          }
+          ${
+            updateData.metaDescription
+              ? `metaDescription: "${updateData.metaDescription.replace(/"/g, '\\"')}"`
+              : ""
+          }
+          ${updateData.metaTitle ? `metaTitle: "${updateData.metaTitle.replace(/"/g, '\\"')}"` : ""}
+          ${
+            mappedOptions
+              ? `options: ${serializeGraphQLInput(mappedOptions)}`
+              : ""
+          }
+          ${
+            updateData.preOrderLimit
+              ? `preOrderLimit: ${updateData.preOrderLimit}`
+              : ""
+          }
+          ${
+            updateData.preOrderMessage
+              ? `preOrderMessage: "${updateData.preOrderMessage.replace(/"/g, '\\"')}"`
+              : ""
+          }
+          ${
+            updateData.productIngredients
+              ? `productIngredients: "${updateData.productIngredients.replace(/"/g, '\\"')}"`
+              : ""
+          }
+          ${updateData.ribbon ? `ribbon: ${updateData.ribbon}` : ""}
+          ${updateData.tags ? `tags: ${JSON.stringify(updateData.tags)}` : ""}
+          ${
+            mappedVariants
+              ? `variants: ${serializeGraphQLInput(mappedVariants)}`
+              : ""
+          }
+          ${updateData.weight ? `weight: ${updateData.weight}` : ""}
+          ${updateData.weightType ? `weightType: ${updateData.weightType}` : ""}
+        }
+      ) {
+        id
+      }
+    }
+  `;
+};
 
 const getVariantsQuery = ({ page }) => gql`
   {
@@ -1336,11 +1507,19 @@ const apis = {
       }
     ),
 
-  createProductWithInventory: ({ brandId, productData }) =>
-    graphQlInstance(createProductWithInventoryQuery, {
+  createProductWithInventory: ({ brandId, productData }) => {
+    // Map options and variants to correct schema format
+    const mappedProductData = {
+      ...productData,
+      options: productData.options ? mapOptionsForCreate(productData.options) : undefined,
+      variants: productData.variants ? mapVariantsForCreate(productData.variants) : undefined,
+    };
+
+    return graphQlInstance(createProductWithInventoryQuery, {
       method: "POST",
-      variables: { brandId, productData },
-    }),
+      variables: { brandId, productData: mappedProductData },
+    });
+  },
 
   updateProduct: ({ updateData }) =>
     graphQlInstance(updateProductQuery({ updateData }), {

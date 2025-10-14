@@ -18,6 +18,7 @@ import OrderDetailsModal from "./OrderDetailsModal";
 import OrderFilterModal from "components/General/FilterModals/OrderFilterModal";
 import useWindowDimensions from "hooks/useWindowDimensions";
 import { getUserInfoFromStorage } from "utils/storage";
+import { formatCurrency } from "utils/formatter";
 
 const Orders = ({ isRecent = false, hideTitle = false }) => {
   const navigate = useNavigate();
@@ -100,7 +101,14 @@ const Orders = ({ isRecent = false, hideTitle = false }) => {
           <span className="text-[14.3px] text-[#111827] font-medium">
             {order.brand?.brandName}
           </span>
-          <span className="text-[14.2px] text-[#666666] mt-1 underline cursor-pointer hover:text-[#690007]">
+          <span
+            className="text-[14.2px] text-[#666666] mt-1 underline cursor-pointer hover:text-[#690007]"
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log("Brand Order clicked for:", order.brand?.brandName);
+              // Add brand order navigation/action here if needed
+            }}
+          >
             Brand Order
           </span>
         </div>
@@ -112,7 +120,7 @@ const Orders = ({ isRecent = false, hideTitle = false }) => {
       minWidth: "15%",
       selector: (order) => (
         <span className="text-[14.2px] text-[#666666]">
-          ₦{order.totalAmount?.toLocaleString()}
+          {formatCurrency(order.totalAmount)}
         </span>
       ),
       sortable: true,

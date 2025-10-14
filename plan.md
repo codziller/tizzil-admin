@@ -4,10 +4,25 @@
 
 ✅ **Fixed**: `selectedProduct is not defined` error in collections.js - Updated reference to use `selectedCollection` instead of `selectedProduct` on line 370.
 
+✅ **Fixed**: GraphQL field mapping errors in product mutations - Fixed in src/services/products.js:
+   - Created `mapOptionsForUpdate` and `mapOptionsForCreate` helper functions to properly map option fields (`name` → `optionName`, `type` → `optionType`, `values` → `optionValues`)
+   - Created `mapVariantsForUpdate` and `mapVariantsForCreate` helper functions to properly map variant fields (`name` → `variantName`, removed invalid `initialStock` field for updates, added all missing fields per UpdateProductVariantSchema)
+   - Updated `updateProductQuery` to use mapper functions before serialization
+   - Updated `createProductWithInventory` API call to map data before sending to backend
+
+✅ **Fixed**: Missing variant fields in VariantModal.js - Added comprehensive variant form fields in src/pages/Dashboard/Products/features/VariantModal.js:
+   - Added barcode, salePrice, costPrice, compareAtPrice inputs
+   - Added weight and weightType inputs
+   - Added description textarea
+   - Added isActive, isDefault, visibility checkboxes
+   - Updated default variant state structure in both VariantModal.js and AddProductModal.js to include all fields
+
 ## 📋 Pending Features/Fixes
 
 <!-- Pending Tasks start -->
-1. Update the Tags (comma separated) input in src\pages\Dashboard\Products\features\FulfillmentTab.js so that texts can be deleted as currently nothing entered can be deleted, and make each value be able to have space or spaces in between them.
+
+
+
 <!-- Pending Tasks end -->
 
 ## 🔄 Ongoing Implementation

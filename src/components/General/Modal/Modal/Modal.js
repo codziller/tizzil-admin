@@ -207,10 +207,10 @@ const Modal = ({
           {/* Scrollable Main Modal Content */}
           <div
             className={clsx(
-              "flex-1 overflow-y-auto max-h-[75vh] min-h-[150px]",
+              "flex-1 overflow-y-auto max-h-[85vh] min-h-[150px]",
               {
                 "py-6": !(isSideModal || title), // Only add padding if no header
-                "py-6": isSideModal || title, // Add padding if there's a header
+                "pt-6": isSideModal || title, // Add padding if there's a header
               }
             )}
           >

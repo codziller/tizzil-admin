@@ -41,9 +41,29 @@ const FulfillmentTab = ({
         <Input
           value={productData.tags.join(", ")}
           onChangeFunc={(val) => {
+            // Split by comma to create tags array
             const tagsArray = val
               .split(",")
-              .map((tag) => tag.trim());
+              .map((tag, index, array) => {
+                // Only trim tags that are complete (not the last one being typed)
+                // This allows the user to type spaces naturally
+                if (index === array.length - 1) {
+                  // For the last tag, only trim if there's a trailing comma
+                  // Otherwise keep it as-is so user can type spaces
+                  return tag;
+                } else {
+                  // For completed tags (followed by comma), trim whitespace
+                  return tag.trim();
+                }
+              })
+              .filter((tag, index, array) => {
+                // Keep all tags except empty ones that aren't the last one being typed
+                if (index === array.length - 1) {
+                  // Always keep the last tag (even if empty) so input works naturally
+                  return true;
+                }
+                return tag.trim().length > 0;
+              });
             handleInputChange("tags", tagsArray);
           }}
           placeholder="Enter tags separated by commas"

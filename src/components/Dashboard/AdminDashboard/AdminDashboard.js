@@ -15,6 +15,7 @@ import { ReactComponent as PieIcon } from "assets/icons/piec-icon.svg";
 import RateCard from "../RateCard/RateCard";
 import TopItemsCard from "../../General/TopItemsCard";
 import Orders from "../../../pages/Dashboard/Orders/features/orders";
+import { formatCurrency } from "utils/formatter";
 
 const AdminDashboard = () => {
   const [revenueDateFilter, setRevenueDateFilter] = useState("Today");
@@ -131,35 +132,35 @@ const AdminDashboard = () => {
 
   // Top Items Data
   const topBrandsData = [
-    { name: "Versace", value: "₦2,450,000", icon: "https://logo.clearbit.com/versace.com" },
-    { name: "Tom Ford", value: "₦1,890,000", icon: "https://logo.clearbit.com/tomford.com" },
-    { name: "ZTTW", value: "₦1,650,000" },
-    { name: "Zanotti", value: "₦1,320,000", icon: "https://logo.clearbit.com/giuseppezanotti.com" },
-    { name: "Balenciaga", value: "₦1,100,000", icon: "https://logo.clearbit.com/balenciaga.com" },
+    { name: "Versace", value: formatCurrency(2450000, true), icon: "https://logo.clearbit.com/versace.com" },
+    { name: "Tom Ford", value: formatCurrency(1890000, true), icon: "https://logo.clearbit.com/tomford.com" },
+    { name: "ZTTW", value: formatCurrency(1650000, true) },
+    { name: "Zanotti", value: formatCurrency(1320000, true), icon: "https://logo.clearbit.com/giuseppezanotti.com" },
+    { name: "Balenciaga", value: formatCurrency(1100000, true), icon: "https://logo.clearbit.com/balenciaga.com" },
   ];
 
   const topProductsData = [
-    { name: "Luxury Handbag", value: "₦890,000" },
-    { name: "Designer Sneakers", value: "₦670,000" },
-    { name: "Premium Watch", value: "₦540,000" },
-    { name: "Silk Scarf", value: "₦320,000" },
-    { name: "Leather Jacket", value: "₦280,000" },
+    { name: "Luxury Handbag", value: formatCurrency(890000, true) },
+    { name: "Designer Sneakers", value: formatCurrency(670000, true) },
+    { name: "Premium Watch", value: formatCurrency(540000, true) },
+    { name: "Silk Scarf", value: formatCurrency(320000, true) },
+    { name: "Leather Jacket", value: formatCurrency(280000, true) },
   ];
 
   const topCustomersData = [
-    { name: "John Doe", value: "₦1,200,000" },
-    { name: "Jane Smith", value: "₦980,000" },
-    { name: "Mike Johnson", value: "₦750,000" },
-    { name: "Sarah Wilson", value: "₦650,000" },
-    { name: "David Brown", value: "₦540,000" },
+    { name: "John Doe", value: formatCurrency(1200000, true) },
+    { name: "Jane Smith", value: formatCurrency(980000, true) },
+    { name: "Mike Johnson", value: formatCurrency(750000, true) },
+    { name: "Sarah Wilson", value: formatCurrency(650000, true) },
+    { name: "David Brown", value: formatCurrency(540000, true) },
   ];
 
   const topAffiliatesData = [
-    { name: "Fashion Influencer A", value: "₦450,000" },
-    { name: "Style Blogger B", value: "₦380,000" },
-    { name: "Trendsetter C", value: "₦290,000" },
-    { name: "Fashion Expert D", value: "₦230,000" },
-    { name: "Style Guru E", value: "₦180,000" },
+    { name: "Fashion Influencer A", value: formatCurrency(450000, true) },
+    { name: "Style Blogger B", value: formatCurrency(380000, true) },
+    { name: "Trendsetter C", value: formatCurrency(290000, true) },
+    { name: "Fashion Expert D", value: formatCurrency(230000, true) },
+    { name: "Style Guru E", value: formatCurrency(180000, true) },
   ];
 
   const visitorsData = [

@@ -21,7 +21,7 @@ import useWindowDimensions from "hooks/useWindowDimensions";
 import TransactionDetailsModal from "./DetailsModal";
 import dateConstants from "utils/dateConstants";
 import SearchBar from "components/General/Searchbar/SearchBar";
-import { numberWithCommas } from "utils/formatter";
+import { numberWithCommas, formatCurrency } from "utils/formatter";
 import Amount from "components/General/Numbers/Amount";
 import Tabs from "components/General/Tabs";
 import UsersStore from "../store";
@@ -183,7 +183,7 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
       minWidth: "15%",
       selector: (customer) => (
         <span className="text-[14px] text-[#666666] font-medium">
-          ₦{customer.totalSpent?.toLocaleString() || '0'}
+          {formatCurrency(customer.totalSpent || 0)}
         </span>
       ),
       sortable: true,
@@ -245,7 +245,7 @@ const UsersPage = ({ isModal, handleUserSelect, isSelected }) => {
       minWidth: "15%",
       selector: (customer) => (
         <span className="text-[14px] text-[#666666] font-medium">
-          ₦{customer.totalSpent?.toLocaleString() || '0'}
+          {formatCurrency(customer.totalSpent || 0)}
         </span>
       ),
       sortable: true,

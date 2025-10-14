@@ -5,11 +5,26 @@ import { observer } from "mobx-react-lite";
 import ProductsStore from "../store";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import classNames from "classnames";
+import { getUserInfoFromStorage } from "utils/storage";
+import { formatCurrency } from "utils/formatter";
 
-const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
-  const { getProduct, product: fetchedProduct, getProductLoading } = ProductsStore;
+const ProductDetailsModal = ({
+  isOpen,
+  onClose,
+  product,
+  productId,
+  onEditClick,
+}) => {
+  const {
+    getProduct,
+    product: fetchedProduct,
+    getProductLoading,
+    updateProduct,
+    createProductLoading,
+  } = ProductsStore;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   // Use fetched product if available, otherwise use passed product
   const productData = fetchedProduct || product;
@@ -43,6 +58,51 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
   const images = productData.imageUrls || [];
   const reviewCount = 3; // Sample review count
 
+  const handleEditProduct = () => {
+    if (onEditClick) {
+      onEditClick(productData);
+      onClose();
+    }
+  };
+
+  const handleMoveToDrafts = () => {
+    if (productData.isActive) {
+      // Product is active, show confirmation modal to move to drafts
+      setShowDraftModal(true);
+    } else {
+      // Product is inactive, move to active (remove from drafts)
+      confirmMoveToDrafts();
+    }
+  };
+
+  const confirmMoveToDrafts = async () => {
+    try {
+      const userInfo = getUserInfoFromStorage();
+      const brandId = userInfo?.brand?.id;
+
+      if (!brandId) {
+        console.error("Brand ID not found");
+        return;
+      }
+
+      const updateData = {
+        id: productData.id,
+        isActive: !productData.isActive,
+      };
+
+      await updateProduct({
+        brandId,
+        updateData,
+        onSuccess: () => {
+          setShowDraftModal(false);
+          onClose();
+        },
+      });
+    } catch (error) {
+      console.error("Error updating product status:", error);
+    }
+  };
+
   return (
     <Modal
       active={isOpen}
@@ -65,7 +125,7 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
             </span>
             {productData.ribbon && (
               <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-600">
-                {productData.ribbon.replace('_', ' ')}
+                {productData.ribbon.replace("_", " ")}
               </span>
             )}
             {!productData.isPublic && (
@@ -81,7 +141,7 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
           </h3>
           <div className="flex items-center gap-5 mb-4">
             <span className="text-[14px] text-[#444444]">
-              SKU: {productData.baseSku || 'N/A'}
+              SKU: {productData.baseSku || "N/A"}
             </span>
             <span className="text-[14px] text-[#444444]">
               Stock: {productData.currentStock || 0}
@@ -96,11 +156,11 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
 
           <div className="flex items-center gap-4 mb-5">
             <p className="text-[17px] text-[#111827] font-bold">
-              ₦{productData.basePrice?.toLocaleString() || '0'}
+              {formatCurrency(productData.basePrice || 0)}
             </p>
             {productData.baseCostPrice && (
               <p className="text-[14px] text-[#6B7280]">
-                Cost: ₦{productData.baseCostPrice.toLocaleString()}
+                Cost: {formatCurrency(productData.baseCostPrice)}
               </p>
             )}
           </div>
@@ -138,7 +198,11 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
           <div className="flex gap-4 mb-6">
             <div className="flex-1">
               <img
-                src={images[activeImageIndex] || images[0] || '/placeholder-image.png'}
+                src={
+                  images[activeImageIndex] ||
+                  images[0] ||
+                  "/placeholder-image.png"
+                }
                 alt={productData.name}
                 className="w-full h-[350px] object-cover rounded-lg"
               />
@@ -172,7 +236,7 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
                   Weight:
                 </span>
                 <span className="text-[14px] text-[#4B5563]">
-                  {productData.weight} {productData.weightType || 'grams'}
+                  {productData.weight} {productData.weightType || "grams"}
                 </span>
               </div>
               {productData.lowInQuantityValue && (
@@ -258,144 +322,194 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
           )}
 
           {/* Variants */}
-          {productData.productVariants && productData.productVariants.length > 0 && (
-            <div className="mb-5">
-              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
-                Variants:
-              </h4>
-              <div className="space-y-2">
-                {productData.productVariants.map((variant) => (
-                  <div
-                    key={variant.id}
-                    className="flex items-center justify-between p-2 border border-gray-200 rounded"
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{variant.variantName}</span>
-                      <span className="text-xs text-gray-500">{variant.sku}</span>
-                    </div>
-                    <div className="flex gap-2 text-xs text-gray-600">
-                      <span>₦{variant.salePrice?.toLocaleString()}</span>
-                      <span>Stock: {variant.currentStock}</span>
-                      {variant.isLowStock && <span className="text-orange-600">Low Stock</span>}
-                      {variant.isOutOfStock && <span className="text-red-600">Out of Stock</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Options */}
-          {productData.productOptions && productData.productOptions.length > 0 && (
-            <div className="mb-8">
-              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
-                Options:
-              </h4>
-              <div className="space-y-2">
-                {productData.productOptions.map((option) => (
-                  <div key={option.id} className="p-2 border border-gray-200 rounded">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium">{option.optionName}:</span>
-                      <span className="text-xs text-gray-500">({option.optionType})</span>
-                      {option.isRequired && (
-                        <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-600">
-                          Required
+          {productData.productVariants &&
+            productData.productVariants.length > 0 && (
+              <div className="mb-5">
+                <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                  Variants:
+                </h4>
+                <div className="space-y-2">
+                  {productData.productVariants.map((variant) => (
+                    <div
+                      key={variant.id}
+                      className="flex items-center justify-between p-2 border border-gray-200 rounded"
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">
+                          {variant.variantName}
                         </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {option.optionValues?.map((optionValue) => (
-                        <div
-                          key={optionValue.id}
-                          className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-gray-100 text-gray-700"
-                        >
-                          {optionValue.colorHex && (
-                            <div
-                              className="w-3 h-3 rounded-full border"
-                              style={{ backgroundColor: optionValue.colorHex }}
-                            />
-                          )}
-                          {optionValue.imageUrl && (
-                            <img
-                              src={optionValue.imageUrl}
-                              alt={optionValue.value}
-                              className="w-3 h-3 rounded"
-                            />
-                          )}
-                          <span>
-                            {optionValue.displayValue || optionValue.value}
-                          </span>
-                          {optionValue.measurement && (
-                            <span className="text-gray-500">
-                              ({optionValue.measurement} {optionValue.measurementUnit})
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Variant Options Details */}
-          {productData.productVariants && productData.productVariants.some(v => v.variantOptions && v.variantOptions.length > 0) && (
-            <div className="mb-8">
-              <h4 className="text-[14px] text-[#111827] font-bold mb-4">
-                Variant Option Combinations:
-              </h4>
-              <div className="space-y-3">
-                {productData.productVariants
-                  .filter(v => v.variantOptions && v.variantOptions.length > 0)
-                  .map((variant) => (
-                  <div key={variant.id} className="p-3 border border-gray-200 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">{variant.variantName}</span>
-                      <div className="flex gap-2 text-xs">
-                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
-                          ₦{variant.salePrice?.toLocaleString()}
-                        </span>
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
-                          Stock: {variant.currentStock}
+                        <span className="text-xs text-gray-500">
+                          {variant.sku}
                         </span>
                       </div>
+                      <div className="flex gap-2 text-xs text-gray-600">
+                        <span>{formatCurrency(variant.salePrice)}</span>
+                        <span>Stock: {variant.currentStock}</span>
+                        {variant.isLowStock && (
+                          <span className="text-orange-600">Low Stock</span>
+                        )}
+                        {variant.isOutOfStock && (
+                          <span className="text-red-600">Out of Stock</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {variant.variantOptions.map((variantOption) => (
-                        <div key={variantOption.id} className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-gray-50 border">
-                          <span className="font-medium">{variantOption.productOption?.optionName}:</span>
-                          <div className="flex items-center gap-1">
-                            {variantOption.productOptionValue?.colorHex && (
+                  ))}
+                </div>
+              </div>
+            )}
+
+          {/* Options */}
+          {productData.productOptions &&
+            productData.productOptions.length > 0 && (
+              <div className="mb-8">
+                <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                  Options:
+                </h4>
+                <div className="space-y-2">
+                  {productData.productOptions.map((option) => (
+                    <div
+                      key={option.id}
+                      className="p-2 border border-gray-200 rounded"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-medium">
+                          {option.optionName}:
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          ({option.optionType})
+                        </span>
+                        {option.isRequired && (
+                          <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-600">
+                            Required
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {option.optionValues?.map((optionValue) => (
+                          <div
+                            key={optionValue.id}
+                            className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-gray-100 text-gray-700"
+                          >
+                            {optionValue.colorHex && (
                               <div
                                 className="w-3 h-3 rounded-full border"
-                                style={{ backgroundColor: variantOption.productOptionValue.colorHex }}
+                                style={{
+                                  backgroundColor: optionValue.colorHex,
+                                }}
+                              />
+                            )}
+                            {optionValue.imageUrl && (
+                              <img
+                                src={optionValue.imageUrl}
+                                alt={optionValue.value}
+                                className="w-3 h-3 rounded"
                               />
                             )}
                             <span>
-                              {variantOption.productOptionValue?.displayValue || variantOption.productOptionValue?.value}
+                              {optionValue.displayValue || optionValue.value}
+                            </span>
+                            {optionValue.measurement && (
+                              <span className="text-gray-500">
+                                ({optionValue.measurement}{" "}
+                                {optionValue.measurementUnit})
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          {/* Variant Options Details */}
+          {productData.productVariants &&
+            productData.productVariants.some(
+              (v) => v.variantOptions && v.variantOptions.length > 0
+            ) && (
+              <div className="mb-8">
+                <h4 className="text-[14px] text-[#111827] font-bold mb-4">
+                  Variant Option Combinations:
+                </h4>
+                <div className="space-y-3">
+                  {productData.productVariants
+                    .filter(
+                      (v) => v.variantOptions && v.variantOptions.length > 0
+                    )
+                    .map((variant) => (
+                      <div
+                        key={variant.id}
+                        className="p-3 border border-gray-200 rounded-lg"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">
+                            {variant.variantName}
+                          </span>
+                          <div className="flex gap-2 text-xs">
+                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
+                              {formatCurrency(variant.salePrice)}
+                            </span>
+                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                              Stock: {variant.currentStock}
                             </span>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                    {variant.inventory && (
-                      <div className="mt-2 text-xs text-gray-600">
-                        <div className="flex flex-wrap gap-3">
-                          <span>Available: {variant.inventory.quantityAvailable}</span>
-                          <span>On Hand: {variant.inventory.quantityOnHand}</span>
-                          <span>Allocated: {variant.inventory.quantityAllocated}</span>
-                          {variant.inventory.quantityInTransit > 0 && (
-                            <span>In Transit: {variant.inventory.quantityInTransit}</span>
-                          )}
+                        <div className="flex flex-wrap gap-2">
+                          {variant.variantOptions.map((variantOption) => (
+                            <div
+                              key={variantOption.id}
+                              className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-gray-50 border"
+                            >
+                              <span className="font-medium">
+                                {variantOption.productOption?.optionName}:
+                              </span>
+                              <div className="flex items-center gap-1">
+                                {variantOption.productOptionValue?.colorHex && (
+                                  <div
+                                    className="w-3 h-3 rounded-full border"
+                                    style={{
+                                      backgroundColor:
+                                        variantOption.productOptionValue
+                                          .colorHex,
+                                    }}
+                                  />
+                                )}
+                                <span>
+                                  {variantOption.productOptionValue
+                                    ?.displayValue ||
+                                    variantOption.productOptionValue?.value}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
+                        {variant.inventory && (
+                          <div className="mt-2 text-xs text-gray-600">
+                            <div className="flex flex-wrap gap-3">
+                              <span>
+                                Available: {variant.inventory.quantityAvailable}
+                              </span>
+                              <span>
+                                On Hand: {variant.inventory.quantityOnHand}
+                              </span>
+                              <span>
+                                Allocated: {variant.inventory.quantityAllocated}
+                              </span>
+                              {variant.inventory.quantityInTransit > 0 && (
+                                <span>
+                                  In Transit:{" "}
+                                  {variant.inventory.quantityInTransit}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))}
+                    ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* SEO Information */}
           {(productData.metaTitle || productData.metaDescription) && (
@@ -406,14 +520,22 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
               <div className="space-y-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
                 {productData.metaTitle && (
                   <div>
-                    <span className="text-xs font-medium text-gray-700">Meta Title:</span>
-                    <p className="text-sm text-gray-600 mt-1">{productData.metaTitle}</p>
+                    <span className="text-xs font-medium text-gray-700">
+                      Meta Title:
+                    </span>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {productData.metaTitle}
+                    </p>
                   </div>
                 )}
                 {productData.metaDescription && (
                   <div>
-                    <span className="text-xs font-medium text-gray-700">Meta Description:</span>
-                    <p className="text-sm text-gray-600 mt-1">{productData.metaDescription}</p>
+                    <span className="text-xs font-medium text-gray-700">
+                      Meta Description:
+                    </span>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {productData.metaDescription}
+                    </p>
                   </div>
                 )}
               </div>
@@ -428,7 +550,8 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
               </h4>
               <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">
                 <span className="text-sm text-gray-600">
-                  Exchange Rate Sale Currency: {productData.exchangeRateSaleCurrency}
+                  Exchange Rate Sale Currency:{" "}
+                  {productData.exchangeRateSaleCurrency}
                 </span>
               </div>
             </div>
@@ -442,7 +565,9 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
             <div className="grid grid-cols-2 gap-4 p-3 border border-gray-200 rounded-lg bg-gray-50">
               {productData.createdAt && (
                 <div>
-                  <span className="text-xs font-medium text-gray-700">Created:</span>
+                  <span className="text-xs font-medium text-gray-700">
+                    Created:
+                  </span>
                   <p className="text-sm text-gray-600">
                     {new Date(productData.createdAt).toLocaleDateString()}
                   </p>
@@ -450,7 +575,9 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
               )}
               {productData.updatedAt && (
                 <div>
-                  <span className="text-xs font-medium text-gray-700">Last Updated:</span>
+                  <span className="text-xs font-medium text-gray-700">
+                    Last Updated:
+                  </span>
                   <p className="text-sm text-gray-600">
                     {new Date(productData.updatedAt).toLocaleDateString()}
                   </p>
@@ -458,14 +585,20 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
               )}
               {productData.id && (
                 <div>
-                  <span className="text-xs font-medium text-gray-700">Product ID:</span>
-                  <p className="text-sm text-gray-600 font-mono">{productData.id}</p>
+                  <span className="text-xs font-medium text-gray-700">
+                    Product ID:
+                  </span>
+                  <p className="text-sm text-gray-600 font-mono">
+                    {productData.id}
+                  </p>
                 </div>
               )}
               <div>
-                <span className="text-xs font-medium text-gray-700">Visibility:</span>
+                <span className="text-xs font-medium text-gray-700">
+                  Visibility:
+                </span>
                 <p className="text-sm text-gray-600">
-                  {productData.isPublic ? 'Public' : 'Private'}
+                  {productData.isPublic ? "Public" : "Private"}
                 </p>
               </div>
             </div>
@@ -481,8 +614,19 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
               onClick={() => setShowDeleteModal(true)}
               className="flex-1"
             />
-            <Button text="Move to drafts" isOutline className="flex-1" />
-            <Button text="Edit product" className="flex-1" />
+            <Button
+              text={
+                productData.isActive ? "Move to drafts" : "Remove from drafts"
+              }
+              isOutline
+              className="flex-1"
+              onClick={handleMoveToDrafts}
+            />
+            <Button
+              text="Edit product"
+              className="flex-1"
+              onClick={handleEditProduct}
+            />
           </div>
         </div>
       </div>
@@ -509,6 +653,35 @@ const ProductDetailsModal = ({ isOpen, onClose, product, productId }) => {
                 onClose();
               }}
               className="flex-1 bg-red-600 hover:bg-red-700"
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Move to Drafts Confirmation Modal */}
+      <Modal
+        active={showDraftModal}
+        toggler={() => (createProductLoading ? null : setShowDraftModal(false))}
+      >
+        <div className="p-6 text-center">
+          <h3 className="text-lg font-bold mb-4">Move to Drafts</h3>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to move this product to drafts? This will make
+            it inactive.
+          </p>
+          <div className="flex gap-3">
+            <Button
+              text="Cancel"
+              isOutline
+              onClick={() => setShowDraftModal(false)}
+              className="flex-1"
+              isDisabled={createProductLoading}
+            />
+            <Button
+              text="Confirm"
+              onClick={confirmMoveToDrafts}
+              className="flex-1"
+              isLoading={createProductLoading}
             />
           </div>
         </div>

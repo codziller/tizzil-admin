@@ -75,3 +75,21 @@ export const handleCustomerSearch = (value) => {
 
   return toSearch;
 };
+
+/**
+ * Format number as USD currency
+ * @param {number} amount - The amount to format
+ * @param {boolean} useShortFormat - If true, uses K/M notation (e.g., $1.2K)
+ * @returns {string} Formatted currency string
+ */
+export const formatCurrency = (amount, useShortFormat = false) => {
+  if (!amount && amount !== 0) return "USD 0";
+
+  const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+
+  if (useShortFormat && numAmount >= 1000) {
+    return "USD " + numberFormatter(numAmount, 1);
+  }
+
+  return "USD " + numberWithCommas(numAmount);
+};

@@ -22,6 +22,7 @@ import {
   Legend,
   ArcElement,
 } from "chart.js";
+import { formatCurrency } from "utils/formatter";
 
 // Register ChartJS components
 ChartJS.register(
@@ -59,7 +60,7 @@ const BrandDashboard = ({ userRole }) => {
     {
       icon: SaleIcon,
       rateItems: [
-        { label: "Sales", value: "₦0.00", rate: "0", type: "" },
+        { label: "Sales", value: formatCurrency(0), rate: "0", type: "" },
         { label: "Volume", value: "0", rate: "", type: "" },
       ],
     },

@@ -199,7 +199,7 @@ const Router = () => {
         >
           <Route path="" element={<OrdersPage />} />
 
-          <Route path=":order_id" element={<OrderDetailsPage />} />
+          <Route path=":orderCode" element={<OrderDetailsPage />} />
         </Route>
         {/* end orders */}
 

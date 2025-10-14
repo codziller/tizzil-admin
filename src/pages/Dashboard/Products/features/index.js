@@ -384,6 +384,11 @@ const ProductsPage = ({
         onClose={() => setShowProductDetailsModal(false)}
         product={selectedProduct}
         loading={getProductLoading}
+        onEditClick={(product) => {
+          setProductToEdit(product);
+          setShowProductDetailsModal(false);
+          setShowEditProductModal(true);
+        }}
       />
     </>
   );

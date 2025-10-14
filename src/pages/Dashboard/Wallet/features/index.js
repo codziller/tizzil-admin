@@ -10,6 +10,7 @@ import { ReactComponent as TotalBalanceIcon } from "assets/icons/total-balance-i
 import { ReactComponent as AmountWithdrawnIcon } from "assets/icons/amount-withdrawn-icon.svg";
 import { ReactComponent as PendingPayoutIcon } from "assets/icons/pending-payout-icon.svg";
 import WalletStore from "../store";
+import { formatCurrency } from "utils/formatter";
 
 const WalletPage = () => {
   const {
@@ -107,7 +108,7 @@ const WalletPage = () => {
       minWidth: "20%",
       selector: (transaction) => (
         <span className="text-[14px] font-bold text-[#690007]">
-          ₦{transaction.amount?.toLocaleString()}
+          {formatCurrency(transaction.amount)}
         </span>
       ),
       sortable: true,
@@ -159,19 +160,19 @@ const WalletPage = () => {
           <WalletCard
             icon={TotalBalanceIcon}
             label="Total Balance"
-            value={`₦${totalBalance.toLocaleString()}.00`}
+            value={formatCurrency(totalBalance)}
           />
 
           <WalletCard
             icon={AmountWithdrawnIcon}
             label="Amount Withdrawn"
-            value={`₦${amountWithdrawn.toLocaleString()}.00`}
+            value={formatCurrency(amountWithdrawn)}
           />
 
           <WalletCard
             icon={PendingPayoutIcon}
             label="Pending Payout"
-            value={`₦${pendingPayout.toLocaleString()}.00`}
+            value={formatCurrency(pendingPayout)}
           />
         </div>
 

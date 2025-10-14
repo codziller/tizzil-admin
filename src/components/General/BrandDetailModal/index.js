@@ -6,6 +6,7 @@ import CircleLoader from "../CircleLoader/CircleLoader";
 import Textarea from "../Textarea/Textarea";
 import BrandsStore from "../../../pages/Dashboard/Brands/store";
 import { observer } from "mobx-react-lite";
+import { formatCurrency } from "utils/formatter";
 
 const BrandDetailModal = ({ active, brand, toggler, currentFilters = {} }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -301,7 +302,7 @@ const BrandDetailModal = ({ active, brand, toggler, currentFilters = {} }) => {
                       Delivery Settings
                     </span>
                     <span className="text-base text-[#444444]">
-                      Domestic: ₦{currentBrand.domesticDeliveryFee || "0"}
+                      Domestic: {formatCurrency(currentBrand.domesticDeliveryFee || 0)}
                       {currentBrand.shouldHandleDomesticDelivery
                         ? " (Self-handled)"
                         : " (External)"}

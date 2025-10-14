@@ -59,7 +59,19 @@ const AddProductModal = ({
   const [currentVariant, setCurrentVariant] = useState({
     name: "",
     sku: "",
+    barcode: "",
     initialStock: 0,
+    salePrice: "",
+    costPrice: "",
+    compareAtPrice: "",
+    description: "",
+    imageUrls: [],
+    videoUrls: [],
+    weight: "",
+    weightType: "grams",
+    isActive: true,
+    isDefault: false,
+    visibility: true,
     optionValues: [{ optionName: "", optionValue: "" }],
   });
   const [productData, setProductData] = useState({
@@ -89,7 +101,7 @@ const AddProductModal = ({
   const userInfo = getUserInfoFromStorage();
   console.log("userInfo: ", userInfo);
   const brandId = userInfo?.brand?.id;
-  console.log("brandId: ", brandId);
+  console.log("productData: ", productData);
   const tabs = ["Basics", "Media & deets", "Fulfillment"];
 
   useEffect(() => {
@@ -135,6 +147,9 @@ const AddProductModal = ({
         exchangeRateSaleCurrency: null,
         lowInQuantityValue: "",
       });
+      // Reset options and variants state arrays
+      setOptions([]);
+      setVariants([]);
       setActiveTab("Basics");
     }
   }, [isOpen, productId, isEdit, editProduct]);
@@ -142,6 +157,59 @@ const AddProductModal = ({
   useEffect(() => {
     if (product && (productId || (isEdit && editProduct?.id))) {
       // Populate form when editing
+      const mappedOptions = product.productOptions
+        ? product.productOptions.map((option) => ({
+            id: option.id,
+            name: option.optionName,
+            type: option.optionType,
+            displayOrder: option.displayOrder,
+            isRequired: option.isRequired,
+            values: option.optionValues
+              ? option.optionValues.map((value) => ({
+                  id: value.id,
+                  value: value.value,
+                  displayValue: value.displayValue,
+                  colorHex: value.colorHex,
+                  imageUrl: value.imageUrl,
+                  measurement: value.measurement,
+                  measurementUnit: value.measurementUnit,
+                  displayOrder: value.displayOrder,
+                  isActive: value.isActive,
+                }))
+              : [],
+          }))
+        : [];
+
+      const mappedVariants = product.productVariants
+        ? product.productVariants.map((variant) => ({
+            id: variant.id,
+            name: variant.variantName,
+            sku: variant.sku,
+            barcode: variant.barcode,
+            salePrice: variant.salePrice,
+            costPrice: variant.costPrice,
+            currentStock: variant.currentStock,
+            initialStock: variant.currentStock,
+            weight: variant.weight,
+            weightType: variant.weightType,
+            description: variant.description,
+            imageUrls: variant.imageUrls,
+            videoUrls: variant.videoUrls,
+            isDefault: variant.isDefault,
+            isActive: variant.isActive,
+            visibility: variant.visibility,
+            compareAtPrice: variant.compareAtPrice,
+            inventory: variant.inventory,
+            variantOptions: variant.variantOptions,
+            optionValues: variant.variantOptions
+              ? variant.variantOptions.map((vo) => ({
+                  optionName: vo.productOption?.optionName || "",
+                  optionValue: vo.productOptionValue?.value || "",
+                }))
+              : [],
+          }))
+        : [];
+
       setProductData({
         name: product.name || "",
         description: product.description || "",
@@ -159,54 +227,16 @@ const AddProductModal = ({
         howToUse: product.howToUse || "",
         productIngredients: product.productIngredients || "",
         tags: product.tags || [],
-        options: product.productOptions
-          ? product.productOptions.map((option) => ({
-              id: option.id,
-              name: option.optionName,
-              type: option.optionType,
-              displayOrder: option.displayOrder,
-              isRequired: option.isRequired,
-              values: option.optionValues
-                ? option.optionValues.map((value) => ({
-                    id: value.id,
-                    value: value.value,
-                    displayValue: value.displayValue,
-                    colorHex: value.colorHex,
-                    imageUrl: value.imageUrl,
-                    measurement: value.measurement,
-                    measurementUnit: value.measurementUnit,
-                    displayOrder: value.displayOrder,
-                    isActive: value.isActive,
-                  }))
-                : [],
-            }))
-          : [],
-        variants: product.productVariants
-          ? product.productVariants.map((variant) => ({
-              id: variant.id,
-              name: variant.variantName,
-              sku: variant.sku,
-              barcode: variant.barcode,
-              salePrice: variant.salePrice,
-              costPrice: variant.costPrice,
-              currentStock: variant.currentStock,
-              weight: variant.weight,
-              weightType: variant.weightType,
-              description: variant.description,
-              imageUrls: variant.imageUrls,
-              videoUrls: variant.videoUrls,
-              isDefault: variant.isDefault,
-              isActive: variant.isActive,
-              visibility: variant.visibility,
-              compareAtPrice: variant.compareAtPrice,
-              inventory: variant.inventory,
-              variantOptions: variant.variantOptions,
-            }))
-          : [],
+        options: mappedOptions,
+        variants: mappedVariants,
         ribbon: product.ribbon || null,
         exchangeRateSaleCurrency: product.exchangeRateSaleCurrency || null,
         lowInQuantityValue: product.lowInQuantityValue || "",
       });
+
+      // Also set the options and variants state arrays for display
+      setOptions(mappedOptions);
+      setVariants(mappedVariants);
     }
   }, [product, productId, isEdit, editProduct]);
 
@@ -372,25 +402,34 @@ const AddProductModal = ({
     }));
   };
 
+  const defaultVariantState = {
+    name: "",
+    sku: "",
+    barcode: "",
+    initialStock: 0,
+    salePrice: "",
+    costPrice: "",
+    compareAtPrice: "",
+    description: "",
+    imageUrls: [],
+    videoUrls: [],
+    weight: "",
+    weightType: "grams",
+    isActive: true,
+    isDefault: false,
+    visibility: true,
+    optionValues: [{ optionName: "", optionValue: "" }],
+  };
+
   const saveCurrentVariant = () => {
     if (!currentVariant.name) return;
 
     setVariants((prev) => [...prev, currentVariant]);
-    setCurrentVariant({
-      name: "",
-      sku: "",
-      initialStock: 0,
-      optionValues: [{ optionName: "", optionValue: "" }],
-    });
+    setCurrentVariant(defaultVariantState);
   };
 
   const addNewVariant = () => {
-    setCurrentVariant({
-      name: "",
-      sku: "",
-      initialStock: 0,
-      optionValues: [{ optionName: "", optionValue: "" }],
-    });
+    setCurrentVariant(defaultVariantState);
   };
 
   const handleSubmit = async () => {

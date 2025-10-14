@@ -32,8 +32,8 @@ Your app is ready to be deployed!
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
 ### `npm run eject`
--
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+- **Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
 If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
@@ -77,10 +77,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 <!-- New updates -->
 
-
 1. Update src\services\donations.js so that the queries and mutations provided below are implemented in it and then integrate them in the WalletStore src\pages\Dashboard\Wallet\store\index.js. See src\pages\Dashboard\Users\store\index.js for how the apis from services are integrated in the store. .
-   Update src\pages\Dashboard\Wallet\features\index.js so that on mount of the page, getBrandWithdrawalHistory, getWithdrawalSummary, getBrandCommissionSettings, getBrandCommissionHistory, getBrandPayoutHistory, and getBrandBankAccounts are called from WalletStore. if brandBankAccounts is empty, show a notifier(use the style used for  Order Notification in src\pages\Dashboard\Products\features\ProductDetailsModal.js) below the   Wallet Cards Grid container, and the text should convey that they have not created a bank account and they should do so in order to process payment(use a more concise and clear message), on click of the notifier, open AddBankAccountModal(not yet created, so create it). Use src\pages\Dashboard\Products\features\AddProductModal.js as guide on how to arrange AddBankAccountModal, categorize the fields in CreateBrandBankAccountInput into three tabs just the way it is done in AddProductModal(use your discretion) and then show the Tabs Details based on the active tab just like is done in AddProductModal. Use src\components\General\Checkbox.js for Boolean fields.  On submit, call createBrandBankAccount from WalletStore to create the account number. In  src\pages\Dashboard\Wallet\features\index.js,  if there are brandBankAccounts, or withdrawalSummary?.minimumWithdrawal, add a section like 'Pie Chart and Additional Cards Section' in src\components\Dashboard\AdminDashboard\AdminDashboard.js and put TopItemsCard(src\components\General\TopItemsCard\index.js) for 'Bank Account'(brandBankAccounts) first, followed by a  RateCard(src\components\Dashboard\RateCard\RateCard.js) for 'minimum withdrawal'. 
-
+   Update src\pages\Dashboard\Wallet\features\index.js so that on mount of the page, getBrandWithdrawalHistory, getWithdrawalSummary, getBrandCommissionSettings, getBrandCommissionHistory, getBrandPayoutHistory, and getBrandBankAccounts are called from WalletStore. if brandBankAccounts is empty, show a notifier(use the style used for Order Notification in src\pages\Dashboard\Products\features\ProductDetailsModal.js) below the Wallet Cards Grid container, and the text should convey that they have not created a bank account and they should do so in order to process payment(use a more concise and clear message), on click of the notifier, open AddBankAccountModal(not yet created, so create it). Use src\pages\Dashboard\Products\features\AddProductModal.js as guide on how to arrange AddBankAccountModal, categorize the fields in CreateBrandBankAccountInput into three tabs just the way it is done in AddProductModal(use your discretion) and then show the Tabs Details based on the active tab just like is done in AddProductModal. Use src\components\General\Checkbox.js for Boolean fields. On submit, call createBrandBankAccount from WalletStore to create the account number. In src\pages\Dashboard\Wallet\features\index.js, if there are brandBankAccounts, or withdrawalSummary?.minimumWithdrawal, add a section like 'Pie Chart and Additional Cards Section' in src\components\Dashboard\AdminDashboard\AdminDashboard.js and put TopItemsCard(src\components\General\TopItemsCard\index.js) for 'Bank Account'(brandBankAccounts) first, followed by a RateCard(src\components\Dashboard\RateCard\RateCard.js) for 'minimum withdrawal'.
 
    Update src\components\General\RequestPayoutModal\index.js so that it uses the latest Modal structure i.e footer, title, etc., See src\pages\Dashboard\Products\features\AddCollectionModal.js for how its done. Update The fields in RequestPayoutModal to match whats in CreateWithdrawalRequestInput, withdrawalMethod select should be the first field as it will determine whether some fields should be shown. On submit, call createWithdrawalRequest from WalletStore.
 
@@ -161,7 +159,6 @@ notes
 total
 }
 }
-
 
 # Get payout transaction history
 
@@ -253,8 +250,6 @@ effectiveFrom
 notes
 }
 }
-
-
 
 Mutation.createBrandBankAccount(
 input: CreateBrandBankAccountInput!
@@ -398,3 +393,13 @@ enum SupportedCurrency { USD EUR GBP NGN CAD }
 enum WithdrawalMethod { BANK_TRANSFER WIRE_TRANSFER ACH SEPA FASTER_PAYMENTS }
 enum WithdrawalStatus { PENDING_REVIEW APPROVED PROCESSING COMPLETED REJECTED FAILED CANCELLED }
 enum PayoutTransactionType { ORDER_COMMISSION ORDER_PAYOUT ORDER_REFUND_COMMISSION ORDER_REFUND_PAYOUT }
+
+<!-- Pending tasks -->
+
+1. Update src\components\Dashboard\BrandDashboard\BrandDashboard.js, src\components\Dashboard\AdminDashboard\AdminDashboard.js, src\components\General\ProductCard\index.js,
+   so that numbers are formatted correctly (i.e thousand, mil, etc), and USD is used instead of Niara or naira sign and amounts, prices, etc are prefixed with USD.
+2. 
+
+<!-- To be done -->
+
+1. Update src\pages\Dashboard\Products\features\index.js so that the tab 'Drafts' is added to the productTabs and then pass isActive false to the get products params to get products in drafts. Note that you'd have to pass isActive to getProductsWithInventoryQuery in src\services\products.js and any other places necessary

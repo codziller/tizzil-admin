@@ -236,7 +236,7 @@ const DeliverySettings = () => {
                       handleInputChange(value, meta, "local", field.id)
                     }
                     placeholder="Set Delivery Fee"
-                    prefix="₦"
+                    prefix="USD"
                     fullWidth
                   />
                 </div>
@@ -324,7 +324,7 @@ const DeliverySettings = () => {
                         )
                       }
                       placeholder="Set Delivery Fee"
-                      prefix="₦"
+                      prefix="USD"
                       fullWidth
                     />
                   </div>

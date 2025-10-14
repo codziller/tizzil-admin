@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite";
 import CircleLoader from "components/General/CircleLoader/CircleLoader";
 import classNames from "classnames";
 import moment from "moment";
+import { formatCurrency } from "utils/formatter";
 
 const CustomerDetailsModal = ({ active, onClose, customer }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -60,7 +61,7 @@ const CustomerDetailsModal = ({ active, onClose, customer }) => {
 
           <div className="flex items-center gap-4 mb-5">
             <p className="text-[17px] text-[#111827] font-bold">
-              Total Spent: ₦{customer.totalSpent?.toLocaleString() || '0'}
+              Total Spent: {formatCurrency(customer.totalSpent || 0)}
             </p>
             <p className="text-[14px] text-[#6B7280]">
               Total Orders: {customer.totalOrders || 0}
@@ -111,14 +112,14 @@ const CustomerDetailsModal = ({ active, onClose, customer }) => {
               </div>
               <div>
                 <span className="text-xs font-medium text-gray-700">Total Spent:</span>
-                <p className="text-sm text-gray-600 font-bold">₦{customer.totalSpent?.toLocaleString() || '0'}</p>
+                <p className="text-sm text-gray-600 font-bold">{formatCurrency(customer.totalSpent || 0)}</p>
               </div>
               <div>
                 <span className="text-xs font-medium text-gray-700">Average Order Value:</span>
                 <p className="text-sm text-gray-600 font-bold">
-                  ₦{customer.totalOrders > 0
-                    ? Math.round(customer.totalSpent / customer.totalOrders).toLocaleString()
-                    : '0'
+                  {customer.totalOrders > 0
+                    ? formatCurrency(Math.round(customer.totalSpent / customer.totalOrders))
+                    : formatCurrency(0)
                   }
                 </p>
               </div>
