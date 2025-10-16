@@ -12,14 +12,17 @@ class BlogsStore {
   // State
   // ====================================================
   blogs = [];
+  blogsUnpublished = [];
   blogsArchived = [];
   searchResult = [];
   blog = null;
   blogsCount = 0;
+  blogsUnpublishedCount = 0;
   blogsArchivedCount = 0;
   searchResultCount = 0;
   error = null;
   loading = false;
+  loadingUnpublished = false;
   loadingArchived = false;
   searchBlogLoading = false;
   createBlogLoading = false;
@@ -46,6 +49,20 @@ class BlogsStore {
       this.error = error;
     } finally {
       this.loading = false;
+    }
+  };
+
+  getUnpublishedBlogs = async ({ data }) => {
+    this.loadingUnpublished = true;
+    try {
+      let res = await apis.getBlogs(data);
+      res = res?.blogArticles_by_page_number;
+      this.blogsUnpublished = res?.results || [];
+      this.blogsUnpublishedCount = res?.total;
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.loadingUnpublished = false;
     }
   };
 

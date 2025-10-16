@@ -70,7 +70,7 @@ const ProductsPage = ({
   const userInfo = getUserInfoFromStorage();
   const brandId = userInfo?.brand?.id;
 
-  const productTabs = ["All Products", "In stock"];
+  const productTabs = ["All Products", "In stock", "Drafts"];
 
   // Load products with current filters
   const loadProducts = () => {
@@ -84,6 +84,7 @@ const ProductsPage = ({
       categoryIds:
         filters.categoryIds.length > 0 ? filters.categoryIds : undefined,
       inStockOnly: activeProductTab === "In stock" ? true : undefined,
+      isActive: activeProductTab === "Drafts" ? false : undefined,
     };
 
     getProductsWithInventory(params);

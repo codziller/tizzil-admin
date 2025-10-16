@@ -401,5 +401,3 @@ enum PayoutTransactionType { ORDER_COMMISSION ORDER_PAYOUT ORDER_REFUND_COMMISSI
 2. 
 
 <!-- To be done -->
-
-1. Update src\pages\Dashboard\Products\features\index.js so that the tab 'Drafts' is added to the productTabs and then pass isActive false to the get products params to get products in drafts. Note that you'd have to pass isActive to getProductsWithInventoryQuery in src\services\products.js and any other places necessary

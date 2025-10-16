@@ -355,8 +355,8 @@ const Router = () => {
           }
         >
           <Route path="" element={<BlogPage />} />
-          <Route path="add/:warehouse_id" element={<AddBlog />} />
-          <Route path="edit/:warehouse_id/:blog_id" element={<AddBlog />} />
+          <Route path="add/" element={<AddBlog />} />
+          <Route path="edit/:blog_id" element={<AddBlog />} />
         </Route>
         {/* end blog */}
 

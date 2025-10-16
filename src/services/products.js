@@ -318,6 +318,7 @@ const getProductsWithInventoryQuery = ({
   categoryIds,
   collectionIds,
   inStockOnly,
+  isActive,
   pageNumber,
   searchQuery,
   sortBy,
@@ -329,6 +330,7 @@ const getProductsWithInventoryQuery = ({
       ${categoryIds ? `categoryIds: ${JSON.stringify(categoryIds)}` : ""}
       ${collectionIds ? `collectionIds: ${JSON.stringify(collectionIds)}` : ""}
       ${inStockOnly !== undefined ? `inStockOnly: ${inStockOnly}` : ""}
+      ${isActive !== undefined ? `isActive: ${isActive}` : ""}
       pageNumber: "${pageNumber}"
       ${searchQuery ? `searchQuery: "${searchQuery}"` : ""}
       ${sortBy ? `sortBy: ${sortBy}` : ""}
@@ -1436,26 +1438,7 @@ const deleteProductReviewQuery = ({ productReviewId }) => gql`
 const getProductReviewsQuery = ({ page, productId }) => gql`
   {
     __typename
-    products_reviews_by_product_id(pageNumber: "${page}",productId:"${productId}") {
-      total
-      results {
-        id
-        createdAt
-        rating
-        review
-        user{
-          firstName
-          lastName
-        }
-      }
-    }
-  }
-`;
-
-const getReviewsQuery = ({ page }) => gql`
-  {
-    __typename
-    products_reviews_all(pageNumber: "${page}") {
+    getProductReviews(pageNumber: ${page}, productId: "${productId}") {
       total
       results {
         id
@@ -1466,12 +1449,71 @@ const getReviewsQuery = ({ page }) => gql`
         orderCode
         productId
         productName
-        user{
+        productVariantId
+        updatedAt
+        userId
+        user {
           firstName
           lastName
           phoneNumber
           id
+          email
         }
+      }
+    }
+  }
+`;
+
+const getReviewsQuery = ({ page }) => gql`
+  {
+    __typename
+    getAllProductReviews(pageNumber: ${page}) {
+      total
+      results {
+        id
+        createdAt
+        rating
+        review
+        orderId
+        orderCode
+        productId
+        productName
+        productVariantId
+        updatedAt
+        userId
+        user {
+          firstName
+          lastName
+          phoneNumber
+          id
+          email
+        }
+      }
+    }
+  }
+`;
+
+const getOrderProductReviewsQuery = ({ orderId }) => gql`
+  {
+    __typename
+    getOrderProductReviews(orderId: "${orderId}") {
+      id
+      createdAt
+      rating
+      review
+      orderId
+      orderCode
+      productId
+      productName
+      productVariantId
+      updatedAt
+      userId
+      user {
+        firstName
+        lastName
+        phoneNumber
+        id
+        email
       }
     }
   }
@@ -1488,6 +1530,7 @@ const apis = {
     categoryIds,
     collectionIds,
     inStockOnly,
+    isActive,
     pageNumber,
     searchQuery,
     sortBy,
@@ -1498,6 +1541,7 @@ const apis = {
         categoryIds,
         collectionIds,
         inStockOnly,
+        isActive,
         pageNumber,
         searchQuery,
         sortBy,
@@ -1728,6 +1772,11 @@ const apis = {
 
   getReviews: ({ page }) =>
     graphQlInstance(getReviewsQuery({ page }), {
+      method: "GET",
+    }),
+
+  getOrderProductReviews: ({ orderId }) =>
+    graphQlInstance(getOrderProductReviewsQuery({ orderId }), {
       method: "GET",
     }),
 };

@@ -17,7 +17,6 @@ import { numberWithCommas } from "utils/formatter";
 import Tabs from "components/General/Tabs";
 import ProductsStore from "pages/Dashboard/Products/store";
 import { Link, useParams } from "react-router-dom";
-import OrderDetailsModal from "pages/Dashboard/Orders/features/OrderDetailsModal";
 
 export const dateFilters = [
   {
@@ -37,79 +36,6 @@ export const dateFilters = [
     label: "All Time",
     start_date: dateConstants?.firstDay,
     end_date: dateConstants?.today,
-  },
-];
-// Demo reviews data
-const sampleReviews = [
-  {
-    id: 1,
-    orderCode: "ORD-2024-001",
-    user: {
-      id: 1,
-      firstName: "John",
-      lastName: "Doe",
-      phoneNumber: "+1234567890",
-    },
-    productName: "Nike Air Max",
-    rating: 5,
-    review: "Excellent product! Great quality and fast delivery.",
-    createdAt: new Date("2024-03-01"),
-  },
-  {
-    id: 2,
-    orderCode: "ORD-2024-002",
-    user: {
-      id: 2,
-      firstName: "Jane",
-      lastName: "Smith",
-      phoneNumber: "+0987654321",
-    },
-    productName: "Adidas Ultraboost",
-    rating: 4,
-    review: "Good shoes, comfortable and stylish. Recommended!",
-    createdAt: new Date("2024-02-28"),
-  },
-  {
-    id: 3,
-    orderCode: "ORD-2024-003",
-    user: {
-      id: 3,
-      firstName: "Mike",
-      lastName: "Johnson",
-      phoneNumber: "+1122334455",
-    },
-    productName: "Puma RS-X",
-    rating: 3,
-    review: "Average quality, but the design is nice.",
-    createdAt: new Date("2024-02-25"),
-  },
-  {
-    id: 4,
-    orderCode: "ORD-2024-004",
-    user: {
-      id: 4,
-      firstName: "Sarah",
-      lastName: "Williams",
-      phoneNumber: "+5566778899",
-    },
-    productName: "Converse Chuck Taylor",
-    rating: 5,
-    review: "Love these classic sneakers! Perfect fit and great price.",
-    createdAt: new Date("2024-02-20"),
-  },
-  {
-    id: 5,
-    orderCode: "ORD-2024-005",
-    user: {
-      id: 5,
-      firstName: "David",
-      lastName: "Brown",
-      phoneNumber: "+9988776655",
-    },
-    productName: "Vans Old Skool",
-    rating: 2,
-    review: "Not what I expected. Quality could be better.",
-    createdAt: new Date("2024-02-15"),
   },
 ];
 
@@ -278,13 +204,11 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
   };
 
   const displayedReviews = useMemo(() => {
-    const baseReviews = reviews.length > 0 ? reviews : sampleReviews;
-    return isSearchMode ? searchResult : isArchive ? [] : baseReviews;
+    return isSearchMode ? searchResult : isArchive ? [] : reviews;
   }, [searchResult, reviews, isSearchMode, isArchive]);
 
   const displayedReviewsCount = useMemo(() => {
-    const baseCount = reviewsCount > 0 ? reviewsCount : sampleReviews.length;
-    return isSearchMode ? searchResultCount : isArchive ? [] : baseCount;
+    return isSearchMode ? searchResultCount : isArchive ? 0 : reviewsCount;
   }, [searchResult, reviews, isSearchMode, reviewsCount]);
 
   const isLoading = useMemo(() => {
@@ -292,7 +216,7 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
       ? searchUserLoading
       : isArchive
       ? false
-      : isEmpty(reviews) && reviewsLoading;
+      : reviewsLoading;
   }, [searchUserLoading, reviewsLoading]);
 
   useEffect(() => scrollToTop(), [displayedReviews]);
@@ -306,79 +230,59 @@ const ReviewsPage = ({ isModal, handleUserSelect }) => {
       >
         <div className="flex flex-col justify-start items-center h-full w-full gap-y-5">
           {/* <Tabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} /> */}
-          {isLoading ? (
-            <CircleLoader blue />
-          ) : (
-            <>
-              {isSearchMode &&
-                `Search results - ${numberWithCommas(searchResultCount)}`}
-              <div className="flex flex-col flex-grow justify-start items-center w-full h-full">
-                {!isEmpty(displayedReviews) ? (
-                  <Table
-                    data={displayedReviews}
-                    columns={columns}
-                    onRowClicked={handleRowClick}
-                    pointerOnHover
-                    isLoading={reviewsLoading}
-                    pageCount={displayedReviewsCount / pageCount}
-                    onPageChange={(page) =>
-                      isSearchMode
-                        ? setCurrentPageSearch(page)
-                        : isArchive
-                        ? setCurrentPageArchived(page)
-                        : setCurrentPage(page)
-                    }
-                    currentPage={
-                      isSearchMode
-                        ? currentPageSearch
-                        : isArchive
-                        ? currentPageArchived
-                        : currentPage
-                    }
-                    tableClassName="txn-section-table"
-                    noPadding
-                    title="Reviews"
-                    itemCount={displayedReviewsCount}
-                    menuOptions={[
-                      {
-                        name: "Export Reviews",
-                        onClick: () => console.log("Export reviews"),
-                      },
-                      {
-                        name: "Filter Reviews",
-                        onClick: () => console.log("Filter reviews"),
-                      },
-                    ]}
-                  />
-                ) : (
-                  <>
-                    <div className="text-grey-text flex flex-col justify-center items-center space-y-3 h-full">
-                      <SearchIcon className="stroke-current" />
-                      {
-                        <span>
-                          {isSearchMode && isEmpty(searchResult)
-                            ? `There are no results for your search '${searchQuery}'`
-                            : isArchive
-                            ? "There are currently no archived reviews"
-                            : "There are currently no reviews"}
-                        </span>
-                      }
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
-          )}
+
+          {isSearchMode &&
+            `Search results - ${numberWithCommas(searchResultCount)}`}
+          <div className="flex flex-col flex-grow justify-start items-center w-full h-full">
+            <Table
+              data={displayedReviews}
+              columns={columns}
+              onRowClicked={handleRowClick}
+              pointerOnHover
+              isLoading={reviewsLoading}
+              pageCount={displayedReviewsCount / pageCount}
+              onPageChange={(page) =>
+                isSearchMode
+                  ? setCurrentPageSearch(page)
+                  : isArchive
+                  ? setCurrentPageArchived(page)
+                  : setCurrentPage(page)
+              }
+              currentPage={
+                isSearchMode
+                  ? currentPageSearch
+                  : isArchive
+                  ? currentPageArchived
+                  : currentPage
+              }
+              tableClassName="txn-section-table"
+              noPadding
+              title="Reviews"
+              itemCount={displayedReviewsCount}
+              menuOptions={[
+                {
+                  name: "Export Reviews",
+                  onClick: () => console.log("Export reviews"),
+                },
+                {
+                  name: "Filter Reviews",
+                  onClick: () => console.log("Filter reviews"),
+                },
+              ]}
+              emptyStateMessage={
+                isSearchMode && isEmpty(searchResult)
+                  ? `There are no results for your search '${searchQuery}'`
+                  : isArchive
+                  ? "There are currently no archived reviews"
+                  : "There are currently no reviews"
+              }
+            />
+          </div>
         </div>
       </div>
 
       <TransactionDetailsModal
-        active={currentTxnDetails?.modalType === "delete"}
-        details={currentTxnDetails}
-        toggler={() => setCurrentTxnDetails(null)}
-      />
-      <OrderDetailsModal
-        active={currentTxnDetails?.modalType === "details"}
+        active={!!currentTxnDetails}
         details={currentTxnDetails}
         toggler={() => setCurrentTxnDetails(null)}
       />

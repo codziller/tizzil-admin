@@ -47,13 +47,11 @@ import { uploadImageToCloud } from "utils/uploadImagesToCloud";
 import ImagePicker from "components/General/Input/ImagePicker";
 import { errorToast } from "components/General/Toast/Toast";
 
-const { PRODUCT_CATEGORY, PRODUCT_CATEGORY_OPTIONS } = PRODUCT_MODAL_TYPES;
+const { PRODUCT_CATEGORY_OPTIONS } = PRODUCT_MODAL_TYPES;
 const { BRAND } = MEDIA_MODAL_TYPES;
-const { Credit, Debit } = WALLET_ACTIONS;
-const REACT_APP_IMAGE_UPLOAD_URL = process.env.REACT_APP_IMAGE_UPLOAD_URL;
 
 const Form = ({ details, toggler }) => {
-  const { blog_id, warehouse_id } = useParams();
+  const { blog_id } = useParams();
 
   const {
     editBlogWallet,
@@ -152,24 +150,55 @@ const Form = ({ details, toggler }) => {
   const handleOnSubmit = async () => {
     try {
       setFormTwo({ ...formTwo, createLoading: true });
-      const imagesUrls = await Promise.all([
-        uploadImageToCloud(
-          isArray(form?.bannerImageUrl)
-            ? form?.bannerImageUrl?.[0]
-            : form?.bannerImageUrl,
-          true
-        ),
-        uploadImageToCloud(
-          isArray(form?.postImageUrl)
-            ? form?.postImageUrl?.[0]
-            : form?.postImageUrl
-        ),
-      ]);
+
+      // Check if banner and post images exist
+      if (!form?.bannerImageUrl || (isArray(form?.bannerImageUrl) && form?.bannerImageUrl?.length === 0)) {
+        errorToast("Missing Image", "Please select a banner image");
+        setFormTwo({ ...formTwo, createLoading: false });
+        return;
+      }
+
+      if (!form?.postImageUrl || (isArray(form?.postImageUrl) && form?.postImageUrl?.length === 0)) {
+        errorToast("Missing Image", "Please select a post image");
+        setFormTwo({ ...formTwo, createLoading: false });
+        return;
+      }
+
+      // Get the actual file objects
+      const bannerFile = isArray(form?.bannerImageUrl)
+        ? form?.bannerImageUrl?.[0]
+        : form?.bannerImageUrl;
+      const postFile = isArray(form?.postImageUrl)
+        ? form?.postImageUrl?.[0]
+        : form?.postImageUrl;
+
+      // Check if images are already URLs (in edit mode) or need to be uploaded
+      let bannerImageUrl = bannerFile;
+      let postImageUrl = postFile;
+
+      // Only upload if the file is not already a URL
+      if (typeof bannerFile !== "string") {
+        bannerImageUrl = await uploadImageToCloud(bannerFile, true);
+        if (!bannerImageUrl) {
+          errorToast("Upload Failed", "Failed to upload banner image");
+          setFormTwo({ ...formTwo, createLoading: false });
+          return;
+        }
+      }
+
+      if (typeof postFile !== "string") {
+        postImageUrl = await uploadImageToCloud(postFile);
+        if (!postImageUrl) {
+          errorToast("Upload Failed", "Failed to upload post image");
+          setFormTwo({ ...formTwo, createLoading: false });
+          return;
+        }
+      }
 
       const payload = {
         ...form,
-        bannerImageUrl: imagesUrls?.[0],
-        postImageUrl: imagesUrls?.[1],
+        bannerImageUrl,
+        postImageUrl,
         categoryIds: form?.categoryIds?.map((item) => item?.id || item),
         brandIds: form?.brandIds?.map((item) => item?.id || item),
         blogArticleId: blog_id,
@@ -180,12 +209,12 @@ const Form = ({ details, toggler }) => {
       if (blog_id) {
         editBlog({
           data: payload,
-          onSuccess: () => navigate(`/dashboard/blog/${warehouse_id}`),
+          onSuccess: () => navigate(`/dashboard/blog`),
         });
       } else {
         createBlog({
           data: payload,
-          onSuccess: () => navigate(`/dashboard/blog/${warehouse_id}`),
+          onSuccess: () => navigate(`/dashboard/blog`),
         });
       }
     } catch (error) {
@@ -202,11 +231,29 @@ const Form = ({ details, toggler }) => {
 
   const config = {
     heightMin: 300,
-    imageUploadURL: REACT_APP_IMAGE_UPLOAD_URL,
+    imageUploadRemoteUrls: false,
     events: {
-      "image.upload": (file, editor, response) => {
-        const url = file?.url;
-        editor.image.insert(url, false, null, editor.image.get(), response);
+      "image.beforeUpload": function (files) {
+        const editor = this;
+        if (files.length) {
+          // Upload the first file to Cloudinary
+          uploadImageToCloud(files[0])
+            .then((url) => {
+              if (url) {
+                // Insert the uploaded image into the editor
+                editor.image.insert(url, false, null, editor.image.get());
+              }
+            })
+            .catch((error) => {
+              console.error("Error uploading image to Cloudinary:", error);
+              errorToast(
+                "Image Upload Failed",
+                "Failed to upload image. Please try again."
+              );
+            });
+        }
+        // Return false to cancel the default upload
+        return false;
       },
     },
   };
@@ -215,7 +262,7 @@ const Form = ({ details, toggler }) => {
       <div className="gap-y-4 py-4 w-full h-full pb-4 ">
         {details?.link ? (
           <div className="mb-5">
-            <Link to={`/dashboard/blog/${warehouse_id}`} className="scale-90">
+            <Link to={`/dashboard/blog`} className="scale-90">
               <ArrowBack />
             </Link>
           </div>

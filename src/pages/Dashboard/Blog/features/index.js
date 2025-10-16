@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import _, { isEmpty } from "lodash";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import PropTypes from "prop-types";
@@ -10,17 +10,19 @@ import Table from "components/General/Table";
 import { pageCount } from "utils/appConstant";
 import { ReactComponent as SearchIcon } from "assets/icons/SearchIcon/searchIcon.svg";
 import { ReactComponent as Plus } from "assets/icons/add.svg";
+import { ReactComponent as SearchBlackIcon } from "assets/icons/search-black.svg";
+import { ReactComponent as FilterIcon } from "assets/icons/filter-icon.svg";
+import { ReactComponent as PlusIcon } from "assets/icons/plus-icon.svg";
+import { ReactComponent as DividerIcon } from "assets/icons/divider-icon.svg";
 import useWindowDimensions from "hooks/useWindowDimensions";
 import TransactionDetailsModal from "./DetailsModal";
 import dateConstants from "utils/dateConstants";
 import SearchBar from "components/General/Searchbar/SearchBar";
 import { numberWithCommas } from "utils/formatter";
-import Amount from "components/General/Numbers/Amount";
 import Tabs from "components/General/Tabs";
 import BlogsStore from "../store";
 import { Button } from "components/General/Button";
 import useTableFilter from "hooks/useTableFilter";
-import { flattenArrayToString } from "utils/functions";
 import { isTodayOrBeforeToday } from "utils/date";
 import moment from "moment";
 
@@ -44,9 +46,8 @@ export const dateFilters = [
     end_date: dateConstants?.today,
   },
 ];
-const BlogPage = ({ isModal, handleBlogSelect, isSelected }) => {
+const BlogPage = ({ isModal, handleBlogSelect }) => {
   const navigate = useNavigate();
-  const { warehouse_id } = useParams();
   const {
     searchBlogs,
     searchResult,
@@ -56,6 +57,10 @@ const BlogPage = ({ isModal, handleBlogSelect, isSelected }) => {
     blogs,
     loading,
     blogsCount,
+    getUnpublishedBlogs,
+    blogsUnpublished,
+    loadingUnpublished,
+    blogsUnpublishedCount,
     getArchivedBlogs,
     loadingArchived,
     blogsArchived,
@@ -69,7 +74,7 @@ const BlogPage = ({ isModal, handleBlogSelect, isSelected }) => {
     },
     {
       name: "unpublished_blogs",
-      label: `Unpublished Blogs (${blogsCount || "-"})`,
+      label: `Unpublished Blogs (${blogsUnpublishedCount || "-"})`,
     },
     {
       name: "archived_blogs",
@@ -79,22 +84,34 @@ const BlogPage = ({ isModal, handleBlogSelect, isSelected }) => {
   const { width, isMobile } = useWindowDimensions();
   const [currentTxnDetails, setCurrentTxnDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageUnpublished, setCurrentPageUnpublished] = useState(1);
   const [currentPageArchived, setCurrentPageArchived] = useState(1);
   const [currentPageSearch, setCurrentPageSearch] = useState(1);
   const [currentPageFilter, setCurrentPageFilter] = useState(1);
-  const [activeTab, setActiveTab] = useState(TABS[0]?.name);
+  const [activeTab, setActiveTab] = useState(0);
+  const [searchExpanded, setSearchExpanded] = useState(false);
 
   const defaultFilters = {
     brandIds: [],
     categoryIds: [],
   };
-  const isUnpublished = activeTab === TABS[1]?.name;
-  const isArchive = activeTab === TABS[2]?.name;
+  const isUnpublished = activeTab === 1;
+  const isArchive = activeTab === 2;
 
-  const currentActivePage = isArchive ? currentPageArchived : currentPage;
+  const currentActivePage = isArchive
+    ? currentPageArchived
+    : isUnpublished
+    ? currentPageUnpublished
+    : currentPage;
 
   const setCurrentActivePage = (page) => {
-    isArchive ? setCurrentPageArchived(page) : setCurrentPage(page);
+    if (isArchive) {
+      setCurrentPageArchived(page);
+    } else if (isUnpublished) {
+      setCurrentPageUnpublished(page);
+    } else {
+      setCurrentPage(page);
+    }
   };
   const {
     filterInput,
@@ -153,28 +170,39 @@ const BlogPage = ({ isModal, handleBlogSelect, isSelected }) => {
   };
 
   const handleGetData = () => {
-    isArchive
-      ? getArchivedBlogs({
-          data: {
-            page: currentPage,
-            isPublished: !isUnpublished,
-            brandIds: JSON.stringify([]),
-            categoryIds: JSON.stringify([]),
-          },
-        })
-      : getBlogs({
-          data: {
-            page: currentPage,
-            isPublished: !isUnpublished,
-            brandIds: JSON.stringify([]),
-            categoryIds: JSON.stringify([]),
-          },
-        });
+    if (isArchive) {
+      getArchivedBlogs({
+        data: {
+          page: currentPageArchived,
+          isPublished: !isUnpublished,
+          brandIds: JSON.stringify([]),
+          categoryIds: JSON.stringify([]),
+        },
+      });
+    } else if (isUnpublished) {
+      getUnpublishedBlogs({
+        data: {
+          page: currentPageUnpublished,
+          isPublished: false,
+          brandIds: JSON.stringify([]),
+          categoryIds: JSON.stringify([]),
+        },
+      });
+    } else {
+      getBlogs({
+        data: {
+          page: currentPage,
+          isPublished: true,
+          brandIds: JSON.stringify([]),
+          categoryIds: JSON.stringify([]),
+        },
+      });
+    }
   };
 
   useEffect(() => {
     handleGetData();
-  }, [currentPage, currentPageArchived, isArchive, isUnpublished]);
+  }, [currentPage, currentPageUnpublished, currentPageArchived, isArchive, isUnpublished]);
   useEffect(() => {
     if (isFilter) {
       handleOnFilter();
@@ -186,13 +214,37 @@ const BlogPage = ({ isModal, handleBlogSelect, isSelected }) => {
     }
   }, [currentPageFilter, currentPageSearch]);
 
+  const handleSearchToggle = () => {
+    if (searchExpanded) {
+      // If search is currently expanded, we're closing it, so clear the query
+      setSearchInput("");
+    }
+    setSearchExpanded(!searchExpanded);
+  };
+
+  const handleTabChange = (tab, index) => {
+    setActiveTab(index);
+  };
+
+  const getPublishedCount = () => {
+    return blogsCount || 0;
+  };
+
+  const getUnpublishedCount = () => {
+    return blogsUnpublishedCount || 0;
+  };
+
+  const getArchivedCount = () => {
+    return blogsArchivedCount || 0;
+  };
+
   const handleEdit = (row) => {
     if (isModal) {
       handleBlogSelect(row);
       return;
     }
 
-    navigate(`/dashboard/blog/edit/${warehouse_id}/${row?.id}`);
+    navigate(`/dashboard/blog/edit/${row?.id}`);
   };
   const columns = [
     {
@@ -296,10 +348,17 @@ const BlogPage = ({ isModal, handleBlogSelect, isSelected }) => {
   };
 
   const displayedBlogs = useMemo(() => {
-    return isSearchMode ? searchResult : isArchive ? blogsArchived : blogs;
+    return isSearchMode
+      ? searchResult
+      : isArchive
+      ? blogsArchived
+      : isUnpublished
+      ? blogsUnpublished
+      : blogs;
   }, [
     searchResult,
     blogs,
+    blogsUnpublished,
     blogsArchived,
     isSearchMode,
     isArchive,
@@ -311,16 +370,33 @@ const BlogPage = ({ isModal, handleBlogSelect, isSelected }) => {
       ? searchResultCount
       : isArchive
       ? blogsArchivedCount
+      : isUnpublished
+      ? blogsUnpublishedCount
       : blogsCount;
-  }, [searchResult, blogs, isSearchMode, blogsArchivedCount, isUnpublished]);
+  }, [
+    searchResult,
+    blogs,
+    isSearchMode,
+    blogsArchivedCount,
+    blogsUnpublishedCount,
+    isUnpublished,
+  ]);
 
   const isLoading = useMemo(() => {
     return isSearchMode
       ? searchBlogLoading
       : isArchive
       ? loadingArchived
+      : isUnpublished
+      ? loadingUnpublished
       : loading;
-  }, [searchBlogLoading, loadingArchived, loading, isUnpublished]);
+  }, [
+    searchBlogLoading,
+    loadingArchived,
+    loadingUnpublished,
+    loading,
+    isUnpublished,
+  ]);
 
   useEffect(() => scrollToTop(), [displayedBlogs, isLoading]);
 
@@ -342,89 +418,149 @@ const BlogPage = ({ isModal, handleBlogSelect, isSelected }) => {
           "md:pr-4": !isModal,
         })}
       >
-        <div className="flex flex-col justify-start items-center h-full w-full gap-y-5">
-          <div className="flex justify-between items-center w-full mb-3 gap-1">
-            <div
-              className={classNames({
-                "w-full": isModal,
-                "w-full sm:w-[45%] sm:min-w-[300px]": !isModal,
-              })}
-            >
-              <SearchBar
-                placeholder={"Search blogs by name, email, phone number"}
-                onChange={setSearchInput}
-                value={searchInput}
-                className="flex"
-              />
+        <div className="flex flex-col justify-start items-start h-full w-full gap-y-5 mt-5">
+          {/* Title Section */}
+          <div className="flex justify-between items-center w-full">
+            <div className="flex flex-col items-start gap-1">
+              <h1 className="text-[22px] font-bold text-[#111111]">Blogs</h1>
+              <p className="text-base text-[#666666]">
+                Manage your blog content
+              </p>
             </div>
 
-            <Button
-              text="Add Blog"
-              icon={<Plus className="stroke-current" />}
-              className="hidden md:block"
-              onClick={() => navigate(`/dashboard/blog/add/${warehouse_id}`)}
-            />
-          </div>
-
-          <Tabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} />
-          {isLoading ? (
-            <CircleLoader blue />
-          ) : (
-            <>
-              {isSearchMode &&
-                `Search results - ${numberWithCommas(searchResultCount)}`}
-              <div className="flex flex-col flex-grow justify-start items-center w-full h-full">
-                {!isEmpty(displayedBlogs) ? (
-                  <Table
-                    data={displayedBlogs}
-                    columns={
-                      isModal
-                        ? columns.slice(0, 2)
-                        : width >= 640
-                        ? columns
-                        : columns.slice(0, 2)
-                    }
-                    onRowClicked={(e) => {
-                      handleEdit(e);
-                    }}
-                    pointerOnHover
-                    pageCount={displayedBlogsCount / pageCount}
-                    onPageChange={(page) =>
-                      isSearchMode
-                        ? setCurrentPageSearch(page)
-                        : isArchive
-                        ? setCurrentPageArchived(page)
-                        : setCurrentPage(page)
-                    }
-                    currentPage={
-                      isSearchMode
-                        ? currentPageSearch
-                        : isArchive
-                        ? currentPageArchived
-                        : currentPage
-                    }
-                    tableClassName="txn-section-table"
-                    noPadding
-                  />
+            <div className="flex items-center gap-5">
+              {/* Search Section */}
+              <div className="flex items-center gap-2">
+                {searchExpanded ? (
+                  <div className="flex items-center gap-2 transition-all duration-300">
+                    <input
+                      type="text"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      placeholder="Search blogs..."
+                      className="px-3 py-2 border border-gray-300 rounded-md text-sm w-64"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleSearchToggle}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                      >
+                        <path
+                          d="M12 4L4 12M4 4l8 8"
+                          stroke="#111111"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 ) : (
                   <>
-                    <div className="text-grey-text flex flex-col justify-center items-center space-y-3 h-full">
-                      <SearchIcon className="stroke-current" />
-                      {
-                        <span>
-                          {isSearchMode && isEmpty(searchResult)
-                            ? `There are no results for your search '${searchQuery}'`
-                            : isArchive
-                            ? "There are currently no archived blogs"
-                            : "There are currently no blogs"}
-                        </span>
-                      }
-                    </div>
+                    {!isMobile && (
+                      <span className="text-[14px] text-[#111111]">Search</span>
+                    )}
+                    <button
+                      onClick={handleSearchToggle}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <SearchBlackIcon className="w-4 h-4" />
+                    </button>
                   </>
                 )}
               </div>
-            </>
-          )}
+
+              <DividerIcon />
+
+              {/* Add Blog Button */}
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => navigate(`/dashboard/blog/add`)}
+              >
+                {!isMobile && (
+                  <span className="text-[12px] text-[#111111] uppercase">
+                    Add a blog
+                  </span>
+                )}
+                <button
+                  onClick={() => navigate(`/dashboard/blog/add`)}
+                  className="w-7 h-7 bg-[#690007] rounded-full flex items-center justify-center hover:bg-[#5a0006] transition-colors"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Section */}
+
+          {isSearchMode &&
+            `Search results - ${numberWithCommas(searchResultCount)}`}
+          <div className="flex flex-col flex-grow justify-start items-center w-full h-full">
+            <Table
+              data={displayedBlogs}
+              columns={
+                isModal
+                  ? columns.slice(0, 2)
+                  : width >= 640
+                  ? columns
+                  : columns.slice(0, 2)
+              }
+              onRowClicked={(e) => {
+                handleEdit(e);
+              }}
+              pointerOnHover
+              isLoading={isLoading}
+              pageCount={displayedBlogsCount / pageCount}
+              onPageChange={(page) =>
+                isSearchMode
+                  ? setCurrentPageSearch(page)
+                  : isArchive
+                  ? setCurrentPageArchived(page)
+                  : isUnpublished
+                  ? setCurrentPageUnpublished(page)
+                  : setCurrentPage(page)
+              }
+              currentPage={
+                isSearchMode
+                  ? currentPageSearch
+                  : isArchive
+                  ? currentPageArchived
+                  : isUnpublished
+                  ? currentPageUnpublished
+                  : currentPage
+              }
+              tableClassName="txn-section-table"
+              noPadding
+              useEnhancedTable={true}
+              titleTabs={[
+                { title: "Published Blogs", itemCount: getPublishedCount() },
+                {
+                  title: "Unpublished Blogs",
+                  itemCount: getUnpublishedCount(),
+                },
+                { title: "Archived Blogs", itemCount: getArchivedCount() },
+              ]}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              title="Blogs"
+              itemCount={displayedBlogsCount}
+              emptyStateMessage={
+                isSearchMode && isEmpty(searchResult)
+                  ? `There are no results for your search '${searchQuery}'`
+                  : isArchive
+                  ? "There are currently no archived blogs"
+                  : isUnpublished
+                  ? "There are currently no unpublished blogs"
+                  : "There are currently no published blogs"
+              }
+            />
+          </div>
         </div>
       </div>
 

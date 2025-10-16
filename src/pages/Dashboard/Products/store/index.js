@@ -73,6 +73,9 @@ class ProductsStore {
   productReviewsCount = null;
   productReviewsLoading = false;
 
+  orderProductReviews = [];
+  orderProductReviewsLoading = false;
+
   productCostPrices = [];
   productCostPricesCount = null;
   productCostPricesLoading = false;
@@ -173,6 +176,7 @@ class ProductsStore {
       categoryIds,
       collectionIds,
       inStockOnly,
+      isActive,
       pageNumber,
       searchQuery,
       sortBy,
@@ -186,6 +190,7 @@ class ProductsStore {
         categoryIds,
         collectionIds,
         inStockOnly,
+        isActive,
         pageNumber,
         searchQuery,
         sortBy,
@@ -655,8 +660,9 @@ class ProductsStore {
     this.productReviewsLoading = true;
     try {
       const res = await apis.getProductReviews(data);
-      this.productReviews = res?.products_reviews_by_product_id;
-      this.productReviewsCount = res?.total;
+      const reviewData = res?.getProductReviews;
+      this.productReviews = reviewData?.results || [];
+      this.productReviewsCount = reviewData?.total || 0;
     } catch (error) {
       this.error = error;
     } finally {
@@ -695,13 +701,25 @@ class ProductsStore {
     this.reviewsLoading = true;
     try {
       let res = await apis.getReviews(data);
-      res = res?.products_reviews_all;
-      this.reviews = res?.results;
-      this.reviewsCount = res?.total;
+      res = res?.getAllProductReviews;
+      this.reviews = res?.results || [];
+      this.reviewsCount = res?.total || 0;
     } catch (error) {
       this.error = error;
     } finally {
       this.reviewsLoading = false;
+    }
+  };
+
+  getOrderProductReviews = async ({ data }) => {
+    this.orderProductReviewsLoading = true;
+    try {
+      let res = await apis.getOrderProductReviews(data);
+      this.orderProductReviews = res?.getOrderProductReviews || [];
+    } catch (error) {
+      this.error = error;
+    } finally {
+      this.orderProductReviewsLoading = false;
     }
   };
 

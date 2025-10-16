@@ -13,6 +13,7 @@ import { ReactComponent as WalletIcon } from "assets/icons/new-dashboard-icons/w
 import { ReactComponent as SettingsIcon } from "assets/icons/new-dashboard-icons/settings-icon.svg";
 import { ReactComponent as BrandsIcon } from "assets/icons/new-dashboard-icons/brands-icon.svg";
 import { ReactComponent as ReviewsIcon } from "assets/icons/new-dashboard-icons/reviews-icon.svg";
+import { ReactComponent as BlogIcon } from "assets/icons/new-dashboard-icons/blog-icon.svg";
 import { ReactComponent as DiscoverUsersIcon } from "assets/icons/new-dashboard-icons/discover-users-icon.svg";
 import { ReactComponent as PayoutIcon } from "assets/icons/new-dashboard-icons/payout-icon.svg";
 import { ReactComponent as UserManagementIcon } from "assets/icons/new-dashboard-icons/user-management-icon.svg";
@@ -107,6 +108,13 @@ const ModernSideNav = ({
       icon: ReviewsIcon,
       path: "/dashboard/reviews",
     },
+
+    {
+      id: "blog",
+      label: "Blog",
+      icon: BlogIcon,
+      path: "/dashboard/blog",
+    },
     {
       id: "settings",
       label: "Settings",
@@ -177,6 +185,12 @@ const ModernSideNav = ({
       label: "User Management",
       icon: UserManagementIcon,
       path: "/dashboard/users",
+    },
+    {
+      id: "blog",
+      label: "Blog",
+      icon: BlogIcon,
+      path: "/dashboard/blog",
     },
   ];
 

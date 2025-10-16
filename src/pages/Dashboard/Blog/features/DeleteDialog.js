@@ -9,10 +9,8 @@ import { ReactComponent as Delete } from "assets/icons/delete-span.svg";
 
 import Button from "components/General/Button/Button";
 import BlogStore from "../store";
-import cleanPayload from "utils/cleanPayload";
 
 const DeleteDialog = ({ details, toggler }) => {
-  const { warehouse_id } = useParams();
   const { deleteBlog, deleteBlogLoading, editBlog, editWareHouseLoading } =
     BlogStore;
   const navigate = useNavigate();
@@ -22,7 +20,7 @@ const DeleteDialog = ({ details, toggler }) => {
       data: payload,
       onSuccess: () => {
         toggler();
-        navigate(`/dashboard/blog/${warehouse_id}`);
+        navigate(`/dashboard/blog`);
       },
     });
   };

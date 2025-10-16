@@ -21,7 +21,7 @@ const AddBlog = () => {
         <Form
           details={{
             isAdd: true,
-            link: "/dashboard/blog/warehouse_id",
+            link: "/dashboard/blog",
           }}
         />
       )}
