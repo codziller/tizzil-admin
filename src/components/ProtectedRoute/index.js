@@ -11,6 +11,10 @@ export const ProtectedRoute = ({ path, notProtected, children, ...rest }) => {
   const userRole = user?.user?.role;
   const warehouse_id = user?.user?.warehouseStaff?.warehouseId;
   const brandId = user?.user?.brandId;
+  const hasBrandUser = user?.brandUser?.id;
+
+  // Check if brand setup is complete
+  const isBrandSetupComplete = brandId || hasBrandUser;
 
   const defaultUrl =
     userRole === BRAND_STAFF
@@ -43,6 +47,26 @@ export const ProtectedRoute = ({ path, notProtected, children, ...rest }) => {
         exact
       />
     );
+  }
+
+  // If authenticated but brand setup is not complete
+  if (isAuthenticated && !isBrandSetupComplete && !notProtected) {
+    // If trying to access any page other than account-setup, redirect to account-setup
+    if (path !== "/auth/account-setup") {
+      return <Navigate replace to="/auth/account-setup" />;
+    }
+  }
+
+  // If authenticated and brand setup is complete
+  if (isAuthenticated && isBrandSetupComplete) {
+    // If trying to access account-setup, redirect to dashboard
+    if (path === "/auth/account-setup") {
+      return (
+        <DashboardLayout>
+          <Navigate replace to={defaultUrl} />
+        </DashboardLayout>
+      );
+    }
   }
 
   return <div>{children}</div>;

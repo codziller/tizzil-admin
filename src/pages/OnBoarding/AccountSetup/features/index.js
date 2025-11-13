@@ -31,7 +31,49 @@ const AccountSetupContainer = () => {
     { step: 5, title: "Review & Submit", component: AccountSetupFive },
   ];
 
+  // Validate that all required fields are filled
+  const validateForm = () => {
+    const requiredFields = {
+      // Step 1: Brand Info
+      brandName: "Brand name",
+      addressLine1: "Address",
+      latitude: "Valid address location",
+      longitude: "Valid address location",
+      country: "Country",
+      state: "State",
+      city: "City",
+      postalCode: "Postal code",
+      productCategory: "Product category",
+      // Step 2: Business Details
+      brandDescription: "Brand description",
+      // Step 3: Product Setup
+      logo: "Logo",
+    };
+
+    const missingFields = [];
+
+    for (const [field, label] of Object.entries(requiredFields)) {
+      if (!formData[field]) {
+        missingFields.push(label);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      toast.error(
+        `Please fill in the following required fields: ${missingFields.join(", ")}`
+      );
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async () => {
+    // Validate form before submission
+    if (!validateForm()) {
+      setIsLoading(false);
+      return;
+    }
     try {
       setIsLoading(true);
 
@@ -60,6 +102,12 @@ const AccountSetupContainer = () => {
         state: formData.state || "",
         yearsInBusiness: formData.yearsInBusiness
           ? parseFloat(formData.yearsInBusiness)
+          : null,
+        latitude: formData.latitude
+          ? parseFloat(formData.latitude)
+          : null,
+        longitude: formData.longitude
+          ? parseFloat(formData.longitude)
           : null,
       });
 

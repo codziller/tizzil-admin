@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -6,10 +6,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Input from "components/General/Input/Input";
 import Select from "components/General/Input/Select";
 import CountryListDropdown from "components/General/Input/CountryListDropdown";
-import { getStates } from "country-state-picker";
-import { City } from "country-state-city";
+import { City, Country, State } from "country-state-city";
 import { observer } from "mobx-react-lite";
 import { isEmpty, lowerCase } from "lodash";
+import CustomGooglePlacesAutocomplete from "components/General/Input/CustomGooglePlacesAutocomplete";
 
 const AccountSetupOne = ({
   formData,
@@ -18,11 +18,17 @@ const AccountSetupOne = ({
   hideTitle = false,
 }) => {
   const [allowManualCity, setAllowManualCity] = useState(false);
+  const [addressValue, setAddressValue] = useState("");
+
   const schema = yup.object({
     brandName: yup.string().required("Please enter your brand name"),
     addressLine1: yup.string().required("Please enter your address"),
+    latitude: yup.number().required("Please select a valid address from the suggestions").typeError("Please select a valid address from the suggestions"),
+    longitude: yup.number().required("Please select a valid address from the suggestions").typeError("Please select a valid address from the suggestions"),
     country: yup.string().required("Please select your country"),
+    countryCode: yup.string(),
     state: yup.string().required("Please select your state"),
+    stateCode: yup.string(),
     city: yup.string().required("Please enter your city"),
     postalCode: yup.string().required("Please enter your postal code"),
     productCategory: yup.string().required("Please select a product category"),
@@ -31,8 +37,12 @@ const AccountSetupOne = ({
   const defaultValues = {
     brandName: formData?.brandName || "",
     addressLine1: formData?.addressLine1 || "",
+    latitude: formData?.latitude || null,
+    longitude: formData?.longitude || null,
     country: formData?.country || "",
+    countryCode: formData?.countryCode || "",
     state: formData?.state || "",
+    stateCode: formData?.stateCode || "",
     city: formData?.city || "",
     postalCode: formData?.postalCode || "",
     productCategory: formData?.productCategory || "",
@@ -59,11 +69,63 @@ const AccountSetupOne = ({
   const form = {
     brandName: watch("brandName"),
     addressLine1: watch("addressLine1"),
+    latitude: watch("latitude"),
+    longitude: watch("longitude"),
     country: watch("country"),
+    countryCode: watch("countryCode"),
     state: watch("state"),
+    stateCode: watch("stateCode"),
     city: watch("city"),
     postalCode: watch("postalCode"),
     productCategory: watch("productCategory"),
+  };
+
+  // Function to handle place selection from Google Places Autocomplete
+  const handlePlaceSelect = (placeData) => {
+    if (!placeData) {
+      // Clear all fields if place is cleared
+      setAddressValue("");
+      handleChange("addressLine1", "");
+      handleChange("latitude", null);
+      handleChange("longitude", null);
+      return;
+    }
+
+    // Update address value
+    setAddressValue(placeData.formattedAddress);
+
+    // Update form fields
+    handleChange("addressLine1", placeData.formattedAddress);
+    handleChange("latitude", placeData.lat);
+    handleChange("longitude", placeData.lng);
+
+    // Prefill country, state, city if available
+    if (placeData.countryCode) {
+      // Store both country code and country name
+      handleChange("countryCode", placeData.countryCode);
+      handleChange("country", placeData.country);
+
+      // Find the state ISO code from the state name
+      if (placeData.state) {
+        const statesList = State.getStatesOfCountry(placeData.countryCode);
+        const matchedState = statesList?.find(
+          (s) =>
+            s.name.toLowerCase() === placeData.state.toLowerCase() ||
+            s.isoCode.toLowerCase() === placeData.state.toLowerCase()
+        );
+        if (matchedState) {
+          // Store both state code and state name
+          handleChange("stateCode", matchedState.isoCode);
+          handleChange("state", matchedState.name);
+        }
+      }
+    }
+    if (placeData.city) {
+      handleChange("city", placeData.city);
+    }
+    if (placeData.postalCode) {
+      handleChange("postalCode", placeData.postalCode);
+    }
   };
 
   const handleNext = () => {
@@ -74,19 +136,23 @@ const AccountSetupOne = ({
 
   // Dynamic states based on selected country
   const states = useMemo(() => {
-    const selectedCountry = lowerCase(form?.country);
-    let statesList = getStates(selectedCountry);
-    if (!isEmpty(statesList)) {
-      statesList = statesList.map((item) => {
-        const itemName =
-          selectedCountry === "ng" ? item?.replace(" State", "") : item;
-        return { label: itemName, value: itemName };
-      });
-    } else {
-      statesList = [];
+    if (!form.countryCode) return [];
+
+    try {
+      const statesList = State.getStatesOfCountry(form.countryCode);
+
+      if (!isEmpty(statesList)) {
+        return statesList.map((state) => ({
+          label: state.name,
+          value: state.name,
+          isoCode: state.isoCode,
+        }));
+      }
+    } catch (error) {
+      console.log("Error getting states:", error);
     }
-    return statesList;
-  }, [form.country]);
+    return [];
+  }, [form.countryCode]);
 
   const stateValue = useMemo(
     () => states?.find((item) => item.value === form.state),
@@ -95,24 +161,63 @@ const AccountSetupOne = ({
 
   // Dynamic cities based on selected country and state
   const cities = useMemo(() => {
-    if (!form.country || !form.state) return [];
-    
+    if (!form.countryCode || !form.stateCode) return [];
+
+    // Lagos LGAs
+    const lagosLGAs = [
+      "Agege", "Ajeromi-Ifelodun", "Alimosho", "Amuwo-Odofin", "Apapa",
+      "Badagry", "Epe", "Eti-Osa", "Ibeju-Lekki", "Ifako-Ijaaye",
+      "Ikeja", "Ikorodu", "Kosofe", "Lagos Island", "Lagos Mainland",
+      "Mushin", "Ojo", "Oshodi-Isolo", "Shomolu", "Surulere"
+    ];
+
+    // Lagos LCDAs
+    const lagosLCDAs = [
+      "Agboyi-Ketu", "Bariga", "Egbe-Idimu", "Ejigbo", "Igando-Ikotun",
+      "Ikosi-Isheri", "Ipaja-Ayobo", "Isolo", "Itire-Ikate",
+      "Iru-Victoria Island", "Lekki", "Odi-Olowo-Ojuwoye", "Ojodu", "Ojokoro",
+      "Onigbongbo", "Orile-Agege", "Yaba", "Coker-Aguda", "Agbado-Oke-Odo",
+      "Ayobo-Ipaja", "Ikosi-Ejinrin", "Eredo", "Ibeju", "Olorunda",
+      "Badagry West", "Otto-Awori", "Oriade"
+    ];
+
     try {
-      // Get the state code for the API call
-      const stateCode = form.state;
-      const cityList = City.getCitiesOfState(form.country, stateCode);
-      
+      // Get cities using country code and state ISO code
+      const cityList = City.getCitiesOfState(form.countryCode, form.stateCode);
+      let citiesArray = [];
+
       if (!isEmpty(cityList)) {
-        return cityList.map((city) => ({
+        citiesArray = cityList.map((city) => ({
           label: city.name,
           value: city.name,
         }));
       }
+
+      // Add Lagos LGAs and LCDAs if country is Nigeria and state is Lagos
+      if (form.countryCode === "NG" && form.stateCode === "LA") {
+        // Combine LGAs and LCDAs
+        const lagosAreas = [...lagosLGAs, ...lagosLCDAs];
+
+        // Add Lagos areas to the list, avoiding duplicates
+        lagosAreas.forEach((area) => {
+          if (!citiesArray.find((city) => city.value === area)) {
+            citiesArray.push({
+              label: area,
+              value: area,
+            });
+          }
+        });
+
+        // Sort alphabetically
+        citiesArray.sort((a, b) => a.label.localeCompare(b.label));
+      }
+
+      return citiesArray;
     } catch (error) {
       console.log("Error getting cities:", error);
     }
     return [];
-  }, [form.country, form.state]);
+  }, [form.countryCode, form.stateCode]);
 
   const cityValue = useMemo(
     () => cities?.find((item) => item.value === form.city),
@@ -145,27 +250,37 @@ const AccountSetupOne = ({
           required
         />
 
-        <Input
-          label="Address"
-          value={form?.addressLine1}
-          onChangeFunc={(val) => handleChange("addressLine1", val)}
-          placeholder="Enter your address"
-          type="text"
-          formError={errors.addressLine1}
-          required
-        />
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-[#374151] mb-2">
+            Address <span className="text-red-500">*</span>
+          </label>
+          <CustomGooglePlacesAutocomplete
+            apiKey={process.env.REACT_APP_PUBLIC_GOOGLE_MAP_API_KEY}
+            value={addressValue}
+            onChange={(val) => setAddressValue(val)}
+            onPlaceSelect={handlePlaceSelect}
+            placeholder="Start typing your address..."
+            error={
+              errors.addressLine1?.message ||
+              errors.latitude?.message ||
+              errors.longitude?.message
+            }
+          />
+        </div>
 
         <CountryListDropdown
           label="Country"
           placeholder="Select your country"
-          onClick={(val) => {
-            handleChange("country", val);
+          onClick={(countryCode, countryName) => {
+            handleChange("countryCode", countryCode);
+            handleChange("country", countryName);
             // Reset state and city when country changes
             handleChange("state", "");
+            handleChange("stateCode", "");
             handleChange("city", "");
             setAllowManualCity(false);
           }}
-          value={form.country}
+          value={form.countryCode}
           formError={errors.country}
           required
           fullWidth
@@ -177,6 +292,7 @@ const AccountSetupOne = ({
           options={states}
           onChange={(val) => {
             handleChange("state", val?.value);
+            handleChange("stateCode", val?.isoCode);
             // Reset city when state changes
             handleChange("city", "");
             setAllowManualCity(false);
@@ -185,7 +301,7 @@ const AccountSetupOne = ({
           formError={errors.state}
           required
           fullWidth
-          isDisabled={!form.country || states.length === 0}
+          isDisabled={!form.countryCode || states.length === 0}
         />
 
         {!allowManualCity ? (
@@ -199,9 +315,9 @@ const AccountSetupOne = ({
               formError={errors.city}
               required
               fullWidth
-              isDisabled={!form.state || cities.length === 0}
+              isDisabled={!form.stateCode || cities.length === 0}
             />
-            {cities.length === 0 && form.state && (
+            {cities.length === 0 && form.stateCode && (
               <button
                 type="button"
                 onClick={() => setAllowManualCity(true)}

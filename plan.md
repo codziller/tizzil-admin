@@ -5,8 +5,20 @@
 ## 📋 Pending Features/Fixes
 
 <!-- Pending Tasks start -->
-
 <!-- Pending Tasks end -->
+
+## ⚠️ Configuration Required
+
+**Google Maps API Not Activated**: The Google Maps JavaScript API needs to be enabled in your Google Cloud Console for the API key `AIzaSyCSsZnlL7NWwOA_qrqaivC0c0I_3GSVH4g`.
+
+To fix this:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Select your project
+3. Navigate to "APIs & Services" > "Library"
+4. Search for "Maps JavaScript API" and enable it
+5. Search for "Places API" and enable it
+6. Make sure the API key in `.env` (REACT_APP_PUBLIC_GOOGLE_MAP_API_KEY) has access to these APIs
 
 ## 🔄 Ongoing Implementation
 

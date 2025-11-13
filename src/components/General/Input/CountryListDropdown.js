@@ -30,7 +30,7 @@ const CountryListDropdown = ({ onClick, value, ...rest }) => {
     <Select
       label={"Country"}
       placeholder="Select Country"
-      onChange={({ value }) => onClick(value)}
+      onChange={(option) => onClick(option.value, option.label)}
       options={countryOptions()}
       value={getValue()}
       formatOptionLabel={(option) => (
