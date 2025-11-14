@@ -12,9 +12,13 @@ export const ProtectedRoute = ({ path, notProtected, children, ...rest }) => {
   const warehouse_id = user?.user?.warehouseStaff?.warehouseId;
   const brandId = user?.user?.brandId;
   const hasBrandUser = user?.brandUser?.id;
+  const hasBrand = user?.brand?.id;
+
+  // Check if user is admin
+  const isAdmin = user?.user?.userRole?.name === "ADMIN";
 
   // Check if brand setup is complete
-  const isBrandSetupComplete = brandId || hasBrandUser;
+  const isBrandSetupComplete = brandId || hasBrandUser || hasBrand;
 
   const defaultUrl =
     userRole === BRAND_STAFF
@@ -49,7 +53,21 @@ export const ProtectedRoute = ({ path, notProtected, children, ...rest }) => {
     );
   }
 
-  // If authenticated but brand setup is not complete
+  // Admin users can access any page without brand setup
+  if (isAuthenticated && isAdmin && !notProtected) {
+    // If admin is trying to access account-setup, redirect to dashboard
+    if (path === "/auth/account-setup") {
+      return (
+        <DashboardLayout>
+          <Navigate replace to={defaultUrl} />
+        </DashboardLayout>
+      );
+    }
+    // Otherwise, allow access
+    return <div>{children}</div>;
+  }
+
+  // If authenticated but brand setup is not complete (for non-admin users)
   if (isAuthenticated && !isBrandSetupComplete && !notProtected) {
     // If trying to access any page other than account-setup, redirect to account-setup
     if (path !== "/auth/account-setup") {

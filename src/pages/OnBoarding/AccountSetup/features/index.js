@@ -11,12 +11,17 @@ import SetupSuccessModal from "components/General/Modal/SetupSuccessModal";
 import AuthStore from "../../SignUp/store";
 import useLogin from "hooks/useLogin";
 import cleanPayload from "utils/cleanPayload";
+import { uploadImagesToCloud } from "utils/uploadImagesToCloud";
+import { saveUserInfoToStorage } from "utils/storage";
+import useAuth from "hooks/useAuth";
 
 const AccountSetupContainer = () => {
   const navigate = useNavigate();
   const { logUserIn } = useLogin();
+  const { setAuthenticatedUser } = useAuth();
   const [formData, setFormData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const updateFormData = (newData) => {
@@ -60,7 +65,9 @@ const AccountSetupContainer = () => {
 
     if (missingFields.length > 0) {
       toast.error(
-        `Please fill in the following required fields: ${missingFields.join(", ")}`
+        `Please fill in the following required fields: ${missingFields.join(
+          ", "
+        )}`
       );
       return false;
     }
@@ -76,11 +83,54 @@ const AccountSetupContainer = () => {
     }
     try {
       setIsLoading(true);
+      setLoadingMessage("Preparing brand registration...");
+
+      // Upload images to cloud if they exist
+      let logoUrl = "";
+      let bannerImageUrl = "";
+
+      const imagesToUpload = [];
+      const imageTypes = [];
+
+      if (formData.logo) {
+        imagesToUpload.push(formData.logo);
+        imageTypes.push("logo");
+      }
+
+      if (formData.banner) {
+        imagesToUpload.push(formData.banner);
+        imageTypes.push("banner");
+      }
+
+      if (imagesToUpload.length > 0) {
+        setLoadingMessage("Uploading images...");
+        try {
+          const uploadedUrls = await uploadImagesToCloud(imagesToUpload);
+
+          // Map uploaded URLs to the correct fields
+          imageTypes.forEach((type, index) => {
+            if (type === "logo") {
+              logoUrl = uploadedUrls[index] || "";
+            } else if (type === "banner") {
+              bannerImageUrl = uploadedUrls[index] || "";
+            }
+          });
+        } catch (uploadError) {
+          console.error("Image upload error:", uploadError);
+          toast.error("Failed to upload images. Please try again.");
+          setIsLoading(false);
+          setLoadingMessage("");
+          return;
+        }
+      }
+
+      setLoadingMessage("Submitting brand registration...");
 
       // Prepare brand registration data according to BrandRegistrationCreateInput
       const brandRegistrationData = cleanPayload({
         addressLine1: formData.addressLine1 || formData.address || "",
         addressLine2: formData.addressLine2 || "",
+        bannerImageUrl: bannerImageUrl || "",
         brandDescription:
           formData.brandDescription || formData.description || "",
         brandName: formData.brandName || "",
@@ -95,75 +145,67 @@ const AccountSetupContainer = () => {
         estimatedMonthlyOrders: formData.estimatedMonthlyOrders
           ? parseFloat(formData.estimatedMonthlyOrders)
           : null,
+        instagramUrl: formData.instagramUrl || "",
+        logoUrl: logoUrl || "",
         postalCode: formData.postalCode || formData.zipCode || "",
+        productCategory: formData.productCategory || "",
         productImportMethod: formData.productImportMethod || null,
         shopifyAccessToken: formData.shopifyAccessToken || "",
         shopifyStoreUrl: formData.shopifyStoreUrl || "",
         state: formData.state || "",
+        tiktokUrl: formData.tiktokUrl || "",
+        websiteUrl: formData.websiteUrl || "",
         yearsInBusiness: formData.yearsInBusiness
           ? parseFloat(formData.yearsInBusiness)
           : null,
-        latitude: formData.latitude
-          ? parseFloat(formData.latitude)
-          : null,
-        longitude: formData.longitude
-          ? parseFloat(formData.longitude)
-          : null,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
       });
 
       // Call the brand registration API
-      const success = await AuthStore.authBrandRegistration(
-        brandRegistrationData,
-        (result) => {
-          if (result) {
-            setShowSuccessModal(true);
-            toast.success("Brand setup completed successfully!");
-          } else {
-            toast.error("Failed to submit brand registration");
-          }
-          setIsLoading(false);
+      await AuthStore.authBrandRegistration(brandRegistrationData, (result) => {
+        if (result) {
+          // Get current access and refresh tokens from localStorage
+          const accessToken = localStorage.getItem("access_token") || "";
+          const refreshToken = localStorage.getItem("refresh_token") || "";
+
+          // Prepare the response in the expected format
+          const updatedUserData = {
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            user: result.user,
+            brand: result.brand,
+            // Create a brandUser object from the brand owner data
+            brandUser: {
+              brandId: result.brand?.id,
+              createdAt: result.brand?.createdAt,
+              id: result.brand?.id, // Using brand ID as temporary brandUser ID
+              invitedAt: result.brand?.createdAt,
+              isActive: result.brand?.isActive,
+              joinedAt: result.brand?.createdAt,
+              role: "OWNER",
+              updatedAt: result.brand?.updatedAt,
+              userId: result.user?.id,
+            },
+          };
+
+          // Save user data to storage
+          saveUserInfoToStorage(updatedUserData);
+          setAuthenticatedUser(updatedUserData);
+
+          setShowSuccessModal(true);
+          toast.success("Brand setup completed successfully!");
+        } else {
+          toast.error("Failed to submit brand registration");
         }
-      );
-
-      // Demo mode - simulate successful brand registration and update user data
-      // setTimeout(() => {
-      //   // Create updated demo response with brand setup complete
-      //   const updatedDemoResponse = {
-      //     access_token: "demo_access_token_after_setup_12345",
-      //     refresh_token: "demo_refresh_token_after_setup_67890",
-      //     user: JSON.parse(localStorage.getItem("user") || "{}"),
-      //     brand: {
-      //       id: "demo-brand-id-456",
-      //       brandName: formData.brandName || "Demo Brand Store",
-      //       brandEmail: formData.brandEmail || "demo@tizzil.com",
-      //       logoUrl: "https://via.placeholder.com/100/690007/FFFFFF?text=DB",
-      //     },
-      //     brandUser: {
-      //       brandId: "demo-brand-id-456",
-      //       createdAt: new Date().toISOString(),
-      //       id: "demo-brand-user-789",
-      //       invitedAt: new Date().toISOString(),
-      //       isActive: true,
-      //       joinedAt: new Date().toISOString(),
-      //       role: "OWNER",
-      //       updatedAt: new Date().toISOString(),
-      //       userId:
-      //         JSON.parse(localStorage.getItem("user") || "{}")?.id ||
-      //         "demo-user-id-123",
-      //     },
-      //   };
-
-      //   // Update localStorage with complete brand setup
-      //   saveUserInfoToStorage(updatedDemoResponse);
-
-      //   setShowSuccessModal(true);
-      //   toast.success("Brand setup completed successfully! (Demo Mode)");
-      //   setIsLoading(false);
-      // }, 1500); // Simulate processing time
+        setIsLoading(false);
+        setLoadingMessage("");
+      });
     } catch (error) {
       console.error("Brand registration error:", error);
       toast.error("Failed to submit brand registration");
       setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -173,13 +215,13 @@ const AccountSetupContainer = () => {
   };
 
   const handleExploreFeed = () => {
-    //  navigate("/");
-    handleLogout();
+    navigate("/");
+    // handleLogout();
   };
 
   const handleBackToHome = () => {
-    //  navigate("/");
-    handleLogout();
+    navigate("/");
+    // handleLogout();
   };
 
   const renderStepIndicator = (stepNumber, isCompleted = false) => (
@@ -221,6 +263,7 @@ const AccountSetupContainer = () => {
                   formData={formData}
                   onSubmit={handleSubmit}
                   isLoading={isLoading}
+                  loadingMessage={loadingMessage}
                   hideTitle={true} // Hide the original title since we show it above
                 />
               ) : (

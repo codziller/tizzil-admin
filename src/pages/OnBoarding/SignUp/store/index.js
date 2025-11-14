@@ -170,10 +170,11 @@ class AuthSignUpStore {
 
       if (response?.authBrandRegistration?.status) {
         toast.success("Brand registration completed successfully!");
-        callback && callback(true);
+        // Return the full response with user and brand data
+        callback && callback(response.authBrandRegistration);
       } else {
         toast.error("Failed to complete brand registration");
-        callback && callback(false);
+        callback && callback(null);
       }
 
       runInAction(() => {
@@ -182,7 +183,7 @@ class AuthSignUpStore {
     } catch (error) {
       console.error("Brand registration error:", error);
       toast.error("Failed to complete brand registration");
-      callback && callback(false);
+      callback && callback(null);
       runInAction(() => {
         this.setLoading(false);
       });

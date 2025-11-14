@@ -7,6 +7,7 @@ const AccountSetupFive = ({
   formData,
   onSubmit,
   isLoading,
+  loadingMessage,
   onBack,
   hideTitle = false,
 }) => {
@@ -41,6 +42,12 @@ const AccountSetupFive = ({
             onClick={handleSubmit}
           />
 
+          {isLoading && loadingMessage && (
+            <p className="text-sm text-center text-gray-600 mt-2">
+              {loadingMessage}
+            </p>
+          )}
+
           <div className="mt-2 w-full">
             <Button text="BACK" fullWidth isOutline onClick={onBack} />
           </div>
@@ -71,6 +78,7 @@ AccountSetupFive.propTypes = {
   formData: PropTypes.object,
   onSubmit: PropTypes.func,
   isLoading: PropTypes.bool,
+  loadingMessage: PropTypes.string,
   onBack: PropTypes.func,
   hideTitle: PropTypes.bool,
 };
