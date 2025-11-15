@@ -18,6 +18,7 @@ const Modal = ({
   isSideModal,
   title,
   closeOnClickOutside,
+  noPaddingY,
   // New submodal props
   submodal = null,
   // Footer prop
@@ -209,7 +210,7 @@ const Modal = ({
             className={clsx(
               "flex-1 overflow-y-auto max-h-[85vh] min-h-[150px]",
               {
-                "py-6": !(isSideModal || title), // Only add padding if no header
+                "py-6": !(isSideModal || title) && !noPaddingY, // Only add padding if no header
                 "pt-6": isSideModal || title, // Add padding if there's a header
               }
             )}
@@ -251,6 +252,7 @@ Modal.propTypes = {
   maxHeight: PropTypes.string,
   modalClassName: PropTypes.string,
   isSideModal: PropTypes.bool,
+  noPaddingY: PropTypes.bool,
   closeOnClickOutside: PropTypes.bool,
   zIndex: PropTypes.number,
   footer: PropTypes.node,

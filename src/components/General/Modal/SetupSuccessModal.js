@@ -16,10 +16,11 @@ const SetupSuccessModal = ({
       <Modal
         active={isOpen}
         toggler={onClose}
-        size="md"
+        size="xl"
         hasToggler={false}
         closeOnClickOutside={false}
         noPadding={true}
+        noPaddingY
       >
         <div className="flex flex-col items-start z-[12]">
           {/* Success Image - No padding affects this */}

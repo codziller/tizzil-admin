@@ -1,41 +1,108 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Input from "components/General/Input/Input";
 import Select from "components/General/Input/Select";
 import Textarea from "components/General/Textarea/Textarea";
 import Button from "components/General/Button/Button";
+import IconTypeInput from "components/General/Input/IconTypeInput";
+import ImageCropper from "components/General/Input/ImageCropper";
 import { ReactComponent as UploadIcon } from "assets/icons/upload-icon.svg";
+import { ReactComponent as GalleryIcon } from "assets/icons/gallery-icon.svg";
+import { MdClose } from "react-icons/md";
+import { getUserInfoFromStorage } from "utils/storage";
+
+const countryOptions = [
+  { value: "nigeria", label: "Nigeria" },
+  { value: "ghana", label: "Ghana" },
+  { value: "kenya", label: "Kenya" },
+  { value: "south_africa", label: "South Africa" },
+  { value: "usa", label: "United States" },
+  { value: "uk", label: "United Kingdom" },
+  { value: "canada", label: "Canada" },
+];
+
+const categoryOptions = [
+  { value: "fashion-apparel", label: "Fashion & Apparel" },
+  { value: "electronics", label: "Electronics" },
+  { value: "home-garden", label: "Home & Garden" },
+  { value: "beauty-personal-care", label: "Beauty & Personal Care" },
+  { value: "sports-outdoors", label: "Sports & Outdoors" },
+  { value: "books", label: "Books" },
+  { value: "toys", label: "Toys & Games" },
+  { value: "food", label: "Food & Beverages" },
+];
 
 const ProfileSettings = () => {
+  const logoInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
+
   const [formData, setFormData] = useState({
-    brandName: "Tizzil Sample Brand",
-    email: "sample@tizzil.com",
-    country: { value: "nigeria", label: "Nigeria" },
-    productCategory: { value: "fashion", label: "Fashion" },
-    brandDescription:
-      "This is a sample brand description for demonstration purposes.",
-    logoUrl: "https://via.placeholder.com/100",
+    brandName: "",
+    email: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: null,
+    productCategory: null,
+    brandDescription: "",
+    logoUrl: "",
+    bannerImageUrl: "",
+    instagramUrl: "",
+    tiktokUrl: "",
+    websiteUrl: "",
   });
 
-  const countryOptions = [
-    { value: "nigeria", label: "Nigeria" },
-    { value: "ghana", label: "Ghana" },
-    { value: "kenya", label: "Kenya" },
-    { value: "south_africa", label: "South Africa" },
-    { value: "usa", label: "United States" },
-    { value: "uk", label: "United Kingdom" },
-    { value: "canada", label: "Canada" },
-  ];
+  const [showCropper, setShowCropper] = useState(false);
+  const [currentImage, setCurrentImage] = useState(null);
+  const [currentImageType, setCurrentImageType] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+  const [bannerFile, setBannerFile] = useState(null);
 
-  const categoryOptions = [
-    { value: "fashion", label: "Fashion" },
-    { value: "beauty", label: "Beauty" },
-    { value: "electronics", label: "Electronics" },
-    { value: "home", label: "Home & Garden" },
-    { value: "sports", label: "Sports & Outdoors" },
-    { value: "books", label: "Books" },
-    { value: "toys", label: "Toys & Games" },
-    { value: "food", label: "Food & Beverages" },
-  ];
+  useEffect(() => {
+    // Load brand data from storage
+    const userData = getUserInfoFromStorage();
+    if (userData) {
+      const { brand, user } = userData;
+
+      // Find matching country option
+      const countryOption = brand?.country
+        ? countryOptions.find(
+            (opt) => opt.label.toLowerCase() === brand.country.toLowerCase()
+          ) ||
+          countryOptions.find(
+            (opt) => opt.value.toLowerCase() === brand.country.toLowerCase()
+          )
+        : null;
+
+      // Find matching category option
+      const categoryOption = brand?.productCategory
+        ? categoryOptions.find((opt) => opt.value === brand.productCategory) ||
+          categoryOptions.find(
+            (opt) =>
+              opt.label.toLowerCase() === brand.productCategory.toLowerCase()
+          )
+        : null;
+
+      setFormData({
+        brandName: brand?.brandName || "",
+        email: user?.email || "",
+        addressLine1: brand?.addressLine1 || "",
+        addressLine2: brand?.addressLine2 || "",
+        city: brand?.city || "",
+        state: brand?.state || "",
+        postalCode: brand?.postalCode || "",
+        country: countryOption,
+        productCategory: categoryOption,
+        brandDescription: brand?.description || "",
+        logoUrl: brand?.logoUrl || "",
+        bannerImageUrl: brand?.bannerImageUrl || "",
+        instagramUrl: brand?.instagramUrl || "",
+        tiktokUrl: brand?.tiktokUrl || "",
+        websiteUrl: brand?.websiteUrl || "",
+      });
+    }
+  }, []);
 
   const handleInputChange = (value, meta) => {
     setFormData((prev) => ({
@@ -51,26 +118,72 @@ const ProfileSettings = () => {
     }));
   };
 
+  const handleFileSelect = (type, event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCurrentImage(reader.result);
+        setCurrentImageType(type);
+        setShowCropper(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropComplete = (croppedFile) => {
+    if (currentImageType === "logo") {
+      setLogoFile(croppedFile);
+      setFormData((prev) => ({
+        ...prev,
+        logoUrl: URL.createObjectURL(croppedFile),
+      }));
+    } else if (currentImageType === "banner") {
+      setBannerFile(croppedFile);
+      setFormData((prev) => ({
+        ...prev,
+        bannerImageUrl: URL.createObjectURL(croppedFile),
+      }));
+    }
+    setShowCropper(false);
+    setCurrentImage(null);
+    setCurrentImageType(null);
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setCurrentImage(null);
+    setCurrentImageType(null);
+    // Reset file input
+    if (currentImageType === "logo" && logoInputRef.current) {
+      logoInputRef.current.value = "";
+    } else if (currentImageType === "banner" && bannerInputRef.current) {
+      bannerInputRef.current.value = "";
+    }
+  };
+
+  const handleImageRemove = (type) => {
+    if (type === "logo") {
+      setLogoFile(null);
+      setFormData((prev) => ({ ...prev, logoUrl: "" }));
+      if (logoInputRef.current) logoInputRef.current.value = "";
+    } else if (type === "banner") {
+      setBannerFile(null);
+      setFormData((prev) => ({ ...prev, bannerImageUrl: "" }));
+      if (bannerInputRef.current) bannerInputRef.current.value = "";
+    }
+  };
+
   const handleSave = () => {
     console.log("Saving profile data:", formData);
-    // Handle save logic here
+    console.log("Logo file:", logoFile);
+    console.log("Banner file:", bannerFile);
+    // Handle save logic here - upload images and update brand data
   };
 
   const handleCancel = () => {
     console.log("Cancelling profile changes");
-    // Handle cancel logic here
-  };
-
-  const handleImageUpload = () => {
-    console.log("Upload image");
-    // Handle image upload logic here
-  };
-
-  const handleImageRemove = () => {
-    setFormData((prev) => ({
-      ...prev,
-      logoUrl: "",
-    }));
+    // Reload data from storage or navigate away
   };
 
   return (
@@ -126,6 +239,13 @@ const ProfileSettings = () => {
               Business logo
             </div>
             <div className="flex flex-row gap-4">
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png"
+                onChange={(e) => handleFileSelect("logo", e)}
+                className="hidden"
+              />
               <Button
                 text="Upload image"
                 blackBg
@@ -135,7 +255,7 @@ const ProfileSettings = () => {
                     style={{ filter: "invert(1)" }}
                   />
                 }
-                onClick={handleImageUpload}
+                onClick={() => logoInputRef.current?.click()}
                 textClass="text-sm font-medium"
                 className="px-4 py-2"
               />
@@ -145,13 +265,70 @@ const ProfileSettings = () => {
                 whiteBg
                 textColor="050505"
                 borderColor="DDDDDD"
-                onClick={handleImageRemove}
+                onClick={() => handleImageRemove("logo")}
                 textClass="text-sm font-medium"
                 className="px-4 py-2"
                 innerClassName="!bg-[#DDDDDD] !text-[#050505] hover:!bg-[#CCCCCC]"
               />
             </div>
           </div>
+        </div>
+
+        {/* Banner Section */}
+        <div className="mb-8">
+          <label className="text-sm font-medium text-[#374151] mb-2 block">
+            Banner Image (Optional)
+          </label>
+          <div className="flex gap-3 items-start">
+            {/* Upload box */}
+            <div
+              className="flex-shrink-0 w-12 h-11 border border-solid cursor-pointer transition-all duration-300 ease-in-out flex items-center justify-center bg-transparent border-[#BBBBBB] hover:border-[#111111] hover:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)] hover:bg-white"
+              onClick={() => bannerInputRef.current?.click()}
+            >
+              <GalleryIcon />
+              <input
+                ref={bannerInputRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png"
+                onChange={(e) => handleFileSelect("banner", e)}
+                className="hidden"
+              />
+            </div>
+
+            {/* File input field */}
+            <div className="flex-1">
+              <input
+                type="text"
+                value={formData.bannerImageUrl ? "Banner image selected" : ""}
+                placeholder="Click the gallery icon to select a banner image"
+                readOnly
+                className={`relative h-11 w-full flex items-center font-normal outline-none transition-all duration-300 ease-in-out text-base leading-relaxed border border-solid px-3 cursor-pointer ${
+                  formData.bannerImageUrl
+                    ? "bg-white border-[#111111] shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)]"
+                    : "bg-transparent border-[#BBBBBB] hover:border-[#111111] hover:shadow-[0px_0px_0px_2.5px_rgba(8,8,8,0.1)] hover:bg-white"
+                }`}
+                onClick={() => bannerInputRef.current?.click()}
+              />
+            </div>
+          </div>
+
+          {/* Banner preview */}
+          {formData.bannerImageUrl && (
+            <div className="mt-3 relative inline-block">
+              <img
+                src={formData.bannerImageUrl}
+                alt="banner preview"
+                className="w-48 h-27 object-cover rounded-lg border border-gray-300"
+              />
+              <button
+                type="button"
+                onClick={() => handleImageRemove("banner")}
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+              >
+                <MdClose size={12} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Form Fields */}
@@ -177,6 +354,26 @@ const ProfileSettings = () => {
             fullWidth
           />
 
+          {/* Address Line 1 */}
+          <Input
+            label="Address Line 1"
+            name="addressLine1"
+            value={formData.addressLine1}
+            onChangeFunc={handleInputChange}
+            placeholder="Enter street address"
+            fullWidth
+          />
+
+          {/* Address Line 2 */}
+          <Input
+            label="Address Line 2 (Optional)"
+            name="addressLine2"
+            value={formData.addressLine2}
+            onChangeFunc={handleInputChange}
+            placeholder="Apartment, suite, etc."
+            fullWidth
+          />
+
           {/* Country Selection */}
           <Select
             label="Country"
@@ -185,6 +382,36 @@ const ProfileSettings = () => {
             value={formData.country}
             onChange={handleSelectChange}
             placeholder="Select country"
+            fullWidth
+          />
+
+          {/* City */}
+          <Input
+            label="City"
+            name="city"
+            value={formData.city}
+            onChangeFunc={handleInputChange}
+            placeholder="Enter city"
+            fullWidth
+          />
+
+          {/* State */}
+          <Input
+            label="State/Province"
+            name="state"
+            value={formData.state}
+            onChangeFunc={handleInputChange}
+            placeholder="Enter state or province"
+            fullWidth
+          />
+
+          {/* Postal Code */}
+          <Input
+            label="Postal Code"
+            name="postalCode"
+            value={formData.postalCode}
+            onChangeFunc={handleInputChange}
+            placeholder="Enter postal code"
             fullWidth
           />
 
@@ -208,6 +435,40 @@ const ProfileSettings = () => {
             placeholder="Describe your brand"
             rows={4}
           />
+
+          {/* Social Media Links */}
+          <div className="space-y-6">
+            <h3 className="text-base font-semibold text-[#050505] mt-6 mb-4">
+              Social Media Links (Optional)
+            </h3>
+
+            <IconTypeInput
+              label="Instagram"
+              type="instagram"
+              value={formData.instagramUrl}
+              onChange={(val) =>
+                setFormData((prev) => ({ ...prev, instagramUrl: val }))
+              }
+            />
+
+            <IconTypeInput
+              label="TikTok"
+              type="tiktok"
+              value={formData.tiktokUrl}
+              onChange={(val) =>
+                setFormData((prev) => ({ ...prev, tiktokUrl: val }))
+              }
+            />
+
+            <IconTypeInput
+              label="Website"
+              type="website"
+              value={formData.websiteUrl}
+              onChange={(val) =>
+                setFormData((prev) => ({ ...prev, websiteUrl: val }))
+              }
+            />
+          </div>
         </div>
 
         {/* Action Buttons */}
@@ -227,6 +488,19 @@ const ProfileSettings = () => {
           />
         </div>
       </div>
+
+      {/* Image Cropper Modal */}
+      {showCropper && currentImage && (
+        <ImageCropper
+          imageSrc={currentImage}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          aspect={currentImageType === "logo" ? 1 : 16 / 9}
+          cropShape="rect"
+          targetWidth={currentImageType === "logo" ? 96 : 1200}
+          targetHeight={currentImageType === "logo" ? 96 : 675}
+        />
+      )}
     </div>
   );
 };

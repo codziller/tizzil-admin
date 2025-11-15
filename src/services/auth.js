@@ -113,10 +113,8 @@ const authSignupQuery = gql`
       }
       brandUser {
         brandId
-        createdAt
         id
         invitedAt
-        isActive
         joinedAt
         role
         updatedAt
@@ -147,10 +145,8 @@ const brandAdminLoginUserQuery = gql`
       }
       brandUser {
         brandId
-        createdAt
         id
         invitedAt
-        isActive
         joinedAt
         role
         updatedAt
@@ -177,83 +173,32 @@ const authBrandRegistrationQuery = gql`
     authBrandRegistration(registrationData: $registrationData) {
       status
       user {
-        balance
-        baniCustomerRef
-        brandId
-        createdAt
-        dob
-        email
-        emailConfirmedTime
-        firstName
-        gender
-        guestAddress
         id
-        isAffiliateMarketer
-        isDeleted
-        isEmailConfirmed
+        firstName
         lastName
-        name
-        phoneNumber
-        referralCode
-        updatedAt
-        username
+        email
+        brandId
         userRole {
           name
           id
         }
       }
       brand {
+        id
+        brandName
+        logoUrl
+        bannerImageUrl
+        country
+        state
+        city
+        postalCode
         addressLine1
         addressLine2
-        allowNegativeInventory
-        bannerImageUrl
-        brandName
-        businessRegistrationDocumentUrl
-        businessRegistrationNumber
-        city
-        country
-        countryShortCode
-        createdAt
-        description
-        domesticDeliveryFee
-        estimatedMonthlyOrders
-        hasReturnPolicy
-        id
-        imageUrls
-        instagramUrl
-        internationalDeliveryFees
-        isActive
-        isPublic
-        latitude
-        logoUrl
-        longitude
-        lowStockAlertThreshold
-        owner {
-          id
-          firstName
-          lastName
-          email
-        }
-        postalCode
         productCategory
-        productImportMethod
-        rejectionReason
-        returnPolicyDetails
-        reviewedAt
-        reviewedBy
-        shopifyAccessToken
-        shopifyStoreUrl
-        shortText
-        shouldHandleDomesticDelivery
-        state
-        stateShortCode
-        status
-        submittedAt
+        description
+        instagramUrl
         tiktokUrl
-        updatedAt
-        userId
         websiteUrl
-        yearsInBusiness
       }
     }
   }

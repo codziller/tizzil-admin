@@ -181,7 +181,7 @@ const AccountSetupContainer = () => {
               createdAt: result.brand?.createdAt,
               id: result.brand?.id, // Using brand ID as temporary brandUser ID
               invitedAt: result.brand?.createdAt,
-              isActive: result.brand?.isActive,
+              isActive: true, // Default to active for newly created brand
               joinedAt: result.brand?.createdAt,
               role: "OWNER",
               updatedAt: result.brand?.updatedAt,
